@@ -2,7 +2,7 @@
  * Created by Maxime Baconnais on 02/09/2017.
  */
 
-let getSession = (req) => {
+const getSession = (req) => {
 	
 	let sessionId = false;
 	if (typeof(req.params.sessionId) !== 'undefined')
@@ -13,3 +13,5 @@ let getSession = (req) => {
 		sessionId = req.query['X-Plex-Session-Identifier'];
 	return (sessionId);
 }
+
+module.exports = getSession;
