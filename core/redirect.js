@@ -5,16 +5,11 @@
 const debug = require('debug')('redirect');
 
 const chooseServer = require('./chooseServer');
+const getSession = require('../utils/getSession');
 
 let redirect = (req, res) => {
 	
-	let sessionId = false;
-	if (typeof(req.params.sessionId) !== 'undefined')
-		sessionId = req.params.sessionId;
-	else if (typeof(req.query.session) !== 'undefined')
-		sessionId = req.query.session;
-	else if (typeof(req.query['X-Plex-Session-Identifier']) !== 'undefined')
-		sessionId = req.query['X-Plex-Session-Identifier'];
+	const sessionId = getSession(req);
 	
     debug('SESSIONID ' + sessionId);
 	console.log('SESSIONID ' + sessionId + "\n");
