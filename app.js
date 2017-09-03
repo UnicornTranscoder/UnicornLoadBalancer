@@ -2,7 +2,6 @@
 const http = require('http');
 const express = require('express');
 const cors = require('cors');
-const ws = require('ws');
 
 // Customs requires
 const routes = require('./routes/routes');

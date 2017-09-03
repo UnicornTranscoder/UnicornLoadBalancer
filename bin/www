@@ -17,9 +17,9 @@ function onError(error) {
         throw error
     }
 
-    var bind = typeof config.general.port === 'string'
-        ? 'Pipe ' + config.general.port
-        : 'Port ' + config.general.port
+    var bind = typeof config.loadBalancer.port === 'string'
+        ? 'Pipe ' + config.loadBalancer.port
+        : 'Port ' + config.loadBalancer.port
 
     // handle specific listen errors with friendly messages
     switch (error.code) {
