@@ -8,7 +8,7 @@ let http = require('http')
 app.set(config.port)
 let server = http.createServer(app)
 
-server.listen(config.general.port)
+server.listen(config.loadBalancer.port)
 server.on('error', onError)
 server.on('listening', onListening)
 

@@ -5,10 +5,11 @@
 const httpProxy = require('http-proxy');
 const config = require('../config');
 
-let proxy = httpProxy.createProxyServer({
-    target: config.general.plex_url
+let proxy = new httpProxy.createProxyServer({
+	target: {
+		host: config.plex.host,
+		port: config.plex.port
+	}
 });
 
-module.exports = function (req, res) {
-    proxy.web(req, res)
-};
+module.exports = proxy;

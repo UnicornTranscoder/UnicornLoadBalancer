@@ -9,6 +9,10 @@ const router = express.Router();
 const proxy = require('../core/proxy');
 const redirect = require('../core/redirect');
 
+const proxyPlex = (req, res) => {
+    proxy.web(req, res)
+};
+
 //Dash routes
 router.get('/video/:/transcode/universal/start.mpd', redirect);
 router.get('/video/:/transcode/universal/dash/:sessionId/:streamId/initial.mp4', redirect);
@@ -38,6 +42,6 @@ router.post('/video/:/transcode/session/:sessionId/manifest', bodyParser.text({ 
 router.post('/video/:/transcode/session/:sessionId/*/manifest', bodyParser.text({ type: () => {return true} }), redirect);
 
 // Reverse all others to plex
-router.all('*', bodyParser.raw({ type: () => {return true} }), proxy);
+router.all('*', bodyParser.raw({ type: () => {return true} }), proxyPlex);
 
 module.exports = router;

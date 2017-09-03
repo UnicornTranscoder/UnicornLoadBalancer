@@ -6,16 +6,17 @@ const debug = require('debug')('redirect');
 
 const chooseServer = require('./chooseServer');
 const getSession = require('../utils/getSession');
+const getIp = require('../utils/getIp');
 
 let redirect = (req, res) => {
 
-res.header('Access-Control-Allow-Origin', '*');
 	const sessionId = getSession(req);
-	const ip = req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+	const ip = getIp(req);
+	const serverUrl = chooseServer(sessionId, ip);
 	
     debug('SESSIONID ' + sessionId);
-	console.log('SESSIONID ' + sessionId + "\n");
-	const serverUrl = chooseServer(sessionId, ip);
+
+	
 	res.writeHead(302, {
 		'Location': serverUrl + req.url
 	});
