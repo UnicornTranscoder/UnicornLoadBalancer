@@ -10,6 +10,8 @@ const proxy = require('../core/proxy');
 const redirect = require('../core/redirect');
 
 const proxyPlex = (req, res) => {
+	
+	console.log(req);
     proxy.web(req, res)
 };
 
@@ -35,11 +37,11 @@ router.get('/:/timeline', redirect);
 // Download files
 router.get('/library/parts/:id1/:id2/file.*', redirect);
 
-//Transcoder progression
-router.post('/video/:/transcode/session/:sessionId/seglist', bodyParser.text({ type: () => {return true} }), redirect);
-router.post('/video/:/transcode/session/:sessionId/*/seglist', bodyParser.text({ type: () => {return true} }), redirect);
-router.post('/video/:/transcode/session/:sessionId/manifest', bodyParser.text({ type: () => {return true} }), redirect);
-router.post('/video/:/transcode/session/:sessionId/*/manifest', bodyParser.text({ type: () => {return true} }), redirect);
+// Direct plex call
+router.all('/direct/plex/*', (req, res) => {
+	req.url = req.url.slice('/direct/plex'.length);
+    return (proxy.web(req, res));
+});
 
 // Reverse all others to plex
 router.all('*', bodyParser.raw({ type: () => {return true} }), proxyPlex);
