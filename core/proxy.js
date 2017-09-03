@@ -9,8 +9,8 @@ let proxy = httpProxy.createProxyServer({
 	target: {
 		host: config.plex.host,
 		port: config.plex.port
-	},
-	ws: true
+	}
+	//ws: true
 });
 
 module.exports = proxy;
