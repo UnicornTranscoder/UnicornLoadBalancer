@@ -1,4 +1,5 @@
 // Requires
+const http = require('http');
 const express = require('express');
 const cors = require('cors');
 const ws = require('ws');
@@ -10,6 +11,7 @@ const config = require('./config');
 
 // Init Express App
 const app = express();
+const server = http.createServer(app);
 
 // Allow CORS
 app.use(cors());
@@ -18,17 +20,9 @@ app.use(cors());
 app.use('/direct/sessions', express.static(config.plex.transcoderPath));
 
 // Websockets
-app.use('/', (req, res, next) => {
-    if (!req.headers || req.headers.upgrade === undefined || req.headers.upgrade.toLowerCase() !== 'websocket')
-		return (next());
-    wss.handleUpgrade(req, req.socket, undefined, (socket) => {
-		proxy.ws(req, socket, head);
-    })
-})
-/*
-app.on('upgrade', (req, socket, head) => {
-	proxy.ws(req, socket, head);
-});*/
+server.on('upgrade', (req, socket, head) => {
+  proxy.ws(req, socket, head);
+});
 
 // Default routes
 app.use('/', routes);
