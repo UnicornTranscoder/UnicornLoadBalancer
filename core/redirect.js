@@ -8,7 +8,8 @@ const chooseServer = require('./chooseServer');
 const getSession = require('../utils/getSession');
 
 let redirect = (req, res) => {
-	
+
+res.header('Access-Control-Allow-Origin', '*');
 	const sessionId = getSession(req);
 	
     debug('SESSIONID ' + sessionId);
