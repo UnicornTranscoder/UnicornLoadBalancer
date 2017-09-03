@@ -12,4 +12,9 @@ let proxy = new httpProxy.createProxyServer({
 	}
 });
 
+proxy.on('upgrade', (req, socket, head) => {
+	proxy.ws(req, socket, head);
+});
+
+
 module.exports = proxy;
