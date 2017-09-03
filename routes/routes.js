@@ -10,8 +10,6 @@ const proxy = require('../core/proxy');
 const redirect = require('../core/redirect');
 
 const proxyPlex = (req, res) => {
-	
-	console.log(req);
     proxy.web(req, res)
 };
 
