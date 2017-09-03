@@ -14,7 +14,7 @@ res.header('Access-Control-Allow-Origin', '*');
 	
     debug('SESSIONID ' + sessionId);
 	console.log('SESSIONID ' + sessionId + "\n");
-	const serverUrl = chooseServer(sessionId);
+	const serverUrl = chooseServer(sessionId, req.connection.remoteAddress);
 	res.writeHead(302, {
 		'Location': serverUrl + req.url
 	});
