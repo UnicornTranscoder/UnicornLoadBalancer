@@ -20,9 +20,9 @@ app.use(cors());
 app.use('/direct/sessions', express.static(config.plex.transcoderPath));
 
 // Websockets
-/*server.on('upgrade', (req, socket, head) => {
+server.on('upgrade', (req, socket, head) => {
   proxy.ws(req, socket, head);
-});*/
+});
 
 // Default routes
 app.use('/', routes);
