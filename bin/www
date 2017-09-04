@@ -4,6 +4,7 @@ let app = require('../app')
 let config = require('../config')
 let debug = require('debug')('UnicornLoadBalancer:server')
 let http = require('http')
+const proxy = require('../core/proxy');
 
 app.set(config.port)
 let server = http.createServer(app)
@@ -11,6 +12,9 @@ let server = http.createServer(app)
 server.listen(config.loadBalancer.port)
 server.on('error', onError)
 server.on('listening', onListening)
+server.on('upgrade', function (req, res) {
+	proxy.ws(req, res);
+});
 
 function onError(error) {
     if (error.syscall !== 'listen') {
