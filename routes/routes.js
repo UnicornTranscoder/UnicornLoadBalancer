@@ -3,7 +3,6 @@
  */
 
 const express = require('express');
-const bodyParser = require('body-parser');
 const router = express.Router();
 
 const proxy = require('../core/proxy');
@@ -42,6 +41,6 @@ router.all('/direct/plex/*', (req, res) => {
 });
 
 // Reverse all others to plex
-router.all('*', bodyParser.raw({ type: () => {return true} }), proxyPlex);
+router.all('*', proxyPlex);
 
 module.exports = router;
