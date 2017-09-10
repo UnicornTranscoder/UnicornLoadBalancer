@@ -7,6 +7,7 @@ const router = express.Router();
 
 const proxy = require('../core/proxy');
 const redirect = require('../core/redirect');
+const forward = require('../core/forward');
 
 const proxyPlex = (req, res) => {
     proxy.web(req, res)
@@ -27,9 +28,9 @@ router.get('/video/:/transcode/universal/session/:sessionId/:fileType/:partId.ts
 router.get('/video/:/transcode/universal/session/:sessionId/:fileType/:partId.vtt', redirect);
 
 //Universal endpoints
-router.get('/video/:/transcode/universal/stop', redirect);
-router.get('/video/:/transcode/universal/ping', redirect);
-router.get('/:/timeline', redirect);
+router.get('/video/:/transcode/universal/stop', forward);
+router.get('/video/:/transcode/universal/ping', forward);
+router.get('/:/timeline', forward);
 
 // Download files
 router.get('/library/parts/:id1/:id2/file.*', redirect);
