@@ -4,24 +4,19 @@
 
 const debug = require('debug')('redirect');
 
-const chooseServer = require('./chooseServer');
-const getSession = require('../utils/getSession');
+const serverManager = require('./serverManager');
 const getIp = require('../utils/getIp');
 
 let redirect = (req, res) => {
+	const sessionId = serverManager.getSession(req);
+	const serverUrl = serverManager.chooseServer(sessionId, getIp(req));
 
-	const sessionId = getSession(req);
-	const ip = getIp(req);
-	const serverUrl = chooseServer(sessionId, ip);
-	
-    debug('SESSIONID ' + sessionId);
-
-	
 	res.writeHead(302, {
 		'Location': serverUrl + req.url
 	});
 	res.end();
-	debug('Send 302 to ' + serverUrl);
+	
+	debug('Send 302 for ' + sessionId + ' to ' + serverUrl);
 }
 
 module.exports = redirect;
