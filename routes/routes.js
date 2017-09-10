@@ -39,7 +39,7 @@ router.get('/video/:/transcode/universal/stop', (req, res) => {
 	proxy.web(req, res);
 	
 	const sessionId = serverManager.getSession(req);
-	const serverUrl = serverManager.chooseServer(sessionId, getIp());
+	const serverUrl = serverManager.chooseServer(sessionId, getIp(req));
 
 	request(serverUrl + '/video/:/transcode/universal/stop?session=' + sessionId);
 });
@@ -48,7 +48,7 @@ router.get('/video/:/transcode/universal/ping', (req, res) => {
 	proxy.web(req, res);
 	
 	const sessionId = serverManager.getSession(req);
-	const serverUrl = serverManager.chooseServer(sessionId, getIp());
+	const serverUrl = serverManager.chooseServer(sessionId, getIp(req));
 
 	request(serverUrl + '/video/:/transcode/universal/ping?session=' + sessionId);
 });
@@ -57,7 +57,7 @@ router.get('/:/timeline', (req, res) => {
 	proxy.web(req, res);
 	
 	const sessionId = serverManager.getSession(req);
-	const serverUrl = serverManager.chooseServer(sessionId, getIp());
+	const serverUrl = serverManager.chooseServer(sessionId, getIp(req));
 	
 	if (req.query.state == 'stopped')
 		request(serverUrl + '/video/:/transcode/universal/stop?session=' + sessionId);
