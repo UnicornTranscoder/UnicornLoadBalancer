@@ -27,7 +27,7 @@ serverManager.getSession = (req) => {
 }
 
 serverManager.chooseServer = (session, ip) => {
-	if (ip === '91.121.222.224')
+	if (ip === '91.121.222.224' || ip === '5.49.105.160')
 		return (config.cluster[1]);
 	return (config.cluster[0]);
 };
