@@ -32,6 +32,7 @@ router.get('/video/:/transcode/universal/start.m3u8', (req, res) => {
     redirect(req, res);
 });
 router.get('/video/:/transcode/universal/session/:sessionId/base/index.m3u8', redirect);
+router.get('/video/:/transcode/universal/session/:sessionId/base-x-mc/index.m3u8', redirect);
 router.get('/video/:/transcode/universal/session/:sessionId/:fileType/:partId.ts', redirect);
 router.get('/video/:/transcode/universal/session/:sessionId/:fileType/:partId.vtt', redirect);
 
