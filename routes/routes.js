@@ -13,8 +13,21 @@ const getIp = require('../utils/getIp');
 
 //Dash routes
 router.get('/video/:/transcode/universal/start.mpd', (req, res) => {
-	serverManager.saveSession(req);
-    redirect(req, res);
+	
+	let sessionId = false;
+	if (typeof(req.query['X-Plex-Session-Identifier']) !== 'undefined' && typeof(serverManager.cacheSession[req.query['X-Plex-Session-Identifier']]) !== 'undefined')
+		sessionId = serverManager.cacheSession[req.query['X-Plex-Session-Identifier']];
+	
+	if (sessionId !== false) {
+		const serverUrl = serverManager.chooseServer(sessionId, getIp(req));
+		request(serverUrl + '/video/:/transcode/universal/stop?session=' + sessionId, (err, httpResponse, body) => {
+			serverManager.saveSession(req);
+			redirect(req, res);
+		});
+	} else {
+		serverManager.saveSession(req);
+		redirect(req, res);
+	}
 });
 router.get('/video/:/transcode/universal/dash/:sessionId/:streamId/initial.mp4', redirect);
 router.get('/video/:/transcode/universal/dash/:sessionId/:streamId/:partId.m4s', redirect);
