@@ -7,6 +7,7 @@ const config = require('../config');
 let serverManager = {}
 
 serverManager.cacheSession = {};
+serverManager.sessions = {};
 
 serverManager.saveSession = (req) => {
     if (typeof(req.query['X-Plex-Session-Identifier']) !== 'undefined' && typeof(req.query.session) !== 'undefined') {
@@ -30,7 +31,12 @@ serverManager.chooseServer = (session, ip) => {
 	let count = config.cluster.length;
 	if (count == 0)
 		return (false);
-	return (config.cluster[Math.round(Math.random() * (count - 1))])
+	if (typeof(serverManager.sessions[session]) !== 'undefined') {
+		return (serverManager.sessions[session]);
+	}
+	let servId = Math.round(Math.random() * (count - 1));
+	serverManager.sessions[session] = config.cluster[servId];
+	return (config.cluster[servId]);
 };
 
 serverManager.addServer = () => {
