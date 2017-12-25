@@ -27,9 +27,10 @@ serverManager.getSession = (req) => {
 }
 
 serverManager.chooseServer = (session, ip) => {
-	if (ip === '91.121.222.224')
-		return (config.cluster[1]);
-	return (config.cluster[0]);
+	let count = config.cluster.length;
+	if (count == 0)
+		return (false);
+	return (config.cluster[Math.round(Math.random() * (count - 1))])
 };
 
 serverManager.addServer = () => {
