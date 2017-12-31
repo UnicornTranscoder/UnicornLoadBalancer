@@ -24,6 +24,8 @@ serverManager.getSession = (req) => {
 		return (serverManager.cacheSession[req.query['X-Plex-Session-Identifier']]);
 	if (typeof(req.query['X-Plex-Session-Identifier']) !== 'undefined')
 		return (req.query['X-Plex-Session-Identifier']);
+	if (typeof(req.query['X-Plex-Client-Identifier']) !== 'undefined')
+		return (req.query['X-Plex-Client-Identifier']);
 	return (false);
 }
 
