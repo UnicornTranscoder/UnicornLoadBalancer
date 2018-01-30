@@ -39,11 +39,13 @@ serverManager.chooseServer = (session, ip) => {
 	}
 
 	//Pre-prod
-	for (let i = 0; i < config.preprod.devIps.length; i++) {
-		let mask = new Netmask(config.preprod.devIps[i]);
+	if (config.preprod.enabled) {
+        for (let i = 0; i < config.preprod.devIps.length; i++) {
+            let mask = new Netmask(config.preprod.devIps[i]);
 
-		if (mask.contains(ip))
-			return config.preprod.server;
+            if (mask.contains(ip))
+                return config.preprod.server;
+        }
 	}
 
 	let servId = Math.round(Math.random() * (count - 1));
