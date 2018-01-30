@@ -1,7 +1,8 @@
 /**
  * Created by Maxime Baconnais on 29/08/2017.
  */
- 
+
+const Netmask = require('netmask').Netmask;
 const config = require('../config');
 
 let serverManager = {}
@@ -27,7 +28,7 @@ serverManager.getSession = (req) => {
 	if (typeof(req.query['X-Plex-Client-Identifier']) !== 'undefined')
 		return (req.query['X-Plex-Client-Identifier']);
 	return (false);
-}
+};
 
 serverManager.chooseServer = (session, ip) => {
 	let count = config.cluster.length;
@@ -36,6 +37,15 @@ serverManager.chooseServer = (session, ip) => {
 	if (typeof(serverManager.sessions[session]) !== 'undefined') {
 		return (serverManager.sessions[session]);
 	}
+
+	//Pre-prod
+	for (let i = 0; i < config.preprod.devIps.length; i++) {
+		let mask = new Netmask(config.preprod.devIps[i]);
+
+		if (mask.contains(ip))
+			return config.preprod.server;
+	}
+
 	let servId = Math.round(Math.random() * (count - 1));
 	serverManager.sessions[session] = config.cluster[servId];
 	return (config.cluster[servId]);
