@@ -10,6 +10,10 @@ const proxy = require('../core/proxy');
 const redirect = require('../core/redirect');
 const serverManager = require('../core/serverManager');
 const getIp = require('../utils/getIp');
+const reloadConf = require('../utils/reloadConf');
+
+//Reload Config
+router.get('/unicorn/reload', reloadConf.reloadConf);
 
 //Dash routes
 router.get('/video/:/transcode/universal/start.mpd', (req, res) => {
