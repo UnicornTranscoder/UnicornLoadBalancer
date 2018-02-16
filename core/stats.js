@@ -7,7 +7,12 @@ let serversStats = {};
 const getInformations = () => {
 	config.cluster.map((url) => {
 		request(url + '/api/stats', (error, response, body) => {
-			serversStats[url] = (!error) ? JSON.parse(body) : false;
+			try {
+				serversStats[url] = (!error) ? JSON.parse(body) : false;
+			}
+			catch(err) {
+				serversStats[url] = false;
+			}
 		})
 	});
 };
