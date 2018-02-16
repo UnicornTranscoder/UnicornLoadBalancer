@@ -9,11 +9,16 @@ const router = express.Router();
 const proxy = require('../core/proxy');
 const redirect = require('../core/redirect');
 const serverManager = require('../core/serverManager');
+const stats = require('../core/stats');
 const getIp = require('../utils/getIp');
 const reloadConf = require('../utils/reloadConf');
 
 //Reload Config
-router.get('/unicorn/reload', reloadConf.reloadConf);
+router.get('/api/reload', reloadConf.reloadConf);
+
+router.get('/api/stats', (req, res) => {
+	res.send(JSON.stringify(stats));
+});
 
 //Dash routes
 router.get('/video/:/transcode/universal/start.mpd', (req, res) => {

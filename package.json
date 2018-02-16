@@ -11,7 +11,7 @@
     "express": "~4.13.1",
     "http-proxy": "^1.16.2",
     "netmask": "^1.0.6",
-    "request": "^2.81.0",
+    "request": "^2.83.0",
     "require-reload": "^0.2.2"
   }
 }

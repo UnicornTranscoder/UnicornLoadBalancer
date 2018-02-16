@@ -6,6 +6,7 @@ const cors = require('cors');
 const routes = require('./routes/routes');
 const proxy = require('./core/proxy');
 const config = require('./config');
+const stats = require('./core/stats');
 
 // Init Express App
 const app = express();
@@ -21,3 +22,5 @@ app.use('/', routes);
 
 // Export app
 module.exports = app;
+
+
