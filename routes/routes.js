@@ -6,6 +6,7 @@ const express = require('express');
 const request = require('request');
 const router = express.Router();
 
+const config = require('../config');
 const proxy = require('../core/proxy');
 const redirect = require('../core/redirect');
 const serverManager = require('../core/serverManager');
@@ -16,8 +17,22 @@ const reloadConf = require('../utils/reloadConf');
 //Reload Config
 router.get('/api/reload', reloadConf.reloadConf);
 
+
+router.get('/api/scores', (req, res) => {
+	let output = {};
+	for (let i = 0; i < config.cluster.length; i++) {
+		output[config.cluster[i]] = serverManager.calculateServerLoad(stats[config.cluster[i]]);
+	}
+	res.send(JSON.stringify(output));
+});
+
 router.get('/api/stats', (req, res) => {
-	res.send(JSON.stringify(stats));
+	let output = {};
+	for (let i = 0; i < config.cluster.length; i++) {
+		output[config.cluster[i]] = stats[config.cluster[i]];
+	}
+	
+	res.send(JSON.stringify(output));
 });
 
 //Dash routes
