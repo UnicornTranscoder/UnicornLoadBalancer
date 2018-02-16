@@ -93,7 +93,7 @@ router.get('/:/timeline', (req, res) => {
 router.get('/library/parts/:id1/:id2/file.*', redirect);
 
 // Direct plex call
-router.all('/direct/plex/*', (req, res) => {
+router.all('/api/direct/*', (req, res) => {
 	req.url = req.url.slice('/direct/plex'.length);
     return (proxy.web(req, res));
 });
