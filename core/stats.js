@@ -5,7 +5,6 @@ const config = require('../config');
 let serversStats = {};
 
 const getInformations = () => {
-	console.log(serversStats);
 	config.cluster.map((url) => {
 		request(url + '/api/stats', (error, response, body) => {
 			serversStats[url] = (!error) ? JSON.parse(body) : false;
