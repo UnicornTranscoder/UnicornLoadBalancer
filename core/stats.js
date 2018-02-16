@@ -8,8 +8,7 @@ const getInformations = () => {
 	console.log(serversStats);
 	config.cluster.map((url) => {
 		request(url + '/api/stats', (error, response, body) => {
-			if (!error)
-				serversStats[url] = JSON.parse(body);
+			serversStats[url] = (!error) ? JSON.parse(body) : false;
 		})
 	});
 };
