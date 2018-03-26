@@ -109,7 +109,7 @@ router.get('/library/parts/:id1/:id2/file.*', redirect);
 
 // Direct plex call
 router.all('/api/direct/*', (req, res) => {
-	req.url = req.url.slice('/direct/plex'.length);
+	req.url = req.url.slice('/api/direct'.length);
     return (proxy.web(req, res));
 });
 
