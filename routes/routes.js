@@ -33,17 +33,24 @@ router.get('/api/stats', (req, res) => {
 	for (let i = 0; i < config.cluster.length; i++) {
 		output[config.cluster[i]] = stats[config.cluster[i]];
 	}
-	
 	res.send(JSON.stringify(output));
 });
 
 // Reverse plex download ID to path
 router.get('/api/pathname/:downloadid', (req, res) => {
-	let db = new sqlite3.Database(config.plex.database);
-	db.get("SELECT * FROM media_parts WHERE id=? LIMIT 0,1", req.params.downloadid, (err, row) => {
-		res.send(JSON.stringify(row));
-		db.close();
-	});
+	try {
+		let db = new sqlite3.Database(config.plex.database);
+		db.get("SELECT * FROM media_parts WHERE id=? LIMIT 0,1", req.params.downloadid, (err, row) => {
+			if (row.file)
+				res.send(JSON.stringify(row));
+			else
+				res.status(404).send('File not found in Plex Database');
+			db.close();
+		});
+	}
+	catch (err) {
+		res.status(404).send('File not found in Plex Database');
+	}
 });
 
 // Direct plex call
