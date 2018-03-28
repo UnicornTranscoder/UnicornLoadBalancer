@@ -70,12 +70,6 @@ serverManager.removeServer = (url) => {
 };
 
 serverManager.chooseServer = (session, ip) => {
-	let count = config.cluster.length;
-	if (count == 0)
-		return (false);
-	if (typeof(serverManager.sessions[session]) !== 'undefined') {
-		return (serverManager.sessions[session]);
-	}
 	
 	//Pre-prod
 	if (config.preprod.enabled) {
@@ -86,11 +80,17 @@ serverManager.chooseServer = (session, ip) => {
                 return config.preprod.server;
         }
 	}
-
+	
+	let count = config.cluster.length;
+	if (count == 0)
+		return (false);
+	if (typeof(serverManager.sessions[session]) !== 'undefined' &&
+		config.cluster.indexOf(serverManager.sessions[session]) != -1) {
+		return (serverManager.sessions[session]);
+	}
+	
 	let sortedServers = config.cluster.sort((url) => { return (serverManager.calculateServerLoad(stats[url]));});
-	
-	console.log('Best server: ' + sortedServers[0]);
-	
+		
 	serverManager.sessions[session] = sortedServers[0];
 	
 	return (sortedServers[0]);
