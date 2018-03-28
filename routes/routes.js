@@ -4,6 +4,7 @@
 
 const express = require('express');
 const request = require('request');
+const sqlite3 = require('sqlite3').verbose();
 const router = express.Router();
 
 const config = require('../config');
@@ -17,7 +18,7 @@ const reloadConf = require('../utils/reloadConf');
 //Reload Config
 router.get('/api/reload', reloadConf.reloadConf);
 
-
+// Return the scores of transcoders
 router.get('/api/scores', (req, res) => {
 	let output = {};
 	for (let i = 0; i < config.cluster.length; i++) {
@@ -26,6 +27,7 @@ router.get('/api/scores', (req, res) => {
 	res.send(JSON.stringify(output));
 });
 
+// Return the stats of transcoders
 router.get('/api/stats', (req, res) => {
 	let output = {};
 	for (let i = 0; i < config.cluster.length; i++) {
@@ -33,6 +35,21 @@ router.get('/api/stats', (req, res) => {
 	}
 	
 	res.send(JSON.stringify(output));
+});
+
+// Reverse plex download ID to path
+router.get('/api/pathname/:downloadid', (req, res) => {
+	let db = new sqlite3.Database(config.plex.database);
+	db.run("SELECT * FROM media_parts WHERE id=? LIMIT 0,1", req.params.downloadid, (err, row) => {
+		res.send(JSON.stringify(row));
+		db.close();
+	});
+});
+
+// Direct plex call
+router.all('/api/direct/*', (req, res) => {
+	req.url = req.url.slice('/api/direct'.length);
+    return (proxy.web(req, res));
 });
 
 //Dash routes
@@ -106,12 +123,6 @@ router.get('/:/timeline', (req, res) => {
 
 // Download files
 router.get('/library/parts/:id1/:id2/file.*', redirect);
-
-// Direct plex call
-router.all('/api/direct/*', (req, res) => {
-	req.url = req.url.slice('/api/direct'.length);
-    return (proxy.web(req, res));
-});
 
 // Reverse all others to plex
 router.all('*', (req, res) => {
