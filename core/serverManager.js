@@ -85,7 +85,8 @@ serverManager.chooseServer = (session, ip) => {
 	if (count == 0)
 		return (false);
 	if (typeof(serverManager.sessions[session]) !== 'undefined' &&
-		config.cluster.indexOf(serverManager.sessions[session]) != -1) {
+		config.cluster.indexOf(serverManager.sessions[session]) != -1 &&
+		stats[serverManager.sessions[session]]) {
 		return (serverManager.sessions[session]);
 	}
 	
