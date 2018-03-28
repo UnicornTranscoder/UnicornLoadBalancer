@@ -97,12 +97,4 @@ serverManager.chooseServer = (session, ip) => {
 	return (sortedServers[0]);
 };
 
-serverManager.addServer = () => {
-	// TODO
-};
-
-serverManager.deleteServer = () => {
-	// TODO
-};
-
 module.exports = serverManager;
