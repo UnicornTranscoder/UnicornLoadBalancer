@@ -54,8 +54,8 @@ router.get('/api/pathname/:downloadid', (req, res) => {
 });
 
 // Direct plex call
-router.all('/api/direct/*', (req, res) => {
-	req.url = req.url.slice('/api/direct'.length);
+router.all('/api/plex/*', (req, res) => {
+	req.url = req.url.slice('/api/plex'.length);
     return (proxy.web(req, res));
 });
 

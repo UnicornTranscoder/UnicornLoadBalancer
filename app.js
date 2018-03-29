@@ -15,7 +15,7 @@ const app = express();
 app.use(cors());
 
 // Sessions files
-app.use('/direct/sessions', express.static(config.plex.transcoderPath));
+app.use('/api/sessions', express.static(config.plex.sessions));
 
 // Default routes
 app.use('/', routes);
