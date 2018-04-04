@@ -41,7 +41,7 @@ router.get('/api/pathname/:downloadid', (req, res) => {
 	try {
 		let db = new sqlite3.Database(config.plex.database);
 		db.get("SELECT * FROM media_parts WHERE id=? LIMIT 0,1", req.params.downloadid, (err, row) => {
-			if (row.file)
+			if (row && row.file)
 				res.send(JSON.stringify(row));
 			else
 				res.status(404).send('File not found in Plex Database');
