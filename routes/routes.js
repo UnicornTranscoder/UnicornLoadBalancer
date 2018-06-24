@@ -9,6 +9,7 @@ const router = express.Router();
 
 const config = require('../config');
 const proxy = require('../core/proxy');
+const proxyConfig = require('../core/proxyConfig');
 const redirect = require('../core/redirect');
 const serverManager = require('../core/serverManager');
 const stats = require('../core/stats');
@@ -130,6 +131,14 @@ router.get('/:/timeline', (req, res) => {
 
 // Download files
 router.get('/library/parts/:id1/:id2/file.*', redirect);
+
+// Plex configuration get
+router.get('/', (req, res) => {
+	if (req.query['X-Plex-Device-Name'])
+		proxyConfig.web(req, res);
+	else
+		proxy.web(req, res);
+});
 
 // Reverse all others to plex
 router.all('*', (req, res) => {
