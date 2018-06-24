@@ -24,7 +24,10 @@ proxy.on('proxyRes', (proxyRes, req, res) => {
 		res.send(body
 			.replace("streamingBrainABRVersion=", "DISABLEDstreamingBrainABRVersion=")
 			.replace('allowSync="1"', 'allowSync="0"')
-			.replace('sync="1"', ''));
+			.replace('sync="1"', 'DISABLEDsync="1"')
+			.replace('allowTuners="0"', 'DISABLEDallowTuners="0"')
+			.replace('backgroundProcessing="1"', 'DISABLEDbackgroundProcessing="1"')
+			);
 	});
 });
 
