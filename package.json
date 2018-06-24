@@ -9,7 +9,7 @@
     "cors": "^2.8.4",
     "debug": "^3.0.0",
     "express": "~4.13.1",
-    "http-proxy": "^1.16.2",
+    "http-proxy": "^1.17.0",
     "netmask": "^1.0.6",
     "request": "^2.83.0",
     "require-reload": "^0.2.2",

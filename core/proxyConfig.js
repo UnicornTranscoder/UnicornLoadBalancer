@@ -9,7 +9,8 @@ let proxy = httpProxy.createProxyServer({
 	target: {
 		host: config.plex.host,
 		port: config.plex.port
-	}
+	},
+    selfHandleResponse: true
 });
 
 proxy.on('proxyRes', (proxyRes, req, res) => {
@@ -19,13 +20,15 @@ proxy.on('proxyRes', (proxyRes, req, res) => {
 	});
 	proxyRes.on('end', () => {
 		body = body.toString();
+		res.header("Content-Type", "text/xml;charset=utf-8");
 		res.send(body.replace("streamingBrainABRVersion=", "DISABLEDstreamingBrainABRVersion="));
 	});
 });
 
 proxy.on('error', (err, req, res) => {
-  res.writeHead(404, {});
-  res.end('Plex not respond in time, proxy request fails');
+	console.log('error', err);
+	res.writeHead(404, {});
+	res.end('Plex not respond in time, proxy request fails');
 });
 
 module.exports = proxy;
