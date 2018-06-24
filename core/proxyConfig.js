@@ -21,7 +21,9 @@ proxy.on('proxyRes', (proxyRes, req, res) => {
 	proxyRes.on('end', () => {
 		body = body.toString();
 		res.header("Content-Type", "text/xml;charset=utf-8");
-		res.send(body.replace("streamingBrainABRVersion=", "DISABLEDstreamingBrainABRVersion="));
+		res.send(body
+			.replace("streamingBrainABRVersion=", "DISABLEDstreamingBrainABRVersion=")
+			.replace('ownerFeatures="', 'ownerFeatures="session_bandwidth_restrictions,session_kick,trailers,pass,'));
 	});
 });
 
