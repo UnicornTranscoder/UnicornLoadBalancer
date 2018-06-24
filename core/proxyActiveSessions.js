@@ -5,6 +5,7 @@
 const httpProxy = require('http-proxy');
 const config = require('../config');
 const serverManager = require('./serverManager');
+const stats = require('./stats');
 
 let proxy = httpProxy.createProxyServer({
 	target: {
@@ -34,6 +35,12 @@ proxy.on('proxyRes', (proxyRes, req, res) => {
 				server = serverManager.sessions[session];
 			else if (typeof(serverManager.cacheSession[session]) != 'undefined' && typeof(serverManager.sessions[serverManager.cacheSession[session]]) != 'undefined')
 				server = serverManager.sessions[serverManager.cacheSession[session]];
+			
+			// Get proper name
+			if (stats[server] && stats[server].config && stats[server].config.serverName && stats[server].config.serverName.length > 0)
+				server = stats[server].config.serverName;
+			else
+				server = server.replace('https://www.', '').replace('http://www.', '').replace('https://', '').replace('http://', '');
 			
 			// Get player
 			let player = videos[i].split('<Player')[1].split('title="')[1].split('"')[0];
