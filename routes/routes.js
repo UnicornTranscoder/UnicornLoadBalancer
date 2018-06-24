@@ -129,7 +129,7 @@ router.get('/:/timeline', (req, res) => {
 	const serverUrl = serverManager.chooseServer(sessionId, getIp(req));
 	
 	let cproxy = false;
-	if (typeof(serverManager.stoppedSessions[sessionId]) != 'undefined')
+	if (typeof(req.query['X-Plex-Session-Identifier']) !== 'undefined' && typeof(serverManager.stoppedSessions[req.query['X-Plex-Session-Identifier']]) != 'undefined')
 	{
 		cproxy = httpProxy.createProxyServer({
 			target: {
@@ -146,7 +146,7 @@ router.get('/:/timeline', (req, res) => {
 			proxyRes.on('end', () => {
 				body = body.toString();
 				res.header("Content-Type", "text/xml;charset=utf-8");
-				res.send(body.replace("<MediaContainer ", '<MediaContainer terminationCode="2006" terminationText="' + serverManager.stoppedSessions[sessionId].replace('"', '&#34;') + '" '));
+				res.send(body.replace("<MediaContainer ", '<MediaContainer terminationCode="2006" terminationText="' + serverManager.stoppedSessions[req.query['X-Plex-Session-Identifier']].replace('"', '&#34;') + '" '));
 			});
 		})
 		cproxy.on('error', (err, req, res) => {
@@ -158,7 +158,7 @@ router.get('/:/timeline', (req, res) => {
 	else
 		cproxy = proxy;
 	
-	if (req.query.state == 'stopped' || typeof(serverManager.stoppedSessions[sessionId]) != 'undefined')
+	if (req.query.state == 'stopped' || (typeof(req.query['X-Plex-Session-Identifier']) !== 'undefined' && typeof(serverManager.stoppedSessions[req.query['X-Plex-Session-Identifier']]) != 'undefined'))
 	{
 		cproxy.web(req, res);
 		
@@ -184,9 +184,6 @@ router.get('/status/sessions/terminate', (req, res) => {
 		const sessionId = req.params.sessionId;
 		const serverUrl = serverManager.chooseServer(sessionId);
 		serverManager.forceStopStream(sessionId, req.params.reason);
-		if (typeof(serverManager.cacheSession[sessionId]) !== 'undefined')
-			serverManager.forceStopStream(serverManager.cacheSession[sessionId], req.params.reason);
-		request(serverUrl + '/video/:/transcode/universal/stop?session=' + sessionId);
 	}
 });
 
