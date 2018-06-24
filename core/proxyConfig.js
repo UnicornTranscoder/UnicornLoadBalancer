@@ -27,6 +27,9 @@ proxy.on('proxyRes', (proxyRes, req, res) => {
 			.replace('sync="1"', 'DISABLEDsync="1"') // Disable Sync option
 			.replace('updater="1"', 'updater="0"') // Disable updates
 			.replace('backgroundProcessing="1"', 'DISABLEDbackgroundProcessing="1"') // Disable Optimizing feature
+			.replace('livetv="', 'DISABLEDlivetv="') // Disable LiveTV
+			.replace('allowTuners="', 'DISABLEDallowTuners="') // Disable Tuners
+			.replace('platform="', 'platform="Cloud" OLDplatform="') // ULB = Fake Plex Cloud
 			);
 	});
 });
