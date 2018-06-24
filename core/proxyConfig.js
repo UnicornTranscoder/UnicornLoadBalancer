@@ -22,11 +22,12 @@ proxy.on('proxyRes', (proxyRes, req, res) => {
 		body = body.toString();
 		res.header("Content-Type", "text/xml;charset=utf-8");
 		res.send(body
-			.replace("streamingBrainABRVersion=", "DISABLEDstreamingBrainABRVersion=")
-			.replace('allowSync="1"', 'allowSync="0"')
-			.replace('sync="1"', 'DISABLEDsync="1"')
-			.replace('allowTuners="0"', 'DISABLEDallowTuners="0"')
-			.replace('backgroundProcessing="1"', 'DISABLEDbackgroundProcessing="1"')
+			.replace("streamingBrainABRVersion=", "DISABLEDstreamingBrainABRVersion=") // Disable Streaming adaptative
+			.replace('allowSync="1"', 'allowSync="0"') // Disable Sync option
+			.replace('sync="1"', 'DISABLEDsync="1"') // Disable Sync option
+			.replace('updater="1"', 'updater="0"') // Disable updates
+			.replace('backgroundProcessing="1"', 'DISABLEDbackgroundProcessing="1"') // Disable Optimizing feature
+			.replace('friendlyName="', 'friendlyName="🦄 ') // Improve server name
 			);
 	});
 });
