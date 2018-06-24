@@ -179,11 +179,10 @@ router.get('/status/sessions/terminate', (req, res) => {
 	res.send(`<?xml version="1.0" encoding="UTF-8"?>
 <MediaContainer size="0">
 </MediaContainer>`);
-	if (typeof(req.params.sessionId) !== 'undefined' && typeof(req.params.reason) !== 'undefined')
+	if (typeof(req.query.sessionId) !== 'undefined' && typeof(req.query.reason) !== 'undefined')
 	{
-		const sessionId = req.params.sessionId;
-		const serverUrl = serverManager.chooseServer(sessionId);
-		serverManager.forceStopStream(sessionId, req.params.reason);
+		const sessionId = req.query.sessionId;
+		serverManager.forceStopStream(sessionId, req.query.reason);
 	}
 });
 
