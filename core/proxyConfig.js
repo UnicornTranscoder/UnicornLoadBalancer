@@ -23,7 +23,8 @@ proxy.on('proxyRes', (proxyRes, req, res) => {
 		res.header("Content-Type", "text/xml;charset=utf-8");
 		res.send(body
 			.replace("streamingBrainABRVersion=", "DISABLEDstreamingBrainABRVersion=")
-			.replace('ownerFeatures="', 'ownerFeatures="session_bandwidth_restrictions,session_kick,trailers,pass,'));
+			.replace('allowSync="1"', 'allowSync="0"')
+			.replace('sync="1"', ''));
 	});
 });
 
