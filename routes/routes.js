@@ -111,7 +111,9 @@ router.get('/video/:/transcode/universal/stop', (req, res) => {
 	
 	setTimeout(() => {
 		serverManager.removeSession(sessionId);
-	}, 5000);
+		if (typeof(serverManager.stoppedSessions[req.query['X-Plex-Session-Identifier']]) != 'undefined')
+			delete serverManager.stoppedSessions[req.query['X-Plex-Session-Identifier']];
+	}, 1000);
 });
 
 router.get('/video/:/transcode/universal/ping', (req, res) => {
@@ -165,7 +167,9 @@ router.get('/:/timeline', (req, res) => {
 		request(serverUrl + '/video/:/transcode/universal/stop?session=' + sessionId);			
 		setTimeout(() => {
 			serverManager.removeSession(sessionId);
-		}, 5000);
+			if (typeof(serverManager.stoppedSessions[req.query['X-Plex-Session-Identifier']]) != 'undefined')
+				delete serverManager.stoppedSessions[req.query['X-Plex-Session-Identifier']];
+		}, 1000);
 	}
 	else
 	{
