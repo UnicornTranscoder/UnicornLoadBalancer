@@ -24,7 +24,7 @@ proxy.on('proxyRes', (proxyRes, req, res) => {
 });
 
 proxy.on('error', (err, req, res) => {
-  res.writeHead(500, {});
+  res.writeHead(404, {});
   res.end('Plex not respond in time, proxy request fails');
 });
 
