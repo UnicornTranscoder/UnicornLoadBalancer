@@ -4,6 +4,7 @@
 
 const express = require('express');
 const request = require('request');
+const httpProxy = require('http-proxy');
 const sqlite3 = require('sqlite3').verbose();
 const router = express.Router();
 
@@ -107,6 +108,10 @@ router.get('/video/:/transcode/universal/stop', (req, res) => {
 	const serverUrl = serverManager.chooseServer(sessionId, getIp(req));
 
 	request(serverUrl + '/video/:/transcode/universal/stop?session=' + sessionId);
+	
+	setTimeout(() => {
+		serverManager.removeSession(sessionId);
+	}, 5000);
 });
 
 router.get('/video/:/transcode/universal/ping', (req, res) => {
@@ -119,15 +124,68 @@ router.get('/video/:/transcode/universal/ping', (req, res) => {
 });
 
 router.get('/:/timeline', (req, res) => {
-	proxy.web(req, res);
 	
 	const sessionId = serverManager.getSession(req);
 	const serverUrl = serverManager.chooseServer(sessionId, getIp(req));
 	
-	if (req.query.state == 'stopped')
-		request(serverUrl + '/video/:/transcode/universal/stop?session=' + sessionId);
+	let cproxy = false;
+	if (typeof(serverManager.stoppedSessions[sessionId]) != 'undefined')
+	{
+		cproxy = httpProxy.createProxyServer({
+			target: {
+				host: config.plex.host,
+				port: config.plex.port
+			},
+			selfHandleResponse: true
+		});
+		cproxy.on('proxyRes', (proxyRes, req, res) => {
+			let body = new Buffer('');
+			proxyRes.on('data', (data) => {
+				body = Buffer.concat([body, data]);
+			});
+			proxyRes.on('end', () => {
+				body = body.toString();
+				res.header("Content-Type", "text/xml;charset=utf-8");
+				res.send(body.replace("<MediaContainer ", '<MediaContainer terminationCode="2006" terminationText="' + serverManager.stoppedSessions[sessionId].replace('"', '&#34;') + '" '));
+			});
+		})
+		cproxy.on('error', (err, req, res) => {
+			console.log('error', err);
+			res.writeHead(404, {});
+			res.end('Plex not respond in time, proxy request fails');
+		});
+	}
 	else
+		cproxy = proxy;
+	
+	if (req.query.state == 'stopped' || typeof(serverManager.stoppedSessions[sessionId]) != 'undefined')
+	{
+		cproxy.web(req, res);
+		
+		request(serverUrl + '/video/:/transcode/universal/stop?session=' + sessionId);			
+		setTimeout(() => {
+			serverManager.removeSession(sessionId);
+		}, 5000);
+	}
+	else
+	{
+		proxy.web(req, res);
 		request(serverUrl + '/video/:/transcode/universal/ping?session=' + sessionId);
+	}
+});
+
+router.get('/status/sessions/terminate', (req, res) => {
+	res.header("Content-Type", "text/xml;charset=utf-8");
+	res.send(`<?xml version="1.0" encoding="UTF-8"?>
+<MediaContainer size="0">
+</MediaContainer>`);
+	if (typeof(req.params.sessionId) !== 'undefined' && typeof(req.params.reason) !== 'undefined')
+	{
+		const sessionId = req.params.sessionId;
+		const serverUrl = serverManager.chooseServer(sessionId);
+		serverManager.forceStopStream(sessionId, req.params.reason);
+		request(serverUrl + '/video/:/transcode/universal/stop?session=' + sessionId);
+	}
 });
 
 // Download files

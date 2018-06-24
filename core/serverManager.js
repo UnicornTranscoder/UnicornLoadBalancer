@@ -10,6 +10,7 @@ let serverManager = {}
 
 serverManager.cacheSession = {};
 serverManager.sessions = {};
+serverManager.stoppedSessions = {};
 
 serverManager.saveSession = (req) => {
     if (typeof(req.query['X-Plex-Session-Identifier']) !== 'undefined' && typeof(req.query.session) !== 'undefined') {
@@ -69,10 +70,14 @@ serverManager.removeServer = (url) => {
 	}
 };
 
-serverManager.chooseServer = (session, ip) => {
+serverManager.forceStopStream = (session, reason) => {
+	serverManager.stoppedSessions[session] = reason;
+};
+
+serverManager.chooseServer = (session, ip = false) => {
 	
 	//Pre-prod
-	if (config.preprod.enabled) {
+	if (config.preprod.enabled && ip) {
         for (let i = 0; i < config.preprod.devIps.length; i++) {
             let mask = new Netmask(config.preprod.devIps[i]);
 
@@ -95,6 +100,11 @@ serverManager.chooseServer = (session, ip) => {
 	serverManager.sessions[session] = sortedServers[0];
 	
 	return (sortedServers[0]);
+};
+
+serverManager.removeSession = (session) => {
+	delete serverManager.sessions[session];
+	delete serverManager.stoppedSessions[session];
 };
 
 module.exports = serverManager;

@@ -29,6 +29,7 @@ proxy.on('proxyRes', (proxyRes, req, res) => {
 			.replace('backgroundProcessing="1"', 'DISABLEDbackgroundProcessing="1"') // Disable Optimizing feature
 			.replace('livetv="', 'DISABLEDlivetv="') // Disable LiveTV
 			.replace('allowTuners="', 'DISABLEDallowTuners="') // Disable Tuners
+			.replace('ownerFeatures="', 'ownerFeatures="session_kick,') // Enable Session Kick Feature
 			);
 	});
 });
