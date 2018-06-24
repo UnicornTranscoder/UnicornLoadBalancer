@@ -184,6 +184,8 @@ router.get('/status/sessions/terminate', (req, res) => {
 		const sessionId = req.params.sessionId;
 		const serverUrl = serverManager.chooseServer(sessionId);
 		serverManager.forceStopStream(sessionId, req.params.reason);
+		if (typeof(serverManager.cacheSession[sessionId]) !== 'undefined')
+			serverManager.forceStopStream(serverManager.cacheSession[sessionId], req.params.reason);
 		request(serverUrl + '/video/:/transcode/universal/stop?session=' + sessionId);
 	}
 });
