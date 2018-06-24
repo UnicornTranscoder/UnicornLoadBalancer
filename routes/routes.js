@@ -10,6 +10,7 @@ const router = express.Router();
 const config = require('../config');
 const proxy = require('../core/proxy');
 const proxyConfig = require('../core/proxyConfig');
+const proxyActiveSessions = require('../core/proxyActiveSessions');
 const redirect = require('../core/redirect');
 const serverManager = require('../core/serverManager');
 const stats = require('../core/stats');
@@ -131,6 +132,11 @@ router.get('/:/timeline', (req, res) => {
 
 // Download files
 router.get('/library/parts/:id1/:id2/file.*', redirect);
+
+// Plex activity page
+router.get('/status/sessions', (req, res) => {
+	proxyActiveSessions.web(req, res);
+});
 
 // Plex configuration get
 router.get('/', (req, res) => {
