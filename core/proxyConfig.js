@@ -29,7 +29,8 @@ proxy.on('proxyRes', (proxyRes, req, res) => {
 			.replace('backgroundProcessing="1"', 'DISABLEDbackgroundProcessing="1"') // Disable Optimizing feature
 			.replace('livetv="', 'DISABLEDlivetv="') // Disable LiveTV
 			.replace('allowTuners="', 'DISABLEDallowTuners="') // Disable Tuners
-			.replace('platform="', 'platform="Cloud" OLDplatform="') // ULB = Fake Plex Cloud
+			.replace('<Directory count="1" key="system"', '<Directory count="5" key="system"') // IDK
+			//.replace('platform="', 'platform="Cloud" OLDplatform="') // ULB = Fake Plex Cloud
 			);
 	});
 });
