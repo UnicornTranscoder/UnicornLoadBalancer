@@ -28,7 +28,7 @@ proxy.on('proxyRes', (proxyRes, req, res) => {
 		{
 			// Extract Session ID
 			let session = '';
-			if (videos[1].indexOf('<Session id="') !== -1)
+			if (videos[i].split('<Session id="').length < 2)
 				session = videos[i].split('<Session id="')[1].split('"')[0];
 
 			// Get server
