@@ -27,8 +27,10 @@ proxy.on('proxyRes', (proxyRes, req, res) => {
 		for (let i = 1 ; i < videos.length ; i++)
 		{
 			// Extract Session ID
-			let session = videos[i].split('<Session id="')[1].split('"')[0];
-			
+			let session = '';
+			if (videos[1].indexOf('<Session id="'))
+				session = videos[i].split('<Session id="')[1].split('"')[0];
+
 			// Get server
 			let server = "Unknown";
 			if (typeof(serverManager.sessions[session]) != 'undefined')
