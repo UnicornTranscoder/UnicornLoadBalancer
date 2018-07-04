@@ -194,17 +194,17 @@ router.get('/status/sessions/terminate', (req, res) => {
 router.get('/library/parts/:id1/:id2/file.*', redirect);
 
 // Plex activity page
-router.get('/status/sessions', (req, res) => {
+/*router.get('/status/sessions', (req, res) => {
 	proxyActiveSessions.web(req, res);
-});
+});*/
 
 // Plex configuration get
-router.get('/', (req, res) => {
+/*router.get('/', (req, res) => {
 	if (req.query['X-Plex-Device-Name'])
 		proxyConfig.web(req, res);
 	else
 		proxy.web(req, res);
-});
+});*/
 
 // Reverse all others to plex
 router.all('*', (req, res) => {
