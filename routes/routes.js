@@ -71,10 +71,11 @@ router.get('/video/:/transcode/universal/start.mpd', (req, res) => {
 	
 	if (sessionId !== false) {
 		const serverUrl = serverManager.chooseServer(sessionId, getIp(req));
-		request(serverUrl + '/video/:/transcode/universal/stop?session=' + sessionId, (err, httpResponse, body) => {
-			serverManager.saveSession(req);
-			redirect(req, res);
-		});
+		if (typeof(serverUrl) !== 'undefined')
+			request(serverUrl + '/video/:/transcode/universal/stop?session=' + sessionId, (err, httpResponse, body) => {
+				serverManager.saveSession(req);
+				redirect(req, res);
+			});
 	} else {
 		serverManager.saveSession(req);
 		redirect(req, res);
@@ -107,7 +108,8 @@ router.get('/video/:/transcode/universal/stop', (req, res) => {
 	const sessionId = serverManager.getSession(req);
 	const serverUrl = serverManager.chooseServer(sessionId, getIp(req));
 
-	request(serverUrl + '/video/:/transcode/universal/stop?session=' + sessionId);
+	if (typeof(serverUrl) !== 'undefined')
+		request(serverUrl + '/video/:/transcode/universal/stop?session=' + sessionId);
 	
 	setTimeout(() => {
 		serverManager.removeSession(sessionId);
@@ -122,7 +124,8 @@ router.get('/video/:/transcode/universal/ping', (req, res) => {
 	const sessionId = serverManager.getSession(req);
 	const serverUrl = serverManager.chooseServer(sessionId, getIp(req));
 
-	request(serverUrl + '/video/:/transcode/universal/ping?session=' + sessionId);
+	if (typeof(serverUrl) !== 'undefined')
+		request(serverUrl + '/video/:/transcode/universal/ping?session=' + sessionId);
 });
 
 router.get('/:/timeline', (req, res) => {
@@ -164,7 +167,8 @@ router.get('/:/timeline', (req, res) => {
 	{
 		cproxy.web(req, res);
 		
-		request(serverUrl + '/video/:/transcode/universal/stop?session=' + sessionId);			
+		if (typeof(serverUrl) !== 'undefined')
+			request(serverUrl + '/video/:/transcode/universal/stop?session=' + sessionId);			
 		setTimeout(() => {
 			serverManager.removeSession(sessionId);
 			if (typeof(serverManager.stoppedSessions[req.query['X-Plex-Session-Identifier']]) != 'undefined')
@@ -174,7 +178,8 @@ router.get('/:/timeline', (req, res) => {
 	else
 	{
 		proxy.web(req, res);
-		request(serverUrl + '/video/:/transcode/universal/ping?session=' + sessionId);
+		if (typeof(serverUrl) !== 'undefined')
+			request(serverUrl + '/video/:/transcode/universal/ping?session=' + sessionId);
 	}
 });
 

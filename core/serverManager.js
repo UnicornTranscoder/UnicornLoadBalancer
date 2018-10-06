@@ -84,9 +84,9 @@ serverManager.geoIp = (url, ip) => {
 	console.log(ip, geo);
 
 	if (typeof (stats[url].routing) !== 'undefined') {
-		if (typeof (stats[url].routing[geo.country + '-' + geo.region])) // 'COUNTRY-REGION' tag like 'US-TX'
+		if (typeof (stats[url].routing[geo.country + '-' + geo.region]) !== 'undefined') // 'COUNTRY-REGION' tag like 'US-TX'
 			return (stats[url].routing[geo.country + '-' + geo.region])
-		if (typeof (stats[url].routing[geo.country])) // 'COUNTRY' tag like 'US'
+		if (typeof (stats[url].routing[geo.country]) !== 'undefined') // 'COUNTRY' tag like 'US'
 			return (stats[url].routing[geo.country])
 	}
 	return (url);
