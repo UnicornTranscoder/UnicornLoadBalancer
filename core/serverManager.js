@@ -81,8 +81,7 @@ serverManager.forceStopStream = (session, reason) => {
 serverManager.geoIp = (url, ip) => {
 
 	const geo = geoip.lookup(ip);
-	console.log(ip, geo);
-
+	
 	if (typeof (stats[url].routing) !== 'undefined') {
 		if (typeof (stats[url].routing[geo.country + '-' + geo.region]) !== 'undefined') // 'COUNTRY-REGION' tag like 'US-TX'
 			return (stats[url].routing[geo.country + '-' + geo.region])
