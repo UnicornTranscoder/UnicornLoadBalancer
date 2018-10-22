@@ -1,21 +1,23 @@
 {
-  "name": "unicorn-loadbalancer",
-  "version": "0.0.1",
-  "private": true,
+  "name": "unicorn-load-balancer",
+  "version": "2.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "start": "node ./bin/www",
-    "geo-build" : "node ./node_modules/geoip-lite/scripts/updatedb.js"
+    "start": "node index.js",
+    "geo-build": "node ./node_modules/geoip-lite/scripts/updatedb.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "author": "Maxime Baconnais",
+  "license": "MIT",
   "dependencies": {
     "cors": "^2.8.4",
-    "debug": "^3.0.0",
+    "debug": "^4.0.1",
+    "esm": "^3.0.84",
     "express": "^4.16.3",
-    "geoip-lite": "^1.3.2",
+    "getenv": "^0.7.0",
     "http-proxy": "^1.17.0",
-    "netmask": "^1.0.6",
-    "request": "^2.83.0",
-    "require-reload": "^0.2.2",
-    "snekfetch": "^3.6.4",
-    "sqlite3": "^4.0.0"
+    "redis": "^2.8.0",
+    "sqlite3": "^4.0.2"
   }
 }
