@@ -20,3 +20,5 @@ redis.on('error', (err) => {
         return console.error('Failed to connect to REDIS, please check your configuration');
     return console.error(err.errno);
 });
+
+export const time = () => (Math.floor((new Date().getTime()) / 1000));

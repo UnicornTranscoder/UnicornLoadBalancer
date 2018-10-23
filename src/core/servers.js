@@ -1,71 +1,97 @@
-let servers = [];
+import { time } from '../utils';
+import config from '../config';
+
+let servers = {};
 
 let ServersManager = {};
 
-ServersManager.add = (url) => {
-    if (servers.indexOf(url) !== -1)
-        return (false);
-    servers.push(url);
-    return (true);
+// Add/update a server
+ServersManager.update = (e) => {
+	const name = (e.name) ? e.name : (e.url) ? e.url : '';
+	if (!name)
+		return (ServersManager.list());
+	servers[name] = {
+		name,
+		sessions: ((!Array.isArray(e.sessions)) ? [] : e.sessions.map((s) => ({
+			id: ((s.id) ? s.id : false),
+			status: ((s.status && ['DONE', 'DOWNLOAD', 'TRANSCODE'].indexOf(s.status.toUpperCase()) !== -1) ? s.status.toUpperCase() : false),
+			codec: ((s.codec) ? s.codec : false),
+			lastChunkDownload: ((s.lastChunkDownload) ? s.lastChunkDownload : 0)
+		}))).filter((s) => (s.id !== false && s.status !== false)),
+		settings: {
+			maxSessions: ((typeof (e.settings) !== 'undefined' && typeof (e.settings.maxSessions) !== 'undefined') ? parseInt(e.settings.maxSessions) : 0),
+			maxDownloads: ((typeof (e.settings) !== 'undefined' && typeof (e.settings.maxDownloads) !== 'undefined') ? parseInt(e.settings.maxDownloads) : 0),
+			maxTranscodes: ((typeof (e.settings) !== 'undefined' && typeof (e.settings.maxTranscodes) !== 'undefined') ? parseInt(e.settings.maxTranscodes) : 0),
+		},
+		url: ((e.url) ? e.url : false),
+		time: time()
+	};
+	return (ServersManager.list());
 };
 
-ServersManager.remove = (url) => {
-    servers = server.filter((e) => (e !== url));
-    return (true);
+// Remove a server
+ServersManager.remove = (e) => {
+	const name = (e.name) ? e.name : (e.url) ? e.url : '';
+	delete servers[name];
+	return (ServersManager.list());
 };
 
+// List all the servers with scores
 ServersManager.list = () => {
-    return (servers);
+	let output = {};
+	Object.keys(servers).forEach((i) => {
+		output[i] = { ...servers[i], score: ServersManager.score(servers[i]) };
+	});
+	return (output);
 }
 
 // Calculate server score
-ServersManager.calculateScore = (stats) => {
-	// The configuration is unavailable, the server is probably unavailable
-	if (!stats)
-		return (1000);
+ServersManager.score = (e) => {
+
+	// The configuration wasn't updated since X seconds, the server is probably unavailable
+	if (time() - e.time > config.scores.timeout)
+		return (100);
 
 	// Default load 0
 	let load = 0;
 
-	// Each transcode add 1 to the load
-	load += stats.transcoding;
+	// Add load value for each session
+	e.sessions.forEach((s) => {
 
-	// Each HEVC sessions add 1.5 to the load
-	if (stats.codecs.hevc)
-		load += stats.codecs.hevc * 1.5;
+		// Transcode streams
+		if (s.status === 'TRANSCODE') {
+			load += 1;
+			if (s.codec === 'hevc') {
+				load += 1.5;
+			}
+		}
+
+		// Serving streams
+		if (s.status === 'DONE') {
+			load += 0.5;
+		}
+
+		// Download streams
+		if (s.status === 'DOWNLOAD') {
+			load += 0.25;
+		}
+	})
 
 	// Server already have too much sessions
-	if (stats.config && stats.sessions >= stats.config.preferredMaxSessions)
+	if (e.sessions.filter((s) => (['TRANSCODE', 'DONE'].indexOf(s.status) !== -1)).length > e.settings.maxSessions)
 		load += 2.5;
 
 	// Server already have too much transcodes
-	if (stats.config && stats.transcoding >= stats.config.preferredMaxTranscodes)
+	if (e.sessions.filter((s) => (['TRANSCODE'].indexOf(s.status) !== -1)).length > e.settings.maxTranscodes)
 		load += 5;
 
 	// Server already have too much downloads
-	if (stats.config && stats.downloads >= stats.config.preferredMaxDownloads)
+	if (e.sessions.filter((s) => (['DOWNLOAD'].indexOf(s.status) !== -1)).length > e.settings.maxDownloads)
 		load += 1;
 
 	// Return load
 	return (load);
 }
 
-// Calculate all the server scores
-ServersManager.scores = () => {
-    let output = {};
-    ServersManager.list().forEach((e) => {
-        output[e] = ServersManager.calculateScore(); // Todo: Bind stats in call
-    });
-    return (output);
-}
-
-// Returns all the server stats
-ServersManager.stats = () => {
-    let output = {};
-    ServersManager.list().forEach((e) => {
-        output[e] = false; // Todo: Bind stats
-    });
-    return (output);
-}
-
+// Returns our ServersManager
 export default ServersManager;

@@ -22,7 +22,7 @@ export default {
         password: env.string('REDIS_PASSWORD', ''),
         db: env.int('REDIS_DB', 0)
     },
-    scan: {
-        timer: 3000
+    scores: {
+        timeout: env.int('SCORES_TIMEOUT', 10)
     }
 };

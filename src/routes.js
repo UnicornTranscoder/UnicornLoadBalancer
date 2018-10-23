@@ -7,7 +7,6 @@ export default (app) => {
 
     // UnicornLoadBalancer API
     app.use('/api/sessions', express.static(config.plex.path.sessions));
-    app.get('/api/scores', RoutesAPI.scores);
     app.get('/api/stats', RoutesAPI.stats);
     app.post('/api/ffmpeg', RoutesAPI.ffmpeg);
     app.get('/api/path/:id', RoutesAPI.path);
