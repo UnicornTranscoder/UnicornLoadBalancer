@@ -45,6 +45,25 @@ ServersManager.list = () => {
 	return (output);
 }
 
+// Chose best server
+ServersManager.chooseServer = (ip = false) => {
+	return (new Promise((resolve, reject) => {
+		let tab = [];
+		const list = ServersManager.list();
+		Object.keys(list).forEach((i) => {
+			tab.push(list[i]);
+		});
+		tab.sort((e) => (e.score));
+		if (typeof (tab[0]) === 'undefined')
+			return (false);
+
+		/*fetch(tab[0].url + '/api/resolve?ip=' + ip).then(res => res.json())
+			.then(json => console.log(json));
+		});*/
+		// TODO : Resolve URL from transcoder here
+	}));
+};
+
 // Calculate server score
 ServersManager.score = (e) => {
 
