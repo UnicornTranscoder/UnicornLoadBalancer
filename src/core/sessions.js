@@ -3,6 +3,7 @@ import uniqid from 'uniqid';
 
 import config from '../config';
 import { publicUrl, plexUrl } from '../utils';
+import SessionStore from '../store';
 
 // Debugger
 const D = debug('UnicornLoadBalancer:SessionsManager');
@@ -146,11 +147,12 @@ SessionsManager.parseFFmpegParameters = (args) => {
         finalArgs.push(e);
     });
     return (finalArgs);
-}
+};
 
 // Store the FFMPEG parameters in RedisCache
 SessionsManager.storeFFmpegParameters = (args, env) => {
     const parsedArguments = SessionsManager.parseFFmpegParameters(args);
+    //TODO Store with SessionStore.set(sessionId, { args: parsedArguments, env: env }).then(...)
     return (parsedArguments);
 };
 
