@@ -63,7 +63,7 @@ router.all('/api/plex/*', (req, res) => {
 });
 
 //Dash routes
-router.get('/video/:/transcode/universal/start.mpd', (req, res) => {
+router.get('/:video/:/transcode/universal/start.mpd', (req, res) => {
 	
 	let sessionId = false;
 	if (typeof(req.query['X-Plex-Session-Identifier']) !== 'undefined' && typeof(serverManager.cacheSession[req.query['X-Plex-Session-Identifier']]) !== 'undefined')
@@ -72,7 +72,7 @@ router.get('/video/:/transcode/universal/start.mpd', (req, res) => {
 	if (sessionId !== false) {
 		const serverUrl = serverManager.chooseServer(sessionId, getIp(req));
 		if (typeof(serverUrl) !== 'undefined')
-			request(serverUrl + '/video/:/transcode/universal/stop?session=' + sessionId, (err, httpResponse, body) => {
+			request(serverUrl + '/' + req.params.video + '/:/transcode/universal/stop?session=' + sessionId, (err, httpResponse, body) => {
 				serverManager.saveSession(req);
 				redirect(req, res);
 			});
@@ -81,35 +81,35 @@ router.get('/video/:/transcode/universal/start.mpd', (req, res) => {
 		redirect(req, res);
 	}
 });
-router.get('/video/:/transcode/universal/dash/:sessionId/:streamId/initial.mp4', redirect);
-router.get('/video/:/transcode/universal/dash/:sessionId/:streamId/:partId.m4s', redirect);
+router.get('/:video/:/transcode/universal/dash/:sessionId/:streamId/initial.mp4', redirect);
+router.get('/:video/:/transcode/universal/dash/:sessionId/:streamId/:partId.m4s', redirect);
 
 //Stream mode
-router.get('/video/:/transcode/universal/start', (req, res) => {
+router.get('/:video/:/transcode/universal/start', (req, res) => {
 	serverManager.saveSession(req);
     redirect(req, res);
 });
-router.get('/video/:/transcode/universal/subtitles', redirect);
+router.get('/:video/:/transcode/universal/subtitles', redirect);
 
 //m3u8 mode
-router.get('/video/:/transcode/universal/start.m3u8', (req, res) => {
+router.get('/:video/:/transcode/universal/start.m3u8', (req, res) => {
 	serverManager.saveSession(req);
     redirect(req, res);
 });
-router.get('/video/:/transcode/universal/session/:sessionId/base/index.m3u8', redirect);
-router.get('/video/:/transcode/universal/session/:sessionId/base-x-mc/index.m3u8', redirect);
-router.get('/video/:/transcode/universal/session/:sessionId/:fileType/:partId.ts', redirect);
-router.get('/video/:/transcode/universal/session/:sessionId/:fileType/:partId.vtt', redirect);
+router.get('/:video/:/transcode/universal/session/:sessionId/base/index.m3u8', redirect);
+router.get('/:video/:/transcode/universal/session/:sessionId/base-x-mc/index.m3u8', redirect);
+router.get('/:video/:/transcode/universal/session/:sessionId/:fileType/:partId.ts', redirect);
+router.get('/:video/:/transcode/universal/session/:sessionId/:fileType/:partId.vtt', redirect);
 
 //Universal endpoints
-router.get('/video/:/transcode/universal/stop', (req, res) => {
+router.get('/:video/:/transcode/universal/stop', (req, res) => {
 	proxy.web(req, res);
 	
 	const sessionId = serverManager.getSession(req);
 	const serverUrl = serverManager.chooseServer(sessionId, getIp(req));
 
 	if (typeof(serverUrl) !== 'undefined')
-		request(serverUrl + '/video/:/transcode/universal/stop?session=' + sessionId);
+		request(serverUrl + '/' + req.params.video + '/:/transcode/universal/stop?session=' + sessionId);
 	
 	setTimeout(() => {
 		serverManager.removeSession(sessionId);
@@ -118,14 +118,14 @@ router.get('/video/:/transcode/universal/stop', (req, res) => {
 	}, 1000);
 });
 
-router.get('/video/:/transcode/universal/ping', (req, res) => {
+router.get('/:video/:/transcode/universal/ping', (req, res) => {
 	proxy.web(req, res);
 	
 	const sessionId = serverManager.getSession(req);
 	const serverUrl = serverManager.chooseServer(sessionId, getIp(req));
 
 	if (typeof(serverUrl) !== 'undefined')
-		request(serverUrl + '/video/:/transcode/universal/ping?session=' + sessionId);
+		request(serverUrl + '/' + req.params.video + '/:/transcode/universal/ping?session=' + sessionId);
 });
 
 router.get('/:/timeline', (req, res) => {
