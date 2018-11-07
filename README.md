@@ -12,7 +12,6 @@ This software is a part of __UnicornTranscoder__ project, it's the LoadBalancer 
 
 * Plex Media Server
 * NodeJS
-* npm
 
 ## Setup
 

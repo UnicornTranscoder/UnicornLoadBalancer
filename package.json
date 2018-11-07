@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "geo-build": "node ./node_modules/geoip-lite/scripts/updatedb.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Maxime Baconnais",
@@ -17,8 +16,10 @@
     "express": "^4.16.3",
     "getenv": "^0.7.0",
     "http-proxy": "^1.17.0",
-    "uniqid": "^5.0.3",
+    "node-fetch": "^2.2.1",
+    "node-pre-gyp": "^0.11.0",
     "redis": "^2.8.0",
-    "sqlite3": "^4.0.2"
+    "sqlite3": "^4.0.2",
+    "uniqid": "^5.0.3"
   }
 }

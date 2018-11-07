@@ -1,11 +1,13 @@
+import fetch from 'node-fetch';
 import { time } from '../utils';
 import config from '../config';
+
 
 let servers = {};
 
 let ServersManager = {};
 
-// Add/update a server
+// Add or update a server
 ServersManager.update = (e) => {
 	const name = (e.name) ? e.name : (e.url) ? e.url : '';
 	if (!name)
@@ -55,18 +57,19 @@ ServersManager.chooseServer = (ip = false) => {
 		});
 		tab.sort((e) => (e.score));
 		if (typeof (tab[0]) === 'undefined')
-			return (false);
-
-		/*fetch(tab[0].url + '/api/resolve?ip=' + ip).then(res => res.json())
-			.then(json => console.log(json));
-		});*/
-		// TODO : Resolve URL from transcoder here
+			return resolve(false);
+		fetch(tab[0].url + '/api/resolve?ip=' + ip)
+			.then(res => res.json())
+			.then(body => {
+				// TODO: Adapt the server handshake
+				console.log(body);
+				return resolve('URL')
+			});
 	}));
 };
 
 // Calculate server score
 ServersManager.score = (e) => {
-
 	// The configuration wasn't updated since X seconds, the server is probably unavailable
 	if (time() - e.time > config.scores.timeout)
 		return (100);

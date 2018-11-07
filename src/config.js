@@ -1,5 +1,7 @@
 import env from 'getenv';
 
+env.disableErrors();
+
 export default {
     version: '2.0.0',
     server: {
@@ -17,7 +19,7 @@ export default {
         }
     },
     redis: {
-        host: env.string('REDIS_HOST', '127.0.0.1'),
+        host: env('REDIS_HOST', undefined),
         port: env.int('REDIS_PORT', 6379),
         password: env.string('REDIS_PASSWORD', ''),
         db: env.int('REDIS_DB', 0)

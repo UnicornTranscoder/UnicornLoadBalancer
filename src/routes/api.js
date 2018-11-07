@@ -22,7 +22,7 @@ RoutesAPI.update = (req, res) => {
 RoutesAPI.ffmpeg = (req, res) => {
     if (!req.body || !req.body.args || !req.body.env)
         res.status(400).send({ error: { code: 'INVALID_ARGUMENTS', message: 'Invalid UnicornFFMPEG parameters' } });
-    res.send(SessionsManager.storeFFmpegParameters = (req.body.args, req.body.env));
+    res.send(SessionsManager.storeFFmpegParameters(req.body.args, req.body.env));
 };
 
 // Resolve path from file id
@@ -49,11 +49,20 @@ RoutesAPI.plex = (req, res) => {
             host: config.plex.host,
             port: config.plex.port
         }
-    }).on('error', (err, req, res) => {
+    }).on('error', () => {
         res.status(400).send({ error: { code: 'PROXY_TIMEOUT', message: 'Plex not respond in time, proxy request fails' } });
     });
     req.url = req.url.slice('/api/plex'.length);
     return (proxy.web(req, res));
+};
+
+// Returns sessions from UnicornID
+RoutesAPI.session = (req, res) => {
+    SessionStore.get(req.params.unicorn).then((data) => {
+        res.send(data);
+    }).catch((err) => {
+        res.status(400).send({ error: { code: 'SESSION_TIMEOUT', message: 'The session wasn\'t launched in time, request fails' } });
+    })
 };
 
 // Export all our API routes

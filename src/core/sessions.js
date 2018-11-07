@@ -2,7 +2,8 @@ import debug from 'debug';
 import uniqid from 'uniqid';
 
 import config from '../config';
-import { publicUrl, plexUrl, redis } from '../utils';
+import { publicUrl, plexUrl } from '../utils';
+import SessionStore from '../store';
 
 // Debugger
 const D = debug('UnicornLoadBalancer:SessionsManager');
@@ -13,7 +14,6 @@ let sessions = [
     {
         unicorn: '_UNiC0RN',
         session: '',
-        sessionId: '',
         sessionFull: '',
         sessionIdentifier: '',
         clientIdentifier: '',
@@ -26,13 +26,11 @@ let sessions = [
 // Parse request to extract session information
 SessionsManager.parseSessionFromRequest = (req) => {
     const unicorn = (typeof (req.query.unicorn) !== 'undefined') ? { unicorn: req.query.unicorn } : false;
-    const sessionId = (typeof (req.params.sessionId) !== 'undefined') ? { sessionId: req.params.sessionId } : false;
-    const session = (typeof (req.query.session) !== 'undefined') ? { session: req.query.session } : false;
+    const session = (typeof (req.params.sessionId) !== 'undefined') ? { sessionId: req.params.sessionId } : ((typeof (req.query.session) !== 'undefined') ? { session: req.query.session } : false);
     const sessionIdentifier = (typeof (req.query['X-Plex-Session-Identifier']) !== 'undefined') ? { "X-Plex-Session-Identifier": req.query['X-Plex-Session-Identifier'] } : false;
     const clientIdentifier = (typeof (req.query['X-Plex-Client-Identifier']) !== 'undefined') ? { "X-Plex-Client-Identifier": req.query['X-Plex-Client-Identifier'] } : false;
     return {
         ...unicorn,
-        ...sessionId,
         ...session,
         ...sessionIdentifier,
         ...clientIdentifier
@@ -41,10 +39,10 @@ SessionsManager.parseSessionFromRequest = (req) => {
 
 // Get a session from its values
 SessionsManager.getSessionFromRequest = (search) => {
+    let keys = Object.keys(search).filter(e => (['args', 'env', 'pingUrl'].indexOf(e) === -1));
     const filtered = sessions.filter(e => {
-        let keys = Object.keys(search);
         for (let i = 0; i < keys.length; i++) {
-            if (e[keys[i]] === search[keys[i]])
+            if (e[keys[i]] === search[keys[i]] && e[keys[i]])
                 return (true);
         }
         return (false);
@@ -56,10 +54,10 @@ SessionsManager.getSessionFromRequest = (search) => {
 
 // Get a session position from its values
 SessionsManager.getIdFromRequest = (search) => {
+    let keys = Object.keys(search).filter(e => (['args', 'env', 'pingUrl'].indexOf(e) === -1));
     for (let idx = 0; idx < sessions.length; idx++) {
-        let keys = Object.keys(search);
         for (let i = 0; i < keys.length; i++) {
-            if (e[keys[i]] === search[keys[i]])
+            if (e[keys[i]] === search[keys[i]] && e[keys[i]])
                 return (idx);
         }
     }
@@ -69,22 +67,24 @@ SessionsManager.getIdFromRequest = (search) => {
 // Update the session stored
 SessionsManager.updateSessionFromRequest = (req) => {
     const args = SessionsManager.parseSessionFromRequest(req);
-    const search = SessionsManager.getSessionFromRequest(search);
-    const idx = SessionsManager.getIdFromRequest(search);
+    return (SessionsManager.updateSession(args));
+};
+
+// Update a session
+SessionsManager.updateSession = (args) => {
+    const search = SessionsManager.getSessionFromRequest(args);
+    const idx = SessionsManager.getIdFromRequest(args);
 
     if (!search) {
         sessions.push({
-            ...{
-                unicorn: uniqid(),
-                session: '',
-                sessionId: '',
-                sessionFull: '',
-                sessionIdentifier: '',
-                clientIdentifier: '',
-                args: [],
-                env: [],
-                pingUrl: ''
-            },
+            unicorn: uniqid(),
+            session: '',
+            sessionFull: '',
+            sessionIdentifier: '',
+            clientIdentifier: '',
+            args: [],
+            env: [],
+            pingUrl: '',
             ...args
         });
         return (true);
@@ -97,7 +97,7 @@ SessionsManager.updateSessionFromRequest = (req) => {
 };
 
 // Parse FFmpeg parameters with internal bindings
-SessionsManager.parseFFmpegParameters = (args) => {
+SessionsManager.parseFFmpegParameters = (args, env) => {
     // Extract Session ID
     const regex = /^http\:\/\/127.0.0.1:32400\/video\/:\/transcode\/session\/(.*)\/progress$/;
     const sessions = args.filter(e => (regex.test(e))).map(e => (e.match(regex)[1]))
@@ -145,17 +145,28 @@ SessionsManager.parseFFmpegParameters = (args) => {
         }
         finalArgs.push(e);
     });
-    return (finalArgs);
-}
+    return ({
+        args: finalArgs,
+        env,
+        session: sessionId,
+        sessionFull
+    });
+};
 
 // Store the FFMPEG parameters in RedisCache
 SessionsManager.storeFFmpegParameters = (args, env) => {
-    const parsedArguments = SessionsManager.parseFFmpegParameters(args);
-    redis.set(propersessionid, JSON.stringify({
-        args: parsedArguments,
-        env
-    }));
-    return (parsedArguments);
+    const parsed = SessionsManager.parseFFmpegParameters(args, env);
+    SessionsManager.updateSession(parsed);
+    const session = SessionsManager.getSessionFromRequest({
+        session: parsed.session,
+        sessionFull: parsed.sessionFull
+    });
+    SessionStore.set(session.unicorn, session).then(() => {
+
+    }).catch((err) => {
+
+    })
+    return (parsed);
 };
 
 // Export our SessionsManager
