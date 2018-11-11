@@ -1,52 +1,121 @@
-import config from '../config';
+import debug from 'debug';
+import fetch from 'node-fetch';
+
 import SessionsManager from '../core/sessions';
 import ServersManager from '../core/servers';
+import Proxy from './proxy';
+
+// Debugger
+const D = debug('UnicornLoadBalancer:transcode');
 
 let RoutesTranscode = {};
-
-// TODO: Some stuff to do here :P
 
 RoutesTranscode.redirect = (req, res) => {
     SessionsManager.updateSessionFromRequest(req);
 
-    // Choose server if we don't have (check in server manager)
-    // Save server in sessionManager
+    const search = SessionsManager.parseSessionFromRequest(req);
+    const session = SessionsManager.getSessionFromRequest(search);
 
-    ServersManager.chooseServer(req.connection.remoteAddress);
+    const redirectRequest = (server) => {
+        if (server) {
+            res.writeHead(302, {
+                'Location': (server + req.url + '&unicorn=' + session.unicorn)
+            });
+            res.end();
+            D('Send 302 for ' + session.session + ' to ' + server);
+            return;
+        }
+        D('Fail to 302 for ' + session.session + ' to ' + server);
+    };
 
-    /*res.writeHead(302, {
-		'Location': serverUrl + req.url + '&unicorn=' + UNICORNID
-	});
-	res.end();
-	
-	debug('Send 302 for ' + sessionId + ' to ' + serverUrl);*/
+    if (session.serverUrl) {
+        return (redirectRequest(session.serverUrl));
+    }
+
+    ServersManager.chooseServer(req.connection.remoteAddress).then((server) => {
+        SessionsManager.updateSession({ ...session, serverUrl: server });
+        return (redirectRequest(server));
+    });
 };
 
 RoutesTranscode.ping = (req, res) => {
-    /*proxy.web(req, res); // + '&unicorn=' + UNICORNID
+    SessionsManager.updateSessionFromRequest(req);
 
-    const sessionId = serverManager.getSession(req);
-    const serverUrl = serverManager.chooseServer(sessionId, getIp(req));
+    const search = SessionsManager.parseSessionFromRequest(req);
+    const session = SessionsManager.getSessionFromRequest(search);
 
-    if (typeof (serverUrl) !== 'undefined')
-        request(serverUrl + '/video/:/transcode/universal/ping?session=' + sessionId);*/// + '&unicorn=' + UNICORNID
+    req.url += '&unicorn=' + session.unicorn;
+    Proxy.web(req, res);
+
+    const pingRequest = (server) => {
+        fetch(server + '/' + req.params.formatType + '/:/transcode/universal/ping?session=' + session.session + '&unicorn=' + session.unicorn);
+    };
+
+    if (session.serverUrl) {
+        return (pingRequest(session.serverUrl));
+    }
+
+    ServersManager.chooseServer(req.connection.remoteAddress).then((server) => {
+        SessionsManager.updateSession({ ...session, serverUrl: server });
+        return (pingRequest(server));
+    });
 };
 
 RoutesTranscode.timeline = (req, res) => {
+    SessionsManager.updateSessionFromRequest(req);
 
-    //  /!\ Need to catch Dash end here
+    const search = SessionsManager.parseSessionFromRequest(req);
+    const session = SessionsManager.getSessionFromRequest(search);
 
-    /*if (req.query.state == 'stopped' || (typeof (req.query['X-Plex-Session-Identifier']) !== 'undefined' && typeof (serverManager.stoppedSessions[req.query['X-Plex-Session-Identifier']]) != 'undefined')) {
-        request(serverUrl + '/video/:/transcode/universal/stop?session=' + sessionId);// + '&unicorn=' + UNICORNID
+    req.url += '&unicorn=' + session.unicorn;
+    Proxy.web(req, res);
+
+    const pingRequest = (server) => {
+        fetch(server + '/' + req.params.formatType + '/:/transcode/universal/ping?session=' + session.session + '&unicorn=' + session.unicorn);
+    };
+
+    const stopRequest = (server) => {
+        fetch(server + '/' + req.params.formatType + '/:/transcode/universal/stop?session=' + session.session + '&unicorn=' + session.unicorn);
+    };
+
+    const autoRequest = (server) => {
+        if (req.query.state == 'stopped')
+            stopRequest(server);
+        else
+            pingRequest(server);
     }
-    else {
-        proxy.web(req, res);
-    }*/
+
+    if (session.serverUrl) {
+        return (autoRequest(session.serverUrl));
+    }
+
+    ServersManager.chooseServer(req.connection.remoteAddress).then((server) => {
+        SessionsManager.updateSession({ ...session, serverUrl: server });
+        return (autoRequest(server));
+    });
 };
 
 RoutesTranscode.stop = (req, res) => {
+    SessionsManager.updateSessionFromRequest(req);
 
-    // ???
+    const search = SessionsManager.parseSessionFromRequest(req);
+    const session = SessionsManager.getSessionFromRequest(search);
+
+    req.url += '&unicorn=' + session.unicorn;
+    Proxy.web(req, res);
+
+    const stopRequest = (server) => {
+        fetch(server + '/' + req.params.formatType + '/:/transcode/universal/stop?session=' + session.session + '&unicorn=' + session.unicorn);
+    };
+
+    if (session.serverUrl) {
+        return (stopRequest(session.serverUrl));
+    }
+
+    ServersManager.chooseServer(req.connection.remoteAddress).then((server) => {
+        SessionsManager.updateSession({ ...session, serverUrl: server });
+        return (stopRequest(server));
+    });
 };
 
 export default RoutesTranscode;

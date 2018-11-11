@@ -58,7 +58,7 @@ RoutesAPI.plex = (req, res) => {
 
 // Returns sessions from UnicornID
 RoutesAPI.session = (req, res) => {
-    SessionStore.get(req.params.unicorn).then((data) => {
+    SessionStore.get(req.params.session).then((data) => {
         res.send(data);
     }).catch((err) => {
         res.status(400).send({ error: { code: 'SESSION_TIMEOUT', message: 'The session wasn\'t launched in time, request fails' } });

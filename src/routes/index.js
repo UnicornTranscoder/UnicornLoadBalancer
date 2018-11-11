@@ -16,7 +16,7 @@ export default (app) => {
     app.post('/api/ffmpeg', RoutesAPI.ffmpeg);
     app.get('/api/path/:id', RoutesAPI.path);
     app.post('/api/update', RoutesAPI.update);
-    app.get('/api/session/:unicorn', RoutesAPI.session);
+    app.get('/api/session/:session', RoutesAPI.session);
     app.all('/api/plex/*', RoutesAPI.plex);
 
     // MPEG Dash support

@@ -19,7 +19,8 @@ let sessions = [
         clientIdentifier: '',
         args: [],
         env: [],
-        pingUrl: ''
+        serverUrl: '',
+        pingUrl: '',
     }
 ];
 
@@ -84,6 +85,7 @@ SessionsManager.updateSession = (args) => {
             clientIdentifier: '',
             args: [],
             env: [],
+            serverUrl: '',
             pingUrl: '',
             ...args
         });
@@ -161,7 +163,7 @@ SessionsManager.storeFFmpegParameters = (args, env) => {
         session: parsed.session,
         sessionFull: parsed.sessionFull
     });
-    SessionStore.set(session.unicorn, session).then(() => {
+    SessionStore.set(session.session, session).then(() => {
 
     }).catch((err) => {
 
