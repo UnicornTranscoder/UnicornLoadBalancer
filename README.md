@@ -32,7 +32,7 @@ This software is a part of __UnicornTranscoder__ project, it's the LoadBalancer 
 | **PLEX_PATH_USR** | The Plex's path | `string` | `/usr/lib/plexmediaserver/` | 
 | **PLEX_PATH_SESSIONS** | The path where Plex store sessions (to grab external subtitles) | `string` | `/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Cache/Transcode/Sessions` | 
 | **PLEX_PATH_DATABASE** | The path of the Plex database | `string` | `/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db` |
-| **REDIS_HOST** | The host of the redis database | `string|undefined` | `undefined` | 
+| **REDIS_HOST** | The host of the redis database | `string` `undefined` | `undefined` | 
 | **REDIS_PORT** | Port used by Redis | `int` | `6379` |
 | **REDIS_PASSWORD** | The password of the redis database | `string` | ` ` | 
 | **REDIS_DB** | The index of the redis database | `int` | `0` | 
