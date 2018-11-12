@@ -37,8 +37,13 @@ D('Initializing API routes...');
 // Routes
 Router(app);
 
-// Create HTTP server, forward websocket and start
-app.listen(config.server.port).on('upgrade', (req, res) => {
+// Create HTTP server
+const httpServer = app.listen(config.server.port);
+
+// Forward websockets
+httpServer.on('upgrade', (req, res) => {
     Proxy.ws(req, res);
 });
+
+// Debug
 D('Launched on ' + internalUrl());
