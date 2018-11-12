@@ -58,7 +58,7 @@ SessionsManager.getIdFromRequest = (search) => {
     let keys = Object.keys(search).filter(e => (['args', 'env', 'pingUrl'].indexOf(e) === -1));
     for (let idx = 0; idx < sessions.length; idx++) {
         for (let i = 0; i < keys.length; i++) {
-            if (e[keys[i]] === search[keys[i]] && e[keys[i]])
+            if (sessions[idx][keys[i]] === search[keys[i]] && sessions[idx][keys[i]])
                 return (idx);
         }
     }
