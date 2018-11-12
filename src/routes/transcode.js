@@ -48,7 +48,7 @@ RoutesTranscode.ping = (req, res) => {
     Proxy.plex(req, res);
 
     const pingRequest = (server) => {
-        fetch(server + '/' + req.params.formatType + '/:/transcode/universal/ping?session=' + session.session + '&unicorn=' + session.unicorn);
+        fetch(server + '/api/ping?session=' + session.session + '&unicorn=' + session.unicorn);
     };
 
     if (session.serverUrl) {
@@ -71,11 +71,11 @@ RoutesTranscode.timeline = (req, res) => {
     Proxy.plex(req, res);
 
     const pingRequest = (server) => {
-        fetch(server + '/' + req.params.formatType + '/:/transcode/universal/ping?session=' + session.session + '&unicorn=' + session.unicorn);
+        fetch(server + '/api/ping?session=' + session.session + '&unicorn=' + session.unicorn);
     };
 
     const stopRequest = (server) => {
-        fetch(server + '/' + req.params.formatType + '/:/transcode/universal/stop?session=' + session.session + '&unicorn=' + session.unicorn);
+        fetch(server + '/api/stop?session=' + session.session + '&unicorn=' + session.unicorn);
     };
 
     const autoRequest = (server) => {
@@ -105,7 +105,7 @@ RoutesTranscode.stop = (req, res) => {
     Proxy.plex(req, res);
 
     const stopRequest = (server) => {
-        fetch(server + '/' + req.params.formatType + '/:/transcode/universal/stop?session=' + session.session + '&unicorn=' + session.unicorn);
+        fetch(server + '/api/stop?session=' + session.session + '&unicorn=' + session.unicorn);
     };
 
     if (session.serverUrl) {
