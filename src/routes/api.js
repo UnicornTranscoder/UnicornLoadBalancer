@@ -2,6 +2,7 @@ import httpProxy from 'http-proxy';
 import sqlite3 from 'sqlite3';
 
 import config from '../config';
+import SessionStore from '../store';
 import SessionsManager from '../core/sessions';
 import ServersManager from '../core/servers';
 
