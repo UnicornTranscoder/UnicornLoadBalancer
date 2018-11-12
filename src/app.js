@@ -26,9 +26,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
-app.use((err, _, res) => {
+app.use((err, _, res, next) => {
     if (err instanceof SyntaxError && err.status >= 400 && err.status < 500 && err.message.indexOf('JSON'))
-        res.status(400).send({ error: { code: 'INVALID_BODY', message: 'Syntax error in the JSON body' } });
+        return (res.status(400).send({ error: { code: 'INVALID_BODY', message: 'Syntax error in the JSON body' } }));
+    next();
 });
 
 // Init routes
@@ -41,9 +42,9 @@ Router(app);
 const httpServer = app.listen(config.server.port);
 
 // Forward websockets
-/*httpServer.on('upgrade', (req, res) => {
+httpServer.on('upgrade', (req, res) => {
     Proxy.ws(req, res);
-});*/
+});
 
 // Debug
 D('Launched on ' + internalUrl());
