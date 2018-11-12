@@ -61,8 +61,6 @@ ServersManager.chooseServer = (ip = false) => {
 		fetch(tab[0].url + '/api/resolve?ip=' + ip)
 			.then(res => res.json())
 			.then(body => {
-				// TODO: Adapt the server handshake
-				console.log(body);
 				return resolve(body.client)
 			});
 	}));
