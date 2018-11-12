@@ -1,3 +1,4 @@
+import httpProxy from 'http-proxy';
 import config from '../config';
 
 let RoutesProxy = {};
