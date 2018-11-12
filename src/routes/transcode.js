@@ -32,7 +32,7 @@ RoutesTranscode.redirect = (req, res) => {
         return (redirectRequest(session.serverUrl));
     }
 
-    ServersManager.chooseServer(req.connection.remoteAddress).then((server) => {
+    ServersManager.chooseServer(req.headers['x-forwarded-for'] || req.connection.remoteAddress).then((server) => {
         SessionsManager.updateSession({ ...session, serverUrl: server });
         return (redirectRequest(server));
     });
@@ -55,7 +55,7 @@ RoutesTranscode.ping = (req, res) => {
         return (pingRequest(session.serverUrl));
     }
 
-    ServersManager.chooseServer(req.connection.remoteAddress).then((server) => {
+    ServersManager.chooseServer(req.headers['x-forwarded-for'] || req.connection.remoteAddress).then((server) => {
         SessionsManager.updateSession({ ...session, serverUrl: server });
         return (pingRequest(server));
     });
@@ -89,7 +89,7 @@ RoutesTranscode.timeline = (req, res) => {
         return (autoRequest(session.serverUrl));
     }
 
-    ServersManager.chooseServer(req.connection.remoteAddress).then((server) => {
+    ServersManager.chooseServer(req.headers['x-forwarded-for'] || req.connection.remoteAddress).then((server) => {
         SessionsManager.updateSession({ ...session, serverUrl: server });
         return (autoRequest(server));
     });
@@ -112,7 +112,7 @@ RoutesTranscode.stop = (req, res) => {
         return (stopRequest(session.serverUrl));
     }
 
-    ServersManager.chooseServer(req.connection.remoteAddress).then((server) => {
+    ServersManager.chooseServer(req.headers['x-forwarded-for'] || req.connection.remoteAddress).then((server) => {
         SessionsManager.updateSession({ ...session, serverUrl: server });
         return (stopRequest(server));
     });
