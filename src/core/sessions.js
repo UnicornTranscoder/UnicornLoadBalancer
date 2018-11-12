@@ -99,7 +99,7 @@ SessionsManager.updateSession = (args) => {
 };
 
 // Parse FFmpeg parameters with internal bindings
-SessionsManager.parseFFmpegParameters = (args, env) => {
+SessionsManager.parseFFmpegParameters = (args = [], env = {}) => {
     // Extract Session ID
     const regex = /^http\:\/\/127.0.0.1:32400\/video\/:\/transcode\/session\/(.*)\/progress$/;
     const sessions = args.filter(e => (regex.test(e))).map(e => (e.match(regex)[1]))
