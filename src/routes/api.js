@@ -23,7 +23,7 @@ RoutesAPI.update = (req, res) => {
 RoutesAPI.ffmpeg = (req, res) => {
     if (!req.body || !req.body.args || !req.body.env)
         res.status(400).send({ error: { code: 'INVALID_ARGUMENTS', message: 'Invalid UnicornFFMPEG parameters' } });
-    res.send(SessionsManager.storeFFmpegParameters(req.body.args, req.body.env));
+    res.send(SessionsManager.storeFFmpegParameters(req.body.arg, req.body.env));
 };
 
 // Resolve path from file id
