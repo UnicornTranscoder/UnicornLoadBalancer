@@ -41,9 +41,9 @@ Router(app);
 const httpServer = app.listen(config.server.port);
 
 // Forward websockets
-httpServer.on('upgrade', (req, res) => {
+/*httpServer.on('upgrade', (req, res) => {
     Proxy.ws(req, res);
-});
+});*/
 
 // Debug
 D('Launched on ' + internalUrl());
