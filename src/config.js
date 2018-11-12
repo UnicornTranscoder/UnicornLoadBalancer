@@ -6,7 +6,7 @@ export default {
     version: '2.0.0',
     server: {
         port: env.int('SERVER_PORT', 3001),
-        host: env.string('SERVER_DOMAIN', '127.0.0.1'),
+        host: env.string('SERVER_HOST', '127.0.0.1'),
         ssl: env.bool('SERVER_SSL', false)
     },
     plex: {
