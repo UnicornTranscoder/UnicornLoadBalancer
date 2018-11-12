@@ -9,7 +9,7 @@ let RoutesAPI = {};
 
 // Returns all the stats of all the transcoders
 RoutesAPI.stats = (req, res) => {
-    res.send(ServersManager.stats());
+    res.send(ServersManager.list());
 };
 
 // Save the stats of a server
