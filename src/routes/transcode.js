@@ -45,7 +45,7 @@ RoutesTranscode.ping = (req, res) => {
     const session = SessionsManager.getSessionFromRequest(search);
 
     req.url += '&unicorn=' + session.unicorn;
-    Proxy.web(req, res);
+    Proxy.plex(req, res);
 
     const pingRequest = (server) => {
         fetch(server + '/' + req.params.formatType + '/:/transcode/universal/ping?session=' + session.session + '&unicorn=' + session.unicorn);
@@ -68,7 +68,7 @@ RoutesTranscode.timeline = (req, res) => {
     const session = SessionsManager.getSessionFromRequest(search);
 
     req.url += '&unicorn=' + session.unicorn;
-    Proxy.web(req, res);
+    Proxy.plex(req, res);
 
     const pingRequest = (server) => {
         fetch(server + '/' + req.params.formatType + '/:/transcode/universal/ping?session=' + session.session + '&unicorn=' + session.unicorn);
@@ -102,7 +102,7 @@ RoutesTranscode.stop = (req, res) => {
     const session = SessionsManager.getSessionFromRequest(search);
 
     req.url += '&unicorn=' + session.unicorn;
-    Proxy.web(req, res);
+    Proxy.plex(req, res);
 
     const stopRequest = (server) => {
         fetch(server + '/' + req.params.formatType + '/:/transcode/universal/stop?session=' + session.session + '&unicorn=' + session.unicorn);
