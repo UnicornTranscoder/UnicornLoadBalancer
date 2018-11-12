@@ -63,7 +63,7 @@ ServersManager.chooseServer = (ip = false) => {
 			.then(body => {
 				// TODO: Adapt the server handshake
 				console.log(body);
-				return resolve('URL')
+				return resolve(body.client)
 			});
 	}));
 };
