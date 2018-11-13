@@ -19,7 +19,7 @@ RoutesTranscode.redirect = (req, res) => {
     const redirectRequest = (server) => {
         if (server) {
             res.writeHead(302, {
-                'Location': (server + req.url + '&unicorn=' + session.unicorn)
+                'Location': (server + req.url + (req.url.indexOf('?') === -1 ? '?' : '&') + 'unicorn=' + session.unicorn)
             });
             res.end();
             D('Send 302 for ' + session.session + ' to ' + server);
