@@ -26,7 +26,7 @@ export default (app) => {
 
     // Long polling support
     app.get('/:formatType/:/transcode/universal/start', RoutesTranscode.redirect);
-    app.get(':formatType/:/transcode/universal/subtitles', RoutesTranscode.redirect);
+    app.get('/:formatType/:/transcode/universal/subtitles', RoutesTranscode.redirect);
 
     // M3U8 support
     app.get('/:formatType/:/transcode/universal/start.m3u8', RoutesTranscode.redirect);
