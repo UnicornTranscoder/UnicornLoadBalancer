@@ -29,6 +29,7 @@ export default (app) => {
     app.get('/:formatType/:/transcode/universal/subtitles', RoutesTranscode.redirect);
 
     // M3U8 support
+    app.get('/:formatType/:/transcode/universal/start.m3u8', RoutesTranscode.cleanSession, RoutesProxy.plex);
     app.get('/:formatType/:/transcode/universal/session/:sessionId/base/index.m3u8', RoutesTranscode.redirect);
     app.get('/:formatType/:/transcode/universal/session/:sessionId/base-x-mc/index.m3u8', RoutesTranscode.redirect);
     app.get('/:formatType/:/transcode/universal/session/:sessionId/:fileType/:partId.ts', RoutesTranscode.redirect);

@@ -118,4 +118,16 @@ RoutesTranscode.stop = (req, res) => {
     });
 };
 
+RoutesTranscode.cleanSession = (req, res, next) => {
+    if (typeof req.query.session !== 'undefined') {
+        SessionsManager.cleanSession(req.query.session)
+            .then(() => {
+                next()
+            })
+            .catch(() => {
+                res.status(500).send('Internal Server Error')
+            })
+    }
+};
+
 export default RoutesTranscode;

@@ -171,5 +171,9 @@ SessionsManager.storeFFmpegParameters = (args, env) => {
     return (parsed);
 };
 
+SessionsManager.cleanSession = (sessionId) => {
+    return SessionStore.delete(sessionId)
+};
+
 // Export our SessionsManager
 export default SessionsManager;
