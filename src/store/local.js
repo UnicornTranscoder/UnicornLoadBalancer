@@ -38,12 +38,24 @@ class LocalSessionStore {
      * Store a value in the store and trigger the pending gets
      * @param sessionId
      * @param value
-     * @returns {Promise<redis result>}
+     * @returns {Promise<result>}
      */
     set(sessionId, value) {
         return new Promise((resolve) => {
             this.sessionStore[sessionId] = value;
             this.sessionEvents.emit(sessionId, value);
+            resolve('OK');
+        })
+    }
+
+    /**
+     * Delete a session from the store
+     * @param sessionId
+     * @returns {Promise<result>}
+     */
+    delete(sessionId) {
+        return new Promise((resolve) => {
+            delete this.sessionStore[sessionId];
             resolve('OK');
         })
     }

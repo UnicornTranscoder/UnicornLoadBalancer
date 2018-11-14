@@ -58,7 +58,7 @@ class RedisSessionStore {
      * Store a value in the store and trigger the pending gets
      * @param sessionId
      * @param value
-     * @returns {Promise<redis result>}
+     * @returns {Promise<result>}
      */
     set(sessionId, value) {
         return new Promise((resolve, reject) => {
@@ -66,6 +66,21 @@ class RedisSessionStore {
                 if (err)
                     return reject(err);
                 resolve('OK');
+            })
+        })
+    }
+
+    /**
+     * Delete a session from the store
+     * @param sessionId
+     * @returns {Promise<result>}
+     */
+    delete(sessionId) {
+        return new Promise((resolve, reject) => {
+            this.redis.del(sessionId, (err) => {
+                if (err)
+                    return reject(err);
+                resolve('OK')
             })
         })
     }
