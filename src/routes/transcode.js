@@ -120,6 +120,7 @@ RoutesTranscode.stop = (req, res) => {
 
 RoutesTranscode.cleanSession = (req, res, next) => {
     if (typeof req.query.session !== 'undefined') {
+        D('Clean ' + req.query.session + 'from session store');
         SessionsManager.cleanSession(req.query.session)
             .then(() => {
                 next()
