@@ -20,7 +20,6 @@ let sessions = [
         args: [],
         env: [],
         serverUrl: '',
-        pingUrl: '',
     }*/
 ];
 
@@ -44,7 +43,7 @@ SessionsManager.parseSessionFromRequest = (req) => {
 
 // Get a session from its values
 SessionsManager.getSessionFromRequest = (search) => {
-    let keys = Object.keys(search).filter(e => (['args', 'env', 'pingUrl', 'serverUrl'].indexOf(e) === -1));
+    let keys = Object.keys(search).filter(e => (['args', 'env', 'serverUrl', 'clientIdentifier'].indexOf(e) === -1));
     const filtered = sessions.filter(e => {
         for (let i = 0; i < keys.length; i++) {
             if (e[keys[i]] === search[keys[i]] && e[keys[i]])
@@ -59,7 +58,7 @@ SessionsManager.getSessionFromRequest = (search) => {
 
 // Get a session position from its values
 SessionsManager.getIdFromRequest = (search) => {
-    let keys = Object.keys(search).filter(e => (['args', 'env', 'pingUrl', 'serverUrl', 'clientIdentifier'].indexOf(e) === -1));
+    let keys = Object.keys(search).filter(e => (['args', 'env', 'serverUrl', 'clientIdentifier'].indexOf(e) === -1));
     for (let idx = 0; idx < sessions.length; idx++) {
         for (let i = 0; i < keys.length; i++) {
             if (sessions[idx][keys[i]] === search[keys[i]] && sessions[idx][keys[i]])
@@ -90,7 +89,6 @@ SessionsManager.updateSession = (args) => {
             args: [],
             env: [],
             serverUrl: '',
-            pingUrl: '',
             ...args
         });
         return (true);
