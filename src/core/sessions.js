@@ -79,8 +79,8 @@ SessionsManager.updateSession = (args) => {
     const search = SessionsManager.getSessionFromRequest(args);
     const idx = SessionsManager.getIdFromRequest(args);
 
-    if (Object.keys(args).length === 1)
-        return 'Fail';
+    if (Object.keys(args).length === 0 || (Object.keys(args).length === 1 && Object.keys(args).indexOf('clientIdentifier') !== -1))
+        return (false);
 
     if (!search) {
         sessions.push({
