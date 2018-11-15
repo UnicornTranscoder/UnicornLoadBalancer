@@ -13,6 +13,10 @@ RoutesAPI.stats = (req, res) => {
     res.send(ServersManager.list());
 };
 
+RoutesAPI.sessions = (req, res) => {
+    res.send(SessionsManager.list());
+};
+
 // Save the stats of a server
 RoutesAPI.update = (req, res) => {
     res.send(ServersManager.update(req.body));
