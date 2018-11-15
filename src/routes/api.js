@@ -29,7 +29,7 @@ RoutesAPI.ffmpeg = (req, res) => {
 // Resolve path from file id
 RoutesAPI.path = (req, res) => {
     try {
-        const db = new sqlite3.verbose().Database(config.plex.database);
+        const db = new (sqlite3.verbose().Database)(config.plex.path.database);
         db.get("SELECT * FROM media_parts WHERE id=? LIMIT 0, 1", req.params.id, (err, row) => {
             if (row && row.file)
                 res.send(JSON.stringify(row));
