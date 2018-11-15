@@ -32,8 +32,8 @@ SessionsManager.list = () => {
 SessionsManager.parseSessionFromRequest = (req) => {
     const unicorn = (typeof (req.query.unicorn) !== 'undefined') ? { unicorn: req.query.unicorn } : false;
     const session = (typeof (req.params.sessionId) !== 'undefined') ? { sessionId: req.params.sessionId } : ((typeof (req.query.session) !== 'undefined') ? { session: req.query.session } : false);
-    const sessionIdentifier = (typeof (req.query['X-Plex-Session-Identifier']) !== 'undefined') ? { "X-Plex-Session-Identifier": req.query['X-Plex-Session-Identifier'] } : false;
-    const clientIdentifier = (typeof (req.query['X-Plex-Client-Identifier']) !== 'undefined') ? { "X-Plex-Client-Identifier": req.query['X-Plex-Client-Identifier'] } : false;
+    const sessionIdentifier = (typeof (req.query['X-Plex-Session-Identifier']) !== 'undefined') ? { sessionIdentifier: req.query['X-Plex-Session-Identifier'] } : false;
+    const clientIdentifier = (typeof (req.query['X-Plex-Client-Identifier']) !== 'undefined') ? { clientIdentifier: req.query['X-Plex-Client-Identifier'] } : false;
     return {
         ...unicorn,
         ...session,
@@ -59,7 +59,7 @@ SessionsManager.getSessionFromRequest = (search) => {
 
 // Get a session position from its values
 SessionsManager.getIdFromRequest = (search) => {
-    let keys = Object.keys(search).filter(e => (['args', 'env', 'pingUrl', 'serverUrl'].indexOf(e) === -1));
+    let keys = Object.keys(search).filter(e => (['args', 'env', 'pingUrl', 'serverUrl', 'clientIdentifier'].indexOf(e) === -1));
     for (let idx = 0; idx < sessions.length; idx++) {
         for (let i = 0; i < keys.length; i++) {
             if (sessions[idx][keys[i]] === search[keys[i]] && sessions[idx][keys[i]])
