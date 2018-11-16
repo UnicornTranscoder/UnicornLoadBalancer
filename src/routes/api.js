@@ -65,7 +65,7 @@ RoutesAPI.plex = (req, res) => {
 RoutesAPI.session = (req, res) => {
     SessionStore.get(req.params.session).then((data) => {
         res.send(data);
-    }).catch((err) => {
+    }).catch(() => {
         res.status(400).send({ error: { code: 'SESSION_TIMEOUT', message: 'The session wasn\'t launched in time, request fails' } });
     })
 };

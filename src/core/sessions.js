@@ -124,7 +124,7 @@ SessionsManager.parseFFmpegParameters = (args = [], env = {}) => {
 
         // Progress
         if (e.indexOf('/progress') !== -1)
-            return (e.replace(plexUrl(), publicUrl()));
+            return (e.replace(plexUrl(), '{INTERNAL_TRANSCODER}'));
 
         // Manifest and seglist
         if (e.indexOf('/manifest') !== -1 || e.indexOf('/seglist') !== -1)
@@ -169,7 +169,6 @@ SessionsManager.storeFFmpegParameters = (args, env) => {
         session: parsed.session,
         sessionFull: parsed.sessionFull
     });
-    console.log('lol', session.session, session);
     SessionStore.set(session.session, session).then(() => {
 
     }).catch((err) => {

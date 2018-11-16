@@ -120,10 +120,10 @@ RoutesTranscode.cleanSession = (req, res, next) => {
         D('Clean ' + req.query.session + 'from session store');
         SessionsManager.cleanSession(req.query.session)
             .then(() => {
-                next()
+                next();
             })
             .catch(() => {
-                res.status(500).send('Internal Server Error')
+                res.status(500).send({ error: { code: 'INTERNAL_ERROR', message: 'Internal Server Error' } });
             })
     }
 };
