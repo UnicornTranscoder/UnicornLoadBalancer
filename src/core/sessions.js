@@ -34,8 +34,8 @@ SessionsManager.parseSessionFromRequest = (req) => {
 // Get a session from its values
 SessionsManager.getSessionFromRequest = (search) => {
 
-    // List of keys could be used to identify a session
-    let keys = Object.keys(search).filter(e => (['args', 'env', 'serverUrl', 'clientIdentifier'].indexOf(e) === -1));
+    // List of keys could be used to identify a session, we add clientIdentifier at the end
+    const keys = Object.keys(search).filter(e => (['args', 'env', 'serverUrl', 'clientIdentifier'].indexOf(e) === -1)).push('clientIdentifier');
 
     // Reverse sessions to start by the end
     const rsessions = sessions.slice().reverse();
@@ -68,8 +68,8 @@ SessionsManager.getSessionFromRequest = (search) => {
 // Get a session position from its values
 SessionsManager.getIdFromRequest = (search) => {
 
-    // List of keys could be used to identify a session
-    let keys = Object.keys(search).filter(e => (['args', 'env', 'serverUrl', 'clientIdentifier'].indexOf(e) === -1));
+    // List of keys could be used to identify a session, we add clientIdentifier at the end
+    const keys = Object.keys(search).filter(e => (['args', 'env', 'serverUrl', 'clientIdentifier'].indexOf(e) === -1)).push('clientIdentifier');
 
     // Reverse session to start by the end
     const rsessions = sessions.slice().reverse();
