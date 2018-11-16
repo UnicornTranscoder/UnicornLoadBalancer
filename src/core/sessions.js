@@ -107,7 +107,8 @@ SessionsManager.updateSession = (args) => {
     const search = SessionsManager.getSessionFromRequest(args);
     const idx = SessionsManager.getIdFromRequest(args);
 
-    if (Object.keys(args).length === 0 || (Object.keys(args).length === 1 && Object.keys(args).indexOf('clientIdentifier') !== -1))
+    // Avoid to create empty session objects (Download case by example)
+    if (Object.keys(args).length === 0 || (!args.session && !args.sessionFull && !args.sessionIdentifier && !args.clientIdentifier))
         return (false);
 
     if (!search) {

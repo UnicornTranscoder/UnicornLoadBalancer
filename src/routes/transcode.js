@@ -44,7 +44,6 @@ RoutesTranscode.ping = (req, res) => {
     const search = SessionsManager.parseSessionFromRequest(req);
     const session = SessionsManager.getSessionFromRequest(search);
 
-    req.url += '&unicorn=' + session.unicorn;
     Proxy.plex(req, res);
 
     const pingRequest = (server) => {
@@ -67,7 +66,6 @@ RoutesTranscode.timeline = (req, res) => {
     const search = SessionsManager.parseSessionFromRequest(req);
     const session = SessionsManager.getSessionFromRequest(search);
 
-    req.url += '&unicorn=' + session.unicorn;
     Proxy.plex(req, res);
 
     const pingRequest = (server) => {
@@ -101,7 +99,6 @@ RoutesTranscode.stop = (req, res) => {
     const search = SessionsManager.parseSessionFromRequest(req);
     const session = SessionsManager.getSessionFromRequest(search);
 
-    req.url += '&unicorn=' + session.unicorn;
     Proxy.plex(req, res);
 
     const stopRequest = (server) => {
