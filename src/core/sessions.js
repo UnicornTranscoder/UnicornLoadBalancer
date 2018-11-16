@@ -34,7 +34,7 @@ SessionsManager.parseSessionFromRequest = (req) => {
 // Get a session from its values
 SessionsManager.getSessionFromRequest = (search) => {
     const sessionIndex = SessionsManager.getIdFromRequest(search);
-    if (sessionindex === false)
+    if (sessionIndex === false)
         return (false);
     return (sessions[sessionIndex]);
 };
