@@ -1,10 +1,14 @@
 import httpProxy from 'http-proxy';
 import sqlite3 from 'sqlite3';
+import debug from 'debug';
 
 import config from '../config';
 import SessionStore from '../store';
 import SessionsManager from '../core/sessions';
 import ServersManager from '../core/servers';
+
+// Debugger
+const D = debug('UnicornLoadBalancer:api');
 
 let RoutesAPI = {};
 
@@ -54,7 +58,11 @@ RoutesAPI.plex = (req, res) => {
             host: config.plex.host,
             port: config.plex.port
         }
-    }).on('error', () => {
+    }).on('error', (err) => {
+        if (err.code === 'HPE_UNEXPECTED_CONTENT_LENGTH') {
+            D('Ignore /progress error');
+            return (res.status(200).send());
+        }
         res.status(400).send({ error: { code: 'PROXY_TIMEOUT', message: 'Plex not respond in time, proxy request fails' } });
     });
     req.url = req.url.slice('/api/plex'.length);
