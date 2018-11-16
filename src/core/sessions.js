@@ -87,7 +87,7 @@ SessionsManager.getIdFromRequest = (search) => {
         return (SessionsManager.getIdFromRequest({ ...search, session: search.sessionIdentifier }));
 
     // Ok, Android really sucks, other case, no session, only a clientIdentifier
-    if (!search.session && search.sessionIdentifier)
+    if (!search.session && search.clientIdentifier)
         return (SessionsManager.getIdFromRequest({ ...search, session: search.clientIdentifier }));
 
     // Not be found
