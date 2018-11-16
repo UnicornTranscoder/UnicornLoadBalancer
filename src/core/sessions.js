@@ -11,16 +11,6 @@ const D = debug('UnicornLoadBalancer:SessionsManager');
 let SessionsManager = {};
 
 let sessions = [
-    /*{
-        unicorn: '_UNiC0RN',
-        session: '',
-        sessionFull: '',
-        sessionIdentifier: '',
-        clientIdentifier: '',
-        args: [],
-        env: [],
-        serverUrl: '',
-    }*/
 ];
 
 SessionsManager.list = () => {
@@ -67,6 +57,10 @@ SessionsManager.getSessionFromRequest = (search) => {
     if (!search.session && search.sessionIdentifier)
         return (SessionsManager.getSessionFromRequest({ ...search, session: search.sessionIdentifier }));
 
+    // Ok, Android really sucks, other case, no session, only a clientIdentifier
+    if (!search.session && search.clientIdentifier)
+        return (SessionsManager.getSessionFromRequest({ ...search, session: search.clientIdentifier }));
+
     // Not found
     return (false);
 };
@@ -91,6 +85,10 @@ SessionsManager.getIdFromRequest = (search) => {
     // Android case, no session, only a sessionIdentifier
     if (!search.session && search.sessionIdentifier)
         return (SessionsManager.getIdFromRequest({ ...search, session: search.sessionIdentifier }));
+
+    // Ok, Android really sucks, other case, no session, only a clientIdentifier
+    if (!search.session && search.sessionIdentifier)
+        return (SessionsManager.getIdFromRequest({ ...search, session: search.clientIdentifier }));
 
     // Not be found
     return (false);
