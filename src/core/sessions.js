@@ -43,28 +43,56 @@ SessionsManager.parseSessionFromRequest = (req) => {
 
 // Get a session from its values
 SessionsManager.getSessionFromRequest = (search) => {
+
+    // List of keys could be used to identify a session
     let keys = Object.keys(search).filter(e => (['args', 'env', 'serverUrl', 'clientIdentifier'].indexOf(e) === -1));
-    const filtered = sessions.filter(e => {
+
+    // Reverse sessions to start by the end
+    const rsessions = sessions.slice().reverse();
+
+    // Filter sessions
+    const filtered = rsessions.filter(e => {
         for (let i = 0; i < keys.length; i++) {
             if (e[keys[i]] === search[keys[i]] && e[keys[i]])
                 return (true);
         }
         return (false);
     });
-    if (filtered.length === 0)
-        return (false);
-    return (filtered[0]);
+
+    // Found, return the session
+    if (filtered.length > 0)
+        return (filtered[0]);
+
+    // Android case, no session, only a sessionIdentifier
+    if (!search.session && search.sessionIdentifier)
+        return (SessionsManager.getSessionFromRequest({ ...search, session: search.sessionIdentifier }));
+
+    // Not found
+    return (false);
 };
 
 // Get a session position from its values
 SessionsManager.getIdFromRequest = (search) => {
+
+    // List of keys could be used to identify a session
     let keys = Object.keys(search).filter(e => (['args', 'env', 'serverUrl', 'clientIdentifier'].indexOf(e) === -1));
-    for (let idx = 0; idx < sessions.length; idx++) {
+
+    // Reverse session to start by the end
+    const rsessions = sessions.slice().reverse();
+
+    // Filter sessions
+    for (let idx = 0; idx < rsessions.length; idx++) {
         for (let i = 0; i < keys.length; i++) {
-            if (sessions[idx][keys[i]] === search[keys[i]] && sessions[idx][keys[i]])
+            if (rsessions[idx][keys[i]] === search[keys[i]] && rsessions[idx][keys[i]])
                 return (idx);
         }
     }
+
+    // Android case, no session, only a sessionIdentifier
+    if (!search.session && search.sessionIdentifier)
+        return (SessionsManager.getIdFromRequest({ ...search, session: search.sessionIdentifier }));
+
+    // Not be found
     return (false);
 };
 
