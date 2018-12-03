@@ -6,7 +6,7 @@ import SessionStore from '../store';
 import ServersManager from './servers';
 
 // Debugger
-const D = debug('UnicornLoadBalancer:SessionsManager');
+const D = debug('UnicornLoadBalancer');
 
 let SessionsManager = {};
 

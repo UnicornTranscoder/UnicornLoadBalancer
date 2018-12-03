@@ -5,7 +5,7 @@ import RoutesProxy from './proxy';
 import SessionsManager from '../core/sessions';
 
 // Debugger
-const D = debug('UnicornLoadBalancer:transcode');
+const D = debug('UnicornLoadBalancer');
 
 let RoutesTranscode = {};
 

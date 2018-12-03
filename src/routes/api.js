@@ -8,7 +8,7 @@ import SessionsManager from '../core/sessions';
 import ServersManager from '../core/servers';
 
 // Debugger
-const D = debug('UnicornLoadBalancer:api');
+const D = debug('UnicornLoadBalancer');
 
 let RoutesAPI = {};
 
