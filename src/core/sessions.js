@@ -43,12 +43,21 @@ SessionsManager.getSessionFromRequest = (search) => {
 SessionsManager.getIdFromRequest = (search) => {
 
     // List of keys could be used to identify a session
-    const keys = ['unicorn', 'session', 'sessionFull'];
+    let keys = ['unicorn', 'session', 'sessionFull'];
 
     // Reverse session to start by the end
     const rsessions = sessions.slice().reverse();
 
     // Filter sessions
+    for (let idx = 0; idx < rsessions.length; idx++) {
+        for (let i = 0; i < keys.length; i++) {
+            if (rsessions[idx][keys[i]] && search[keys[i]] && rsessions[idx][keys[i]] === search[keys[i]])
+                return (idx);
+        }
+    }
+
+    keys = ['sessionIdentifier', 'clientIdentifier'];
+
     for (let idx = 0; idx < rsessions.length; idx++) {
         for (let i = 0; i < keys.length; i++) {
             if (rsessions[idx][keys[i]] && search[keys[i]] && rsessions[idx][keys[i]] === search[keys[i]])
