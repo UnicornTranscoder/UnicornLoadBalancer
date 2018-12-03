@@ -10,9 +10,9 @@ const D = debug('UnicornLoadBalancer:transcode');
 
 let RoutesTranscode = {};
 
-RoutesTranscode.redirect = (req, res) => {
+RoutesTranscode.redirect = async (req, res) => {
     const session = SessionsManager.getSessionFromRequest(req);
-    const server = SessionsManager.chooseServer(session, req.headers['x-forwarded-for'] || req.connection.remoteAddress);
+    const server = await SessionsManager.chooseServer(session, req.headers['x-forwarded-for'] || req.connection.remoteAddress);
     if (server) {
         res.writeHead(302, {
             'Location': server + req.url
