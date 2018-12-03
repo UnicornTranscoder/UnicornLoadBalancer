@@ -18,10 +18,10 @@ RoutesTranscode.redirect = async (req, res) => {
             'Location': server + req.url
         });
         res.end();
-        D('Send 302 for ' + session + ' to ' + server);
+        D('REDIRECT ' + session + ' [' + server + ']');
     } else {
         res.status(500).send({ error: { code: 'SERVER_UNAVAILABLE', message: 'SERVER_UNAVAILABLE' } });
-        D('Fail to 302 for ' + session);
+        D('REDIRECT ' + session + ' [UNKNOWN]');
     }
 };
 
@@ -35,7 +35,7 @@ RoutesTranscode.dashStart = (req, res) => {
         sessionId = SessionsManager.getCacheSession(req.query['X-Plex-Session-Identifier']);
 
     // Log
-    D('Start stream ' + sessionId + ' [DASH]');
+    D('START ' + sessionId + ' [DASH]');
 
     // Save session
     SessionsManager.cacheSessionFromRequest(req);
@@ -57,7 +57,7 @@ RoutesTranscode.lpStart = (req, res) => {
     const sessionId = SessionsManager.getSessionFromRequest(req);
 
     // Log
-    D('Start stream ' + sessionId + ' [LP]');
+    D('START ' + sessionId + ' [LP]');
 
     // If sessionId is defined
     if (sessionId)
@@ -79,7 +79,7 @@ RoutesTranscode.hlsStart = (req, res) => {
     const sessionId = SessionsManager.getSessionFromRequest(req);
 
     // Log
-    D('Start stream ' + sessionId + ' [HLS]');
+    D('START ' + sessionId + ' [HLS]');
 
     // If sessionId is defined
     if (sessionId)
@@ -99,10 +99,10 @@ RoutesTranscode.ping = async (req, res) => {
 
     // If a server url is defined, we ping the session
     if (serverUrl) {
-        D('Ping for ' + sessionId + ' [' + serverUrl + ']');
+        D('PING ' + sessionId + ' [' + serverUrl + ']');
         fetch(serverUrl + '/api/ping?session=' + sessionId);
     } else {
-        D('Ping for ' + sessionId + ' [UNKNOWN]');
+        D('PING ' + sessionId + ' [UNKNOWN]');
     }
 };
 
@@ -121,19 +121,19 @@ RoutesTranscode.timeline = async (req, res) => {
     if (req.query.state === 'stopped') {
         // If a server url is defined, we stop the session
         if (serverUrl) {
-            D('Stop for ' + sessionId + ' [' + serverUrl + ']');
+            D('STOP ' + sessionId + ' [' + serverUrl + ']');
             fetch(serverUrl + '/api/stop?session=' + sessionId);
         } else {
-            D('Stop for ' + sessionId + ' [UNKNOWN]');
+            D('STOP ' + sessionId + ' [UNKNOWN]');
         }
     }
     // It's a ping request
     else {
         if (serverUrl) {
-            D('Ping for ' + sessionId + ' [' + serverUrl + ']');
+            D('PING ' + sessionId + ' [' + serverUrl + ']');
             fetch(serverUrl + '/api/ping?session=' + sessionId);
         } else {
-            D('Ping for ' + sessionId + ' [UNKNOWN]');
+            D('PING ' + sessionId + ' [UNKNOWN]');
         }
     }
 };
@@ -151,10 +151,10 @@ RoutesTranscode.stop = async (req, res) => {
 
     // If a server url is defined, we stop the session
     if (serverUrl) {
-        D('Stop for ' + sessionId + ' [' + serverUrl + ']');
+        D('STOP ' + sessionId + ' [' + serverUrl + ']');
         fetch(serverUrl + '/api/stop?session=' + sessionId);
     } else {
-        D('Stop for ' + sessionId + ' [UNKNOWN]');
+        D('STOP ' + sessionId + ' [UNKNOWN]');
     }
 };
 

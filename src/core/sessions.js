@@ -22,7 +22,7 @@ SessionsManager.chooseServer = async (session, ip = false) => {
     if (urls[session])
         return (urls[session]);
     const url = await ServersManager.chooseServer(ip);
-    D('Choose server for ' + session + ' [' + url + ']');
+    D('SERVER ' + session + ' [' + url + ']');
     urls[session] = url;
     return (url);
 };
@@ -66,7 +66,7 @@ SessionsManager.parseFFmpegParameters = (args = [], env = {}) => {
         return (false);
 
     // Debug
-    D('FFMPEG start for ' + sessionId + ' [' + sessionFull + ']');
+    D('FFMPEG ' + sessionId + ' [' + sessionFull + ']');
 
     // Parse arguments
     const parsedArgs = args.map((e) => {
@@ -118,7 +118,7 @@ SessionsManager.storeFFmpegParameters = (args, env) => {
 };
 
 SessionsManager.cleanSession = (sessionId) => {
-    D('Delete session ' + sessionId);
+    D('DELETE ' + sessionId);
     return SessionStore.delete(sessionId)
 };
 

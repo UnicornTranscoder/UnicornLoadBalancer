@@ -56,7 +56,6 @@ RoutesAPI.plex = (req, res) => {
         }
     }).on('error', (err) => {
         if (err.code === 'HPE_UNEXPECTED_CONTENT_LENGTH') {
-            D('Ignore /progress error');
             return (res.status(200).send());
         }
         res.status(400).send({ error: { code: 'PROXY_TIMEOUT', message: 'Plex not respond in time, proxy request fails' } });
