@@ -70,8 +70,8 @@ SessionsManager.getIdFromRequest = (search) => {
     //    return (SessionsManager.getIdFromRequest({ ...search, session: search.sessionIdentifier }));
 
     // Ok, Android really sucks, other case, no session, only a clientIdentifier
-    if (!search.session && search.clientIdentifier)
-        return (SessionsManager.getIdFromRequest({ ...search, session: search.clientIdentifier }));
+    /*if (!search.session && search.clientIdentifier)
+        return (SessionsManager.getIdFromRequest({ ...search, session: search.clientIdentifier }));*/
 
     // Not be found
     return (false);
@@ -172,15 +172,14 @@ SessionsManager.parseFFmpegParameters = (args = [], env = {}) => {
 // Store the FFMPEG parameters in RedisCache
 SessionsManager.storeFFmpegParameters = (args, env) => {
     const parsed = SessionsManager.parseFFmpegParameters(args, env);
-    console.log('FFMEG returns', parsed);
-    SessionsManager.updateSession(parsed);
 
+    SessionsManager.updateSession(parsed);
     
     const session = SessionsManager.getSessionFromRequest({
         session: parsed.session,
         sessionFull: parsed.sessionFull
     });
-console.log('Gette', session)
+    
     SessionStore.set(session.session, session).then(() => {
 
     }).catch((err) => {
