@@ -1,9 +1,9 @@
 import debug from 'debug';
-import uniqid from 'uniqid';
 
 import config from '../config';
 import { publicUrl, plexUrl } from '../utils';
 import SessionStore from '../store';
+import ServersManager from './servers';
 
 // Debugger
 const D = debug('UnicornLoadBalancer:SessionsManager');
@@ -13,105 +13,52 @@ let SessionsManager = {};
 let sessions = [
 ];
 
+// Plex table to match "session" and "X-Plex-Session-Identifier"
+let cache = {};
+
+// Table to link session to transcoder url
+let urls = {}
+
+// list all the sessions
 SessionsManager.list = () => {
     return (sessions);
 };
 
-// Parse request to extract session information
-SessionsManager.parseSessionFromRequest = (req) => {
-    const unicorn = (typeof (req.query) !== 'undefined' && typeof (req.query.unicorn) !== 'undefined') ? { unicorn: req.query.unicorn } : false;
-    const session = (typeof (req.params.sessionId) !== 'undefined') ? { session: req.params.sessionId } : ((typeof (req.query.session) !== 'undefined') ? { session: req.query.session } : false);
-    const sessionIdentifier = (typeof (req.query['X-Plex-Session-Identifier']) !== 'undefined') ? { sessionIdentifier: req.query['X-Plex-Session-Identifier'] } : false;
-    const clientIdentifier = (typeof (req.query['X-Plex-Client-Identifier']) !== 'undefined') ? { clientIdentifier: req.query['X-Plex-Client-Identifier'] } : false;
-    return {
-        ...unicorn,
-        ...session,
-        ...sessionIdentifier,
-        ...clientIdentifier
-    }
-};
-
-// Get a session from its values
-SessionsManager.getSessionFromRequest = (search) => {
-    const sessionIndex = SessionsManager.getIdFromRequest(search);
-    if (sessionIndex === false)
+SessionsManager.chooseServer = async (session, ip = false) => {
+    if (session === false)
         return (false);
-    return (sessions[sessionIndex]);
+    if (urls[session])
+        return (urls[session]);
+    const url = await ServersManager.chooseServer(ip);
+    urls[session] = url;
+    return (url);
 };
 
-// Get a session position from its values
-SessionsManager.getIdFromRequest = (search) => {
-
-    // List of keys could be used to identify a session
-    let keys = ['session', 'sessionIdentifier'];
-
-    // Reverse session to start by the end
-    const rsessions = sessions.slice().reverse();
-
-    // Filter sessions
-    for (let idx = 0; idx < rsessions.length; idx++) {
-        for (let i = 0; i < keys.length; i++) {
-            if (rsessions[idx][keys[i]] && search[keys[i]] && rsessions[idx][keys[i]] === search[keys[i]])
-                return (idx);
-        }
+SessionsManager.cacheSessionFromRequest = (req) => {
+    if (typeof (req.query['X-Plex-Session-Identifier']) !== 'undefined' && typeof (req.query.session) !== 'undefined') {
+        cache[req.query['X-Plex-Session-Identifier']] = req.query.session.toString();
     }
+}
 
-    //keys = ['sessionIdentifier', 'clientIdentifier'];
-
-    /*for (let idx = 0; idx < rsessions.length; idx++) {
-        for (let i = 0; i < keys.length; i++) {
-            if (rsessions[idx][keys[i]] && search[keys[i]] && rsessions[idx][keys[i]] === search[keys[i]])
-                return (idx);
-        }
-    }*/
-
-    // Android case, no session, only a sessionIdentifier
-    //if (!search.session && search.sessionIdentifier)
-    //    return (SessionsManager.getIdFromRequest({ ...search, session: search.sessionIdentifier }));
-
-    // Ok, Android really sucks, other case, no session, only a clientIdentifier
-    /*if (!search.session && search.clientIdentifier)
-        return (SessionsManager.getIdFromRequest({ ...search, session: search.clientIdentifier }));*/
-
-    // Not be found
+SessionsManager.getCacheSession = (xplexsessionidentifier) => {
+    if (cache[xplexsessionidentifier])
+        return (cache[xplexsessionidentifier]);
     return (false);
-};
+}
 
-// Update the session stored
-SessionsManager.updateSessionFromRequest = (req) => {
-    const args = SessionsManager.parseSessionFromRequest(req);
-    return (SessionsManager.updateSession(args));
-};
-
-// Update a session
-SessionsManager.updateSession = (args) => {
-    
-    // Avoid to create empty session objects (Download case by example)
-    if (!args.session)
-        return (false);
-    
-    const idx = SessionsManager.getIdFromRequest(args);
-
-    if (idx === false) {
-        sessions.push({
-            unicorn: uniqid(),
-            session: '',
-            sessionFull: '',
-            sessionIdentifier: '',
-            clientIdentifier: '',
-            args: [],
-            env: [],
-            serverUrl: '',
-            ...args
-        });
-        return (true);
-    }
-    sessions[idx] = {
-        ...sessions[idx],
-        ...args
-    };
+SessionsManager.getSessionFromRequest = (req) => {
+    if (typeof (req.params.sessionId) !== 'undefined')
+        return (req.params.sessionId);
+    if (typeof (req.query.session) !== 'undefined')
+        return (req.query.session);
+    if (typeof (req.query['X-Plex-Session-Identifier']) !== 'undefined' && typeof (cache[req.query['X-Plex-Session-Identifier']]) !== 'undefined')
+        return (cache[req.query['X-Plex-Session-Identifier']]);
+    if (typeof (req.query['X-Plex-Session-Identifier']) !== 'undefined')
+        return (req.query['X-Plex-Session-Identifier']);
+    if (typeof (req.query['X-Plex-Client-Identifier']) !== 'undefined')
+        return (req.query['X-Plex-Client-Identifier']);
     return (false);
-};
+}
 
 // Parse FFmpeg parameters with internal bindings
 SessionsManager.parseFFmpegParameters = (args = [], env = {}) => {
@@ -173,19 +120,7 @@ SessionsManager.parseFFmpegParameters = (args = [], env = {}) => {
 // Store the FFMPEG parameters in RedisCache
 SessionsManager.storeFFmpegParameters = (args, env) => {
     const parsed = SessionsManager.parseFFmpegParameters(args, env);
-
-    SessionsManager.updateSession(parsed);
-    
-    const session = SessionsManager.getSessionFromRequest({
-        session: parsed.session,
-        sessionFull: parsed.sessionFull
-    });
-    
-    SessionStore.set(session.session, session).then(() => {
-
-    }).catch((err) => {
-
-    })
+    SessionStore.set(parsed.session, parsed).then(() => { }).catch(() => { })
     return (parsed);
 };
 

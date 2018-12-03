@@ -11,33 +11,24 @@ const D = debug('UnicornLoadBalancer:transcode');
 let RoutesTranscode = {};
 
 RoutesTranscode.redirect = (req, res) => {
-    SessionsManager.updateSessionFromRequest(req);
-
-    const search = SessionsManager.parseSessionFromRequest(req);
-    const session = SessionsManager.getSessionFromRequest(search);
-
-    const redirectRequest = (server) => {
-        if (server) {
-            res.writeHead(302, {
-                'Location': (server + req.url + (req.url.indexOf('?') === -1 ? '?' : '&') + 'unicorn=' + session.unicorn)
-            });
-            res.end();
-            D('Send 302 for ' + session.session + ' to ' + server);
-            return;
-        }
-        D('Fail to 302 for ' + session.session + ' to ' + server);
-    };
-
-    if (session.serverUrl) {
-        return (redirectRequest(session.serverUrl));
+    const session = SessionsManager.getSessionFromRequest(req);
+    const server = SessionsManager.chooseServer(session, req.headers['x-forwarded-for'] || req.connection.remoteAddress);
+    if (server) {
+        res.writeHead(302, {
+            'Location': server + req.url
+        });
+        res.end();
+        D('Send 302 for ' + session + ' to ' + server);
+    } else {
+        res.status(500).send({ error: { code: 'SERVER_UNAVAILABLE', message: 'SERVER_UNAVAILABLE' } });
+        D('Fail to 302 for ' + session);
     }
-
-    ServersManager.chooseServer(req.headers['x-forwarded-for'] || req.connection.remoteAddress).then((server) => {
-        SessionsManager.updateSession({ ...session, serverUrl: server });
-        return (redirectRequest(server));
-    });
 };
 
+
+
+
+/*
 RoutesTranscode.ping = (req, res) => {
     SessionsManager.updateSessionFromRequest(req);
 
@@ -128,4 +119,5 @@ RoutesTranscode.cleanSession = (req, res, next) => {
     }
 };
 
+*/
 export default RoutesTranscode;
