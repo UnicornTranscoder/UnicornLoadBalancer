@@ -43,7 +43,7 @@ SessionsManager.getSessionFromRequest = (search) => {
 SessionsManager.getIdFromRequest = (search) => {
 
     // List of keys could be used to identify a session
-    const keys = ['unicorn', 'session', 'sessionFull', 'sessionIdentifier', 'clientIdentifier'];
+    const keys = ['unicorn', 'session', 'sessionFull'];
 
     // Reverse session to start by the end
     const rsessions = sessions.slice().reverse();
