@@ -4,7 +4,7 @@ import LocalSessionStore from './local';
 import debug from 'debug';
 
 // Debugger
-const D = debug('UnicornLoadBalancer:SessionStore');
+const D = debug('UnicornLoadBalancer');
 
 let SessionStore;
 
