@@ -20,7 +20,7 @@ SessionsManager.list = () => {
 // Parse request to extract session information
 SessionsManager.parseSessionFromRequest = (req) => {
     const unicorn = (typeof (req.query.unicorn) !== 'undefined') ? { unicorn: req.query.unicorn } : false;
-    const session = (typeof (req.params.sessionId) !== 'undefined') ? { sessionId: req.params.sessionId } : ((typeof (req.query.session) !== 'undefined') ? { session: req.query.session } : false);
+    const session = (typeof (req.params.sessionId) !== 'undefined') ? { session: req.params.sessionId } : ((typeof (req.query.session) !== 'undefined') ? { session: req.query.session } : false);
     const sessionIdentifier = (typeof (req.query['X-Plex-Session-Identifier']) !== 'undefined') ? { sessionIdentifier: req.query['X-Plex-Session-Identifier'] } : false;
     const clientIdentifier = (typeof (req.query['X-Plex-Client-Identifier']) !== 'undefined') ? { clientIdentifier: req.query['X-Plex-Client-Identifier'] } : false;
     return {

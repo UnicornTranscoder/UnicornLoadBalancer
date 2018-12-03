@@ -15,7 +15,7 @@ export default {
         port: env.int('PLEX_PORT', 32400),
         path: {
             usr: env.string('PLEX_PATH_USR', '/usr/lib/plexmediaserver/'),
-            sessions: env.string('PLEX_PATH_SESSIONS', '/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Cache/Transcode/Sessions'),
+            sessions: env.string('PLEX_PATH_SESSIONS', '/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Cache/Transcode/Sessions/'),
             database: env.string('PLEX_PATH_DATABASE', '/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db')
         }
     },
