@@ -1,7 +1,6 @@
 import debug from 'debug';
 import fetch from 'node-fetch';
 
-import RoutesTranscode from './transcode';
 import RoutesProxy from './proxy';
 import SessionsManager from '../core/sessions';
 
