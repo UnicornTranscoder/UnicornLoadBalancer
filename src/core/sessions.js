@@ -85,11 +85,12 @@ SessionsManager.updateSessionFromRequest = (req) => {
 
 // Update a session
 SessionsManager.updateSession = (args) => {
-    const idx = SessionsManager.getIdFromRequest(args);
-
+    
     // Avoid to create empty session objects (Download case by example)
-    if (!args.session && !args.sessionFull && !args.sessionIdentifier && !args.clientIdentifier)
+    if (!args.session)
         return (false);
+    
+    const idx = SessionsManager.getIdFromRequest(args);
 
     if (idx === false) {
         sessions.push({
