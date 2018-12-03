@@ -27,13 +27,15 @@ RoutesTranscode.redirect = async (req, res) => {
 
 /* Route called when a DASH stream starts */
 RoutesTranscode.dashStart = (req, res) => {
-
     // By default we don't have the session identifier
     let sessionId = false;
 
     // If we have a cached X-Plex-Session-Identifier, we use it
     if (req.query['X-Plex-Session-Identifier'] && SessionsManager.getCacheSession(req.query['X-Plex-Session-Identifier']))
         sessionId = SessionsManager.getCacheSession(req.query['X-Plex-Session-Identifier']);
+
+    // Log
+    D('Start stream ' + sessionId + ' [DASH]');
 
     // Save session
     SessionsManager.cacheSessionFromRequest(req);
@@ -54,6 +56,9 @@ RoutesTranscode.lpStart = (req, res) => {
     // Get sessionId
     const sessionId = SessionsManager.getSessionFromRequest(req);
 
+    // Log
+    D('Start stream ' + sessionId + ' [LP]');
+
     // If sessionId is defined
     if (sessionId)
         SessionsManager.cleanSession(sessionId);
@@ -73,6 +78,9 @@ RoutesTranscode.hlsStart = (req, res) => {
     // Get sessionId
     const sessionId = SessionsManager.getSessionFromRequest(req);
 
+    // Log
+    D('Start stream ' + sessionId + ' [HLS]');
+
     // If sessionId is defined
     if (sessionId)
         SessionsManager.cleanSession(sessionId);
@@ -90,8 +98,12 @@ RoutesTranscode.ping = async (req, res) => {
     const serverUrl = await SessionsManager.chooseServer(sessionId, req.headers['x-forwarded-for'] || req.connection.remoteAddress);
 
     // If a server url is defined, we ping the session
-    if (serverUrl)
+    if (serverUrl) {
+        D('Ping for ' + sessionId + ' [' + serverUrl + ']');
         fetch(serverUrl + '/api/ping?session=' + sessionId);
+    } else {
+        D('Ping for ' + sessionId + ' [UNKNOWN]');
+    }
 };
 
 /* Route timeline */
@@ -106,14 +118,23 @@ RoutesTranscode.timeline = async (req, res) => {
     const serverUrl = await SessionsManager.chooseServer(sessionId, req.headers['x-forwarded-for'] || req.connection.remoteAddress);
 
     // It's a stop request
-    if (req.query.state === 'stopped'/* || (req.query['X-Plex-Session-Identifier'] && SessionsManager.getCacheSession(req.query['X-Plex-Session-Identifier']))*/) {
+    if (req.query.state === 'stopped') {
         // If a server url is defined, we stop the session
-        if (serverUrl)
+        if (serverUrl) {
+            D('Stop for ' + sessionId + ' [' + serverUrl + ']');
             fetch(serverUrl + '/api/stop?session=' + sessionId);
+        } else {
+            D('Stop for ' + sessionId + ' [UNKNOWN]');
+        }
     }
-    // it's a ping request
-    else if (serverUrl) {
-        fetch(serverUrl + '/api/ping?session=' + sessionId);
+    // It's a ping request
+    else {
+        if (serverUrl) {
+            D('Ping for ' + sessionId + ' [' + serverUrl + ']');
+            fetch(serverUrl + '/api/ping?session=' + sessionId);
+        } else {
+            D('Ping for ' + sessionId + ' [UNKNOWN]');
+        }
     }
 };
 
@@ -129,8 +150,12 @@ RoutesTranscode.stop = async (req, res) => {
     const serverUrl = await SessionsManager.chooseServer(sessionId, req.headers['x-forwarded-for'] || req.connection.remoteAddress);
 
     // If a server url is defined, we stop the session
-    if (serverUrl)
+    if (serverUrl) {
+        D('Stop for ' + sessionId + ' [' + serverUrl + ']');
         fetch(serverUrl + '/api/stop?session=' + sessionId);
+    } else {
+        D('Stop for ' + sessionId + ' [UNKNOWN]');
+    }
 };
 
 export default RoutesTranscode;

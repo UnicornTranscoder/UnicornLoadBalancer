@@ -22,7 +22,7 @@ SessionsManager.chooseServer = async (session, ip = false) => {
     if (urls[session])
         return (urls[session]);
     const url = await ServersManager.chooseServer(ip);
-    D('Choosed server for ' + session + ': ' + url);
+    D('Choose server for ' + session + ' [' + url + ']');
     urls[session] = url;
     return (url);
 };
@@ -66,7 +66,7 @@ SessionsManager.parseFFmpegParameters = (args = [], env = {}) => {
         return (false);
 
     // Debug
-    D('Session found: ' + sessionId + ' (' + sessionFull + ')');
+    D('FFMPEG start for ' + sessionId + ' [' + sessionFull + ']');
 
     // Parse arguments
     const parsedArgs = args.map((e) => {
@@ -113,13 +113,12 @@ SessionsManager.parseFFmpegParameters = (args = [], env = {}) => {
 // Store the FFMPEG parameters in RedisCache
 SessionsManager.storeFFmpegParameters = (args, env) => {
     const parsed = SessionsManager.parseFFmpegParameters(args, env);
-    D('FFMPEG callback for session ' + parsed.session);
     SessionStore.set(parsed.session, parsed).then(() => { }).catch(() => { })
     return (parsed);
 };
 
 SessionsManager.cleanSession = (sessionId) => {
-    D('Delete ' + sessionId);
+    D('Delete session ' + sessionId);
     return SessionStore.delete(sessionId)
 };
 
