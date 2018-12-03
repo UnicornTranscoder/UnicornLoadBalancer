@@ -67,7 +67,7 @@ export default (app) => {
     app.get('/:formatType/:/transcode/universal/session/:sessionId/:fileType/:partId.vtt', RoutesTranscode.redirect);
 
     // Control support
-    app.get('/:formatType/:/transcode/universal/stop', (req, res) => {
+    app.get('/:formatType/:/transcode/universal/stop', async (req, res) => {
         // Proxy to plex
         RoutesProxy.plex(req, res);
 
@@ -75,7 +75,7 @@ export default (app) => {
         const sessionId = SessionsManager.getSessionFromRequest(req);
 
         // Choose or get the server url
-        const serverUrl = SessionsManager.chooseServer(sessionId, req.headers['x-forwarded-for'] || req.connection.remoteAddress);
+        const serverUrl = await SessionsManager.chooseServer(sessionId, req.headers['x-forwarded-for'] || req.connection.remoteAddress);
 
         // If a server url is defined, we stop the session
         if (serverUrl)
@@ -87,7 +87,7 @@ export default (app) => {
         }, 1500);
     });
 
-    app.get('/:formatType/:/transcode/universal/ping', (req, res) => {
+    app.get('/:formatType/:/transcode/universal/ping', async (req, res) => {
         // Proxy to Plex
         RoutesProxy.plex(req, res);
 
@@ -95,14 +95,14 @@ export default (app) => {
         const sessionId = SessionsManager.getSessionFromRequest(req);
 
         // Choose or get the server url
-        const serverUrl = SessionsManager.chooseServer(sessionId, req.headers['x-forwarded-for'] || req.connection.remoteAddress);
+        const serverUrl = await SessionsManager.chooseServer(sessionId, req.headers['x-forwarded-for'] || req.connection.remoteAddress);
 
         // If a server url is defined, we ping the session
         if (serverUrl)
             fetch(serverUrl + '/api/ping?session=' + sessionId);
     });
 
-    app.get('/:/timeline', (req, res) => {
+    app.get('/:/timeline', async (req, res) => {
         // Proxy to Plex
         RoutesProxy.plex(req, res);
 
@@ -110,7 +110,7 @@ export default (app) => {
         const sessionId = SessionsManager.getSessionFromRequest(req);
 
         // Choose or get the server url
-        const serverUrl = SessionsManager.chooseServer(sessionId, req.headers['x-forwarded-for'] || req.connection.remoteAddress);
+        const serverUrl = await SessionsManager.chooseServer(sessionId, req.headers['x-forwarded-for'] || req.connection.remoteAddress);
 
         // It's a stop request
         if (req.query.state == 'stopped' || (req.query['X-Plex-Session-Identifier'] && SessionsManager.getCacheSession(req.query['X-Plex-Session-Identifier']))) {
