@@ -37,6 +37,10 @@ export default (app) => {
         // Save session
         SessionsManager.cacheSessionFromRequest(req);
 
+        // If session id available
+        if (sessionId)
+            SessionsManager.cleanSession(sessionId);
+
         // Redirect
         RoutesTranscode.redirect(req, res);
     });
@@ -48,6 +52,13 @@ export default (app) => {
         // Save session
         SessionsManager.cacheSessionFromRequest(req);
 
+        // Get sessionId
+        const sessionId = SessionsManager.getSessionFromRequest(req);
+
+        // If sessionId is defined
+        if (sessionId)
+            SessionsManager.cleanSession(sessionId);
+
         // Redirect
         RoutesTranscode.redirect(req, res);
     });
@@ -57,6 +68,13 @@ export default (app) => {
     app.get('/:formatType/:/transcode/universal/start.m3u8', (req, res) => {
         // Save session
         SessionsManager.cacheSessionFromRequest(req);
+
+        // Get sessionId
+        const sessionId = SessionsManager.getSessionFromRequest(req);
+
+        // If sessionId is defined
+        if (sessionId)
+            SessionsManager.cleanSession(sessionId);
 
         // Redirect
         RoutesTranscode.redirect(req, res);
@@ -80,11 +98,6 @@ export default (app) => {
         // If a server url is defined, we stop the session
         if (serverUrl)
             fetch(serverUrl + '/api/stop?session=' + sessionId);
-
-        // Remove session after few seconds to avoid bad redirect
-        setTimeout(() => {
-            SessionsManager.cleanSession(sessionId);
-        }, 1500);
     });
 
     app.get('/:formatType/:/transcode/universal/ping', async (req, res) => {
@@ -113,15 +126,10 @@ export default (app) => {
         const serverUrl = await SessionsManager.chooseServer(sessionId, req.headers['x-forwarded-for'] || req.connection.remoteAddress);
 
         // It's a stop request
-        if (req.query.state == 'stopped' || (req.query['X-Plex-Session-Identifier'] && SessionsManager.getCacheSession(req.query['X-Plex-Session-Identifier']))) {
+        if (req.query.state === 'stopped'/* || (req.query['X-Plex-Session-Identifier'] && SessionsManager.getCacheSession(req.query['X-Plex-Session-Identifier']))*/) {
             // If a server url is defined, we stop the session
             if (serverUrl)
                 fetch(serverUrl + '/api/stop?session=' + sessionId);
-
-            // Remove session after few seconds to avoid bad redirect
-            setTimeout(() => {
-                SessionsManager.cleanSession(sessionId);
-            }, 1500);
         }
         // it's a ping request
         else if (serverUrl) {
