@@ -85,14 +85,13 @@ SessionsManager.updateSessionFromRequest = (req) => {
 
 // Update a session
 SessionsManager.updateSession = (args) => {
-    const search = SessionsManager.getSessionFromRequest(args);
     const idx = SessionsManager.getIdFromRequest(args);
 
     // Avoid to create empty session objects (Download case by example)
     if (!args.session && !args.sessionFull && !args.sessionIdentifier && !args.clientIdentifier)
         return (false);
 
-    if (!search) {
+    if (idx === false) {
         sessions.push({
             unicorn: uniqid(),
             session: '',
@@ -173,11 +172,15 @@ SessionsManager.parseFFmpegParameters = (args = [], env = {}) => {
 // Store the FFMPEG parameters in RedisCache
 SessionsManager.storeFFmpegParameters = (args, env) => {
     const parsed = SessionsManager.parseFFmpegParameters(args, env);
+    console.log('FFMEG returns', parsed);
     SessionsManager.updateSession(parsed);
+
+    
     const session = SessionsManager.getSessionFromRequest({
         session: parsed.session,
         sessionFull: parsed.sessionFull
     });
+console.log('Gette', session)
     SessionStore.set(session.session, session).then(() => {
 
     }).catch((err) => {
