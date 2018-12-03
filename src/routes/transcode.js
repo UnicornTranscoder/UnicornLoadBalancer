@@ -4,7 +4,6 @@ import fetch from 'node-fetch';
 import RoutesTranscode from './transcode';
 import RoutesProxy from './proxy';
 import SessionsManager from '../core/sessions';
-import SessionsManager from '../core/sessions';
 
 // Debugger
 const D = debug('UnicornLoadBalancer:transcode');
