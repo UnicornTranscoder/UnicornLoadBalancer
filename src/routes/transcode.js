@@ -35,7 +35,7 @@ RoutesTranscode.dashStart = (req, res) => {
         sessionId = SessionsManager.getCacheSession(req.query['X-Plex-Session-Identifier']);
 
     // Log
-    D('START ' + sessionId + ' [DASH]');
+    D('START ' + SessionsManager.getSessionFromRequest(req) + ' [DASH]');
 
     // Save session
     SessionsManager.cacheSessionFromRequest(req);

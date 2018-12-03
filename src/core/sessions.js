@@ -17,8 +17,6 @@ let cache = {};
 let urls = {}
 
 SessionsManager.chooseServer = async (session, ip = false) => {
-    if (session === false)
-        return (false);
     if (urls[session])
         return (urls[session]);
     const url = await ServersManager.chooseServer(ip);

@@ -3,11 +3,11 @@ import redisClient from 'redis';
 import config from './config';
 
 export const publicUrl = () => {
-    return ('http' + ((config.server.ssl) ? 's' : '') + '://' + config.server.host + (([80, 443].indexOf(config.server.public_port) === -1) ? ':' + config.server.public_port : '') + '/')
+    return ('http' + ((config.server.ssl) ? 's' : '') + '://' + config.server.host + (([80, 443].indexOf(config.server.public) === -1) ? ':' + config.server.public : '') + '/')
 };
 
 export const internalUrl = () => {
-    return ('http' + ((config.server.ssl) ? 's' : '') + '://' + config.server.host + ':' + config.server.port + '/')
+    return ('http://127.0.0.1:' + config.server.port + '/')
 };
 
 export const plexUrl = () => {
