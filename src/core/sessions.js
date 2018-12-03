@@ -43,7 +43,7 @@ SessionsManager.getSessionFromRequest = (search) => {
 SessionsManager.getIdFromRequest = (search) => {
 
     // List of keys could be used to identify a session
-    let keys = ['unicorn', 'session', 'sessionFull'];
+    let keys = ['unicorn', 'session', 'sessionFull', 'clientIdentifier'];
 
     // Reverse session to start by the end
     const rsessions = sessions.slice().reverse();
@@ -56,18 +56,18 @@ SessionsManager.getIdFromRequest = (search) => {
         }
     }
 
-    keys = ['sessionIdentifier', 'clientIdentifier'];
+    //keys = ['sessionIdentifier', 'clientIdentifier'];
 
-    for (let idx = 0; idx < rsessions.length; idx++) {
+    /*for (let idx = 0; idx < rsessions.length; idx++) {
         for (let i = 0; i < keys.length; i++) {
             if (rsessions[idx][keys[i]] && search[keys[i]] && rsessions[idx][keys[i]] === search[keys[i]])
                 return (idx);
         }
-    }
+    }*/
 
     // Android case, no session, only a sessionIdentifier
-    if (!search.session && search.sessionIdentifier)
-        return (SessionsManager.getIdFromRequest({ ...search, session: search.sessionIdentifier }));
+    //if (!search.session && search.sessionIdentifier)
+    //    return (SessionsManager.getIdFromRequest({ ...search, session: search.sessionIdentifier }));
 
     // Ok, Android really sucks, other case, no session, only a clientIdentifier
     if (!search.session && search.clientIdentifier)
