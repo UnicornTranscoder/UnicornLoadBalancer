@@ -10,19 +10,11 @@ const D = debug('UnicornLoadBalancer:SessionsManager');
 
 let SessionsManager = {};
 
-let sessions = [
-];
-
 // Plex table to match "session" and "X-Plex-Session-Identifier"
 let cache = {};
 
 // Table to link session to transcoder url
 let urls = {}
-
-// list all the sessions
-SessionsManager.list = () => {
-    return (sessions);
-};
 
 SessionsManager.chooseServer = async (session, ip = false) => {
     if (session === false)
@@ -30,6 +22,7 @@ SessionsManager.chooseServer = async (session, ip = false) => {
     if (urls[session])
         return (urls[session]);
     const url = await ServersManager.chooseServer(ip);
+    D('Choosed server for ' + session + ': ' + url);
     urls[session] = url;
     return (url);
 };
@@ -120,11 +113,13 @@ SessionsManager.parseFFmpegParameters = (args = [], env = {}) => {
 // Store the FFMPEG parameters in RedisCache
 SessionsManager.storeFFmpegParameters = (args, env) => {
     const parsed = SessionsManager.parseFFmpegParameters(args, env);
+    D('FFMPEG callback for session ' + parsed.session);
     SessionStore.set(parsed.session, parsed).then(() => { }).catch(() => { })
     return (parsed);
 };
 
 SessionsManager.cleanSession = (sessionId) => {
+    D('Delete ' + sessionId);
     return SessionStore.delete(sessionId)
 };
 

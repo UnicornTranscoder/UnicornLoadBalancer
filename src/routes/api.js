@@ -17,10 +17,6 @@ RoutesAPI.stats = (req, res) => {
     res.send(ServersManager.list());
 };
 
-RoutesAPI.sessions = (req, res) => {
-    res.send(SessionsManager.list());
-};
-
 // Save the stats of a server
 RoutesAPI.update = (req, res) => {
     res.send(ServersManager.update(req.body));
@@ -38,7 +34,7 @@ RoutesAPI.ffmpeg = (req, res) => {
 RoutesAPI.path = (req, res) => {
     try {
         const db = new (sqlite3.verbose().Database)(config.plex.path.database);
-        db.get("SELECT * FROM media_parts WHERE id=? LIMIT 0, 1", req.params.id, (err, row) => {
+        db.get('SELECT * FROM media_parts WHERE id=? LIMIT 0, 1', req.params.id, (err, row) => {
             if (row && row.file)
                 res.send(JSON.stringify(row));
             else
@@ -69,7 +65,7 @@ RoutesAPI.plex = (req, res) => {
     return (proxy.web(req, res));
 };
 
-// Returns sessions from UnicornID
+// Returns session
 RoutesAPI.session = (req, res) => {
     SessionStore.get(req.params.session).then((data) => {
         res.send(data);

@@ -2,7 +2,6 @@ import fetch from 'node-fetch';
 import { time } from '../utils';
 import config from '../config';
 
-
 let servers = {};
 
 let ServersManager = {};
