@@ -4,6 +4,7 @@ import config from '../config';
 import RoutesAPI from './api';
 import RoutesTranscode from './transcode';
 import RoutesProxy from './proxy';
+import RoutesResize from './resize';
 
 export default (app) => {
 
@@ -43,6 +44,9 @@ export default (app) => {
     // Download
     app.get('/library/parts/:id1/:id2/file.*', RoutesTranscode.redirect);
 
+	// Image Resizer
+	app.get('/photo/:/transcode', RoutesResize.resize);
+	
     // Forward other to Plex
     app.all('*', RoutesProxy.plex);
 };

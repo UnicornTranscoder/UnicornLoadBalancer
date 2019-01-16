@@ -1,48 +1,61 @@
-import sharp from 'sharp';
-import fetch from 'node-fetch';
-import { PassThrough } from 'stream';
+import debug from 'debug';
+import { parseUserAgent } from 'detect-browser';
+
 import { plexUrl } from '../utils';
+import optimizeImage from '../core/images';
+
+// Debugger
+const D = debug('UnicornLoadBalancer');
 
 let RoutesResize = {};
 
-const resizeFromUrl = (url, width = false, height = false, minSize = 0, format = 'jpeg') => {
-    let pass = new PassThrough();
-
-    fetch(url).then(res => {
-        res.body.pipe(pass);
-    });
-
-    let transform = sharp();
-
-
-    if (width || height) {
-        transform = transform.resize(((minSize > 0) ? width : undefined), ((minSize <= 0) ? height : undefined));
-    }
-
-    if (format) {
-        transform = transform.toFormat(sharp.format.webp); // jpeg | webp | png
-    }
-
-    return pass.pipe(transform);
-}
-
 RoutesResize.resize = (req, res) => {
-    let url = req.query.url || false;
-    if (url && url[0] == '/')
-        url = plexUrl() + url;
 
+    // Parse url
+    let url = req.query.url || false;
+    if (url && url[0] === '/')
+        url = plexUrl() + url.substring(1);
+
+    // Extract parameters
     const params = {
-        width: parseInt(req.query.width) || false,
-        height: parseInt(req.query.height) || false,
-        minSize: parseInt(req.query.minSize) || 0,
-        url
+        ...((req.query.width) ? { width: parseInt(req.query.width) } : {}),
+        ...((req.query.height) ? { height: parseInt(req.query.height) } : {}),
+        ...((req.query.background) ? { background: req.query.background } : {}),
+        ...((req.query.opacity) ? { opacity: parseInt(req.query.opacity) } : {}),
+        ...((req.query.minSize) ? { minSize: parseInt(req.query.minSize) } : {}),
+        ...((req.query.blur) ? { blur: parseInt(req.query.blur) } : {}),
+        ...((req.query.format && (req.query.format === 'webp' || req.query.format === 'png')) ? { format: req.query.format } : { format: 'jpg' }),
+        ...((req.query.upscale) ? { upscale: parseInt(req.query.upscale) } : {}),
     };
 
-    if (!params.width || !params.height || !params.url)
+    // Check size
+    if (!params.width || !params.height || !url)
         return (res.status(400).send({ error: { code: 'RESIZE_ERROR', message: 'Invalid parameters, resize request fails' } }));
 
-    res.type(`image/webp`);
-    resizeFromUrl(params.url, params.width, params.height, params.minSize).pipe(res)
+    // Auto select WebP if user-agent support it
+    const browser = parseUserAgent(req.get('User-Agent'));
+    const needAlpha = params.format === 'png';
+    if (browser.name === 'chrome') {
+        params.format = 'webp';
+    }
+
+    // Debug
+    D('IMAGE ' + url + ' [' + params.format + ']');
+
+    // Mime type
+    if (params.format === 'webp')
+        res.type(`image/webp`);
+    else if (params.format === 'png')
+        res.type(`image/png`);
+    else
+        res.type(`image/jpeg`);
+
+    // Process image
+    optimizeImage(url, params, needAlpha).then((stream) => {
+        return stream.pipe(res);
+    }).catch(err => {
+        return (res.status(400).send({ error: { code: 'RESIZE_ERROR', message: 'Invalid parameters, resize request fails' } }));
+    })
 };
 
 export default RoutesResize;
