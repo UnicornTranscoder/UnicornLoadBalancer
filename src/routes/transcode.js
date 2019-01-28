@@ -9,10 +9,19 @@ const D = debug('UnicornLoadBalancer');
 
 let RoutesTranscode = {};
 
+/* Extract IP */
+const getIp = (req) => {
+    if (req.get('CF-Connecting-IP'))
+        return req.get('CF-Connecting-IP');
+    if (req.get('x-forwarded-for'))
+        return req.get('x-forwarded-for').split(',')[0];
+    return req.connection.remoteAddress
+};
+
 /* Route to send a 302 to another server */
 RoutesTranscode.redirect = async (req, res) => {
     const session = SessionsManager.getSessionFromRequest(req);
-    const server = await SessionsManager.chooseServer(session, req.headers['x-forwarded-for'] || req.connection.remoteAddress);
+    const server = await SessionsManager.chooseServer(session, getIp(req));
     if (server) {
         res.writeHead(302, {
             'Location': server + req.url
@@ -95,7 +104,7 @@ RoutesTranscode.ping = async (req, res) => {
     const sessionId = SessionsManager.getSessionFromRequest(req);
 
     // Choose or get the server url
-    const serverUrl = await SessionsManager.chooseServer(sessionId, req.headers['x-forwarded-for'] || req.connection.remoteAddress);
+    const serverUrl = await SessionsManager.chooseServer(sessionId, getIp(req));
 
     // If a server url is defined, we ping the session
     if (serverUrl) {
@@ -115,7 +124,7 @@ RoutesTranscode.timeline = async (req, res) => {
     const sessionId = SessionsManager.getSessionFromRequest(req);
 
     // Choose or get the server url
-    const serverUrl = await SessionsManager.chooseServer(sessionId, req.headers['x-forwarded-for'] || req.connection.remoteAddress);
+    const serverUrl = await SessionsManager.chooseServer(sessionId, getIp(req));
 
     // It's a stop request
     if (req.query.state === 'stopped') {
@@ -147,7 +156,7 @@ RoutesTranscode.stop = async (req, res) => {
     const sessionId = SessionsManager.getSessionFromRequest(req);
 
     // Choose or get the server url
-    const serverUrl = await SessionsManager.chooseServer(sessionId, req.headers['x-forwarded-for'] || req.connection.remoteAddress);
+    const serverUrl = await SessionsManager.chooseServer(sessionId, getIp(req));
 
     // If a server url is defined, we stop the session
     if (serverUrl) {
