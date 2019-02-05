@@ -27,7 +27,7 @@ RoutesProxy.ws = (req, res) => {
             port: config.plex.port
         }
     }).on('error', () => {
-        res.status(400).send({ error: { code: 'PROXY_TIMEOUT', message: 'Plex not respond in time, proxy request fails' } });
+        // Fail silently
     });
     return (proxy.ws(req, res));
 };
