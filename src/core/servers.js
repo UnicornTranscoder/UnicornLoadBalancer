@@ -47,7 +47,7 @@ ServersManager.list = () => {
 }
 
 // Chose best server
-ServersManager.chooseServer = (ip = false) => {
+ServersManager.chooseServer = (session, ip = false) => {
 	return (new Promise((resolve, reject) => {
 		let tab = [];
 		const list = ServersManager.list();
@@ -57,7 +57,7 @@ ServersManager.chooseServer = (ip = false) => {
 		tab.sort((a, b) => (a.score - b.score));
 		if (typeof (tab[0]) === 'undefined')
 			return resolve(false);
-		fetch(tab[0].url + '/api/resolve?ip=' + ip)
+		fetch(`${tab[0].url}/api/resolve?session=${session}&ip=${ip}`)
 			.then(res => res.json())
 			.then(body => {
 				return resolve(body.client)
