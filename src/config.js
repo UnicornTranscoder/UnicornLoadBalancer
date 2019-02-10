@@ -27,5 +27,13 @@ export default {
     },
     scores: {
         timeout: env.int('SCORES_TIMEOUT', 10)
+    },
+    custom: {
+        image: {
+            resizer: env.bool('CUSTOM_IMAGE_RESIZER', true)
+        },
+        download: {
+            forward: env.bool('CUSTOM_DOWNLOAD_FORWARD', true)
+        }
     }
 };

@@ -42,11 +42,15 @@ export default (app) => {
     app.get('/:/timeline', RoutesTranscode.timeline);
 
     // Download
-    app.get('/library/parts/:id1/:id2/file.*', RoutesTranscode.redirect);
+    if (config.custom.download.forward) {
+        app.get('/library/parts/:id1/:id2/file.*', RoutesTranscode.redirect);
+    }
 
-	// Image Resizer
-	app.get('/photo/:/transcode', RoutesResize.resize);
-	
+    // Image Resizer
+    if (config.custom.image.resizer) {
+        app.get('/photo/:/transcode', RoutesResize.resize);
+    }
+
     // Forward other to Plex
     app.all('*', RoutesProxy.plex);
 };
