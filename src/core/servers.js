@@ -54,7 +54,7 @@ ServersManager.chooseServer = (ip = false) => {
 		Object.keys(list).forEach((i) => {
 			tab.push(list[i]);
 		});
-		tab.sort((e) => (e.score));
+		tab.sort((a, b) => (a.score - b.score));
 		if (typeof (tab[0]) === 'undefined')
 			return resolve(false);
 		fetch(tab[0].url + '/api/resolve?ip=' + ip)
