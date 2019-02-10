@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { time } from '../utils';
+import { time, publicUrl } from '../utils';
 import config from '../config';
 
 let servers = {};
@@ -57,7 +57,8 @@ ServersManager.chooseServer = (session, ip = false) => {
 		tab.sort((a, b) => (a.score - b.score));
 		if (typeof (tab[0]) === 'undefined')
 			return resolve(false);
-		fetch(`${tab[0].url}/api/resolve?session=${session}&ip=${ip}`)
+		const origin = encodeURIComponent(publicUrl())
+		fetch(`${tab[0].url}/api/resolve?session=${session}&ip=${ip}&origin=${origin}`)
 			.then(res => res.json())
 			.then(body => {
 				return resolve(body.client)

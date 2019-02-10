@@ -3,7 +3,7 @@ import redisClient from 'redis';
 import config from './config';
 
 export const publicUrl = () => {
-    return ('http' + ((config.server.ssl) ? 's' : '') + '://' + config.server.host + (([80, 443].indexOf(config.server.public) === -1) ? ':' + config.server.public : '') + '/')
+    return (config.server.public)
 };
 
 export const internalUrl = () => {
