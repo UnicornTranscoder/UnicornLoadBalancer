@@ -23,10 +23,7 @@ RoutesTranscode.redirect = async (req, res) => {
     const session = SessionsManager.getSessionFromRequest(req);
     const server = await SessionsManager.chooseServer(session, getIp(req));
     if (server) {
-        res.writeHead(302, {
-            'Location': server + req.url
-        });
-        res.end();
+        res.redirect(302, server + req.url);
         D('REDIRECT ' + session + ' [' + server + ']');
     } else {
         res.status(500).send({ error: { code: 'SERVER_UNAVAILABLE', message: 'SERVER_UNAVAILABLE' } });
