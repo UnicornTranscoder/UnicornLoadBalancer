@@ -8,7 +8,7 @@ export default {
         port: env.int('SERVER_PORT', 3001),
         public: env.string('SERVER_PUBLIC', 'http://127.0.0.1:3001/'),
         host: env.string('SERVER_HOST', '127.0.0.1'),
-        ssl: env.bool('SERVER_SSL', false)
+        ssl: env.boolish('SERVER_SSL', false)
     },
     plex: {
         host: env.string('PLEX_HOST', '127.0.0.1'),
@@ -30,10 +30,13 @@ export default {
     },
     custom: {
         image: {
-            resizer: env.bool('CUSTOM_IMAGE_RESIZER', true)
+            resizer: env.boolish('CUSTOM_IMAGE_RESIZER', true)
         },
         download: {
-            forward: env.bool('CUSTOM_DOWNLOAD_FORWARD', true)
+            forward: env.boolish('CUSTOM_DOWNLOAD_FORWARD', true)
+        },
+        servers: {
+            list: env.array('CUSTOM_SERVERS_LIST', 'string', [])
         }
     }
 };
