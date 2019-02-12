@@ -27,7 +27,7 @@ This software is a part of __UnicornTranscoder__ project, it's the LoadBalancer 
 | **SERVER_HOST** | Host to access to the *UnicornLoadBalancer* | `string` | `127.0.0.1` |
 | **SERVER_PORT** | Port used by the *UnicornLoadBalancer* | `int` | `3001` |
 | **SERVER_SSL** | If HTTPS is enabled or not on the *UnicornLoadBalancer* | `bool` | `false` |
-| **SERVER_PUBLIC** | Public url where the *UnicornLoadBalancer* can be called, with a slash at the end | `string` | `http://127.0.0.1:3001/` |
+| **SERVER_PUBLIC** | Public url where the *UnicornLoadBalancer* can be called, **with** a slash at the end | `string` | `http://127.0.0.1:3001/` |
 | **PLEX_HOST** | Host to access to Plex | `string` | `127.0.0.1` | 
 | **PLEX_PORT** | Port used by Plex | `int` | `32400` | 
 | **PLEX_PATH_USR** | The Plex's path | `string` | `/usr/lib/plexmediaserver/` | 
@@ -40,7 +40,7 @@ This software is a part of __UnicornTranscoder__ project, it's the LoadBalancer 
 | **CUSTOM_SCORES_TIMEOUT** | Seconds to consider a not-pinged server as unavailable | `int` | `10` | 
 | **CUSTOM_IMAGE_RESIZER** | Enable or disable the custom image resizer (most efficient than Plex one) | `bool` | `true` | 
 | **CUSTOM_DOWNLOAD_FORWARD** | Enable or disable 302 for download links and direct play | `bool` | `true` | 
-| **CUSTOM_SERVERS_LIST** | Servers set by default | `string array` | `[]` | 
+| **CUSTOM_SERVERS_LIST** | Transcoder servers set by default, **without** a slash at the end, separate servers with a **comma** | `string array` | `[]` | 
 
 * Configure Plex Media Server access address
  * In Settings -> Server -> Network
