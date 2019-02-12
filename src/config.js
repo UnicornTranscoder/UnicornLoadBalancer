@@ -25,10 +25,10 @@ export default {
         password: env.string('REDIS_PASSWORD', ''),
         db: env.int('REDIS_DB', 0)
     },
-    scores: {
-        timeout: env.int('SCORES_TIMEOUT', 10)
-    },
     custom: {
+        scores: {
+            timeout: env.int('CUSTOM_SCORES_TIMEOUT', 10)
+        },
         image: {
             resizer: env.boolish('CUSTOM_IMAGE_RESIZER', true)
         },

@@ -69,7 +69,7 @@ ServersManager.chooseServer = (session, ip = false) => {
 // Calculate server score
 ServersManager.score = (e) => {
 	// The configuration wasn't updated since X seconds, the server is probably unavailable
-	if (time() - e.time > config.scores.timeout)
+	if (time() - e.time > config.custom.scores.timeout)
 		return (100);
 
 	// Default load 0

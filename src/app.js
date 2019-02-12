@@ -6,6 +6,7 @@ import config from './config';
 import Router from './routes';
 import Proxy from './routes/proxy';
 import { internalUrl } from './utils';
+import ServersManager from './core/servers';
 
 import debug from 'debug';
 
@@ -37,6 +38,20 @@ D('Initializing API routes...');
 
 // Routes
 Router(app);
+
+// Load servers available in configuration
+((Array.isArray(config.custom.servers.list)) ? config.custom.servers.list : []).map(e => ({
+    name: e,
+    url: e,
+    sessions: [],
+    settings: {
+        maxSessions: 0,
+        maxDownloads: 0,
+        maxTranscodes: 0
+    }
+})).forEach(e => {
+    ServersManager.update(e);
+});
 
 // Create HTTP server
 const httpServer = app.listen(config.server.port);
