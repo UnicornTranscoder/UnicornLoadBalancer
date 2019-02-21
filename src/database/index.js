@@ -10,10 +10,10 @@ let Database;
 
 if (config.database.mode === 'sqlite') {
     D('Using sqlite as database');
-    Database = new SqliteDatabase();
+    Database = SqliteDatabase;
 } else if (config.database.mode === 'postgresql') {
     D('Using postgresql as database');
-    Database = new PostgresqlDatabase();
+    Database = PostgresqlDatabase;
 }
 
 export default Database;
