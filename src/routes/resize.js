@@ -11,7 +11,7 @@ let RoutesResize = {};
 
 /* Forward image request to the image transcode */
 RoutesResize.proxy = (req, res) => {
-    const params = parseArguments(req.query, plexUrl(), req.get('User-Agent'));
+    const params = parseArguments(req.query, publicUrl(), req.get('User-Agent'));
     const path = Object.keys(params).map(e => (`${e}=${encodeURIComponent(params[e])}`)).join('&');
     req.url = config.custom.image.proxy + 'photo/:/transcode?' + path;
     const proxy = httpProxy.createProxyServer({ target: config.custom.image.proxy, changeOrigin: true });
