@@ -1,6 +1,6 @@
 import debug from 'debug';
 import httpProxy from 'http-proxy';
-import { plexUrl } from '../utils';
+import { publicUrl } from '../utils';
 import { parseArguments, resize } from '../core/images';
 import config from '../config';
 
@@ -25,7 +25,7 @@ RoutesResize.proxy = (req, res) => {
 RoutesResize.resize = (req, res) => {
 
     // Parse params
-    const params = parseArguments(req.query, plexUrl(), req.get('User-Agent'));
+    const params = parseArguments(req.query, publicUrl(), req.get('User-Agent'));
 
     // Check size
     if (!params.width || !params.height || !params.url)
