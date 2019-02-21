@@ -1,11 +1,13 @@
 import fetch from 'node-fetch';
 import sharp from 'sharp';
 import color from 'color';
+import md5 from 'md5';
+import { parseUserAgent } from 'detect-browser';
 
-export const parseArguments = (query, basepath = '') => {
-    
+export const parseArguments = (query, basepath = '', useragent = '') => {
+
     // Parse url
-    let url = query.url || false;
+    let url = query.url || '';
     if (url && url[0] === '/')
         url = basepath + url.substring(1);
 
@@ -24,10 +26,13 @@ export const parseArguments = (query, basepath = '') => {
     };
 
     // Auto select WebP if user-agent support it
-    const browser = parseUserAgent(req.get('User-Agent'));
-    if (browser.name === 'chrome') {
+    const browser = parseUserAgent(useragent);
+    if (browser.name === 'chrome' && !query.format) {
         params.format = 'webp';
     }
+
+    // Generate key
+    params.key = md5(`${(query.url || '').split('?')[0]}|${params.width || ''}|${params.height || ''}|${params.background || ''}|${params.opacity || ''}|${params.minSize || ''}|${params.blur || ''}|${params.format || ''}|${params.upscale || ''}`.toLowerCase())
 
     // Return params
     return params;
@@ -70,10 +75,18 @@ export const resize = (parameters) => {
                 return reject('Size not provided');
 
             // Get image content
-            const body = await fetch(parameters.link).then(res => res.buffer());
+            const body = await fetch(parameters.url).then(res => res.buffer());
 
             // Load body
-            let s = sharp(body);
+            let s = false;
+            try {
+                s = sharp(body);
+            }
+            catch (e) {
+                return reject(e)
+            }
+            if (!s)
+                return reject(e)
 
             // Resize parameters
             const opt = {
@@ -88,6 +101,7 @@ export const resize = (parameters) => {
 
             // Background & opacity support
             if (params.background && params.opacity) {
+
                 const buff = await s.png().toBuffer();
                 s = sharp(buff);
                 const meta = await s.metadata();
@@ -105,6 +119,7 @@ export const resize = (parameters) => {
                     }
                 }).png().toBuffer();
                 s.overlayWith(bgd);
+
             }
 
             // Blur
