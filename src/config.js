@@ -40,7 +40,7 @@ export default {
             timeout: env.int('CUSTOM_SCORES_TIMEOUT', 10)
         },
         image: {
-            resizer: env.boolish('CUSTOM_IMAGE_RESIZER', true),
+            resizer: env.boolish('CUSTOM_IMAGE_RESIZER', false),
             proxy: env.string('CUSTOM_IMAGE_PROXY', '')
         },
         download: {
