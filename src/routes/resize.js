@@ -15,6 +15,9 @@ RoutesResize.proxy = (req, res) => {
     const path = Object.keys(params).map(e => (`${e}=${encodeURIComponent(params[e])}`)).join('&');
     req.url = config.custom.image.proxy + 'photo/:/transcode?' + path;
     const proxy = httpProxy.createProxyServer({ target: config.custom.image.proxy, changeOrigin: true });
+    proxy.on('error', (e) => {
+        return (res.status(400).send({ error: { code: 'RESIZE_ERROR', message: 'Invalid parameters, resize request fails' } }));
+    });
     proxy.web(req, res);
 }
 
