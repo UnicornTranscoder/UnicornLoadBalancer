@@ -19,9 +19,14 @@ let urls = {}
 SessionsManager.chooseServer = async (session, ip = false) => {
     if (urls[session])
         return (urls[session]);
-    const url = await ServersManager.chooseServer(session, ip);
+    let url = '';
+    try {
+        url = await ServersManager.chooseServer(session, ip);
+    }
+    catch (err) { }
     D('SERVER ' + session + ' [' + url + ']');
-    urls[session] = url;
+    if (url.length)
+        urls[session] = url;
     return (url);
 };
 

@@ -62,7 +62,7 @@ ServersManager.chooseServer = (session, ip = false) => {
 			.then(res => res.json())
 			.then(body => {
 				return resolve(body.client)
-			});
+			}).catch((err) => { return reject(err) });
 	}));
 };
 
