@@ -42,7 +42,7 @@ Router(app);
 // Load servers available in configuration
 ((Array.isArray(config.custom.servers.list)) ? config.custom.servers.list : []).map(e => ({
     name: e,
-    url: e,
+    url: ((e.substr(-1) === '/') ? e.substr(0, e.length - 1) : e),
     sessions: [],
     settings: {
         maxSessions: 0,
