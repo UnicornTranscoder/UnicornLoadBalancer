@@ -34,7 +34,7 @@ RoutesAPI.ffmpeg = (req, res) => {
 RoutesAPI.path = (req, res) => {
     Database.getPartFromId(req.params.id).then((data) => {
         res.send(JSON.stringify(data));
-    }).reject((err) => {
+    }).catch((err) => {
         res.status(400).send({ error: { code: 'FILE_NOT_FOUND', message: 'File not found in Plex Database' } });
     })
 };
