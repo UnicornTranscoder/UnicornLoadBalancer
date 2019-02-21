@@ -27,7 +27,7 @@ export const parseArguments = (query, basepath = '', useragent = '') => {
 
     // Auto select WebP if user-agent support it
     const browser = parseUserAgent(useragent);
-    if (browser.name === 'chrome' && !query.format) {
+    if (browser.name && browser.name === 'chrome' && !query.format) {
         params.format = 'webp';
     }
 
