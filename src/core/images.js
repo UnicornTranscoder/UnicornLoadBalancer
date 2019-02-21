@@ -2,7 +2,38 @@ import fetch from 'node-fetch';
 import sharp from 'sharp';
 import color from 'color';
 
-export default (link, parameters, needAlpha = false) => {
+export const parseArguments = (query, basepath = '') => {
+    
+    // Parse url
+    let url = query.url || false;
+    if (url && url[0] === '/')
+        url = basepath + url.substring(1);
+
+    // Extract parameters
+    const params = {
+        ...((query.width) ? { width: parseInt(query.width) } : {}),
+        ...((query.height) ? { height: parseInt(query.height) } : {}),
+        ...((query.background) ? { background: query.background } : {}),
+        ...((query.opacity) ? { opacity: parseInt(query.opacity) } : {}),
+        ...((query.minSize) ? { minSize: parseInt(query.minSize) } : {}),
+        ...((query.blur) ? { blur: parseInt(query.blur) } : {}),
+        ...((query.format && (query.format === 'webp' || query.format === 'png')) ? { format: query.format } : { format: 'jpg' }),
+        ...((query.upscale) ? { upscale: parseInt(query.upscale) } : {}),
+        alpha: (query.format === 'png'),
+        url
+    };
+
+    // Auto select WebP if user-agent support it
+    const browser = parseUserAgent(req.get('User-Agent'));
+    if (browser.name === 'chrome') {
+        params.format = 'webp';
+    }
+
+    // Return params
+    return params;
+}
+
+export const resize = (parameters) => {
     return new Promise(async (resolve, reject) => {
         try {
             const params = {
@@ -39,7 +70,7 @@ export default (link, parameters, needAlpha = false) => {
                 return reject('Size not provided');
 
             // Get image content
-            const body = await fetch(link).then(res => res.buffer());
+            const body = await fetch(parameters.link).then(res => res.buffer());
 
             // Load body
             let s = sharp(body);
@@ -94,7 +125,7 @@ export default (link, parameters, needAlpha = false) => {
             else if (params.format === 'webp')
                 s.webp({
                     quality: 70,
-                    ...((needAlpha) ? {} : { alphaQuality: 0 })
+                    ...((parameters.alpha) ? {} : { alphaQuality: 0 })
                 })
 
             // Return stream

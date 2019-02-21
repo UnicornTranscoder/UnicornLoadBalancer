@@ -15,8 +15,19 @@ export default {
         port: env.int('PLEX_PORT', 32400),
         path: {
             usr: env.string('PLEX_PATH_USR', '/usr/lib/plexmediaserver/'),
-            sessions: env.string('PLEX_PATH_SESSIONS', '/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Cache/Transcode/Sessions/'),
-            database: env.string('PLEX_PATH_DATABASE', '/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db')
+            sessions: env.string('PLEX_PATH_SESSIONS', '/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Cache/Transcode/Sessions/')
+        }
+    },
+    database: {
+        mode: env.string('DATABASE_MODE', 'sqlite'),
+        sqlite: {
+            path: env.string('DATABASE_SQLITE_PATH', '/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db')
+        },
+        postgresql: {
+            host: env.string('DATABASE_POSTGRESQL_HOST', ''),
+            database: env.string('DATABASE_POSTGRESQL_DATABASE', ''),
+            user: env.string('DATABASE_POSTGRESQL_USER', ''),
+            password: env.string('DATABASE_POSTGRESQL_PASSWORD', '')
         }
     },
     redis: {
@@ -30,7 +41,8 @@ export default {
             timeout: env.int('CUSTOM_SCORES_TIMEOUT', 10)
         },
         image: {
-            resizer: env.boolish('CUSTOM_IMAGE_RESIZER', true)
+            resizer: env.boolish('CUSTOM_IMAGE_RESIZER', true),
+            proxy: env.string('CUSTOM_IMAGE_PROXY', '')
         },
         download: {
             forward: env.boolish('CUSTOM_DOWNLOAD_FORWARD', true)

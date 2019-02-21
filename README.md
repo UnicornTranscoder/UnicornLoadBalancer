@@ -13,6 +13,7 @@ This software is a part of __UnicornTranscoder__ project, it's the LoadBalancer 
 * Plex Media Server
 * NodeJS
 * RedisCache (Optionnal)
+* Postgresql (Optionnal)
 
 ## Setup
 
@@ -32,13 +33,20 @@ This software is a part of __UnicornTranscoder__ project, it's the LoadBalancer 
 | **PLEX_PORT** | Port used by Plex | `int` | `32400` | 
 | **PLEX_PATH_USR** | The Plex's path | `string` | `/usr/lib/plexmediaserver/` | 
 | **PLEX_PATH_SESSIONS** | The path where Plex store sessions (to grab external subtitles) | `string` | `/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Cache/Transcode/Sessions` | 
-| **PLEX_PATH_DATABASE** | The path of the Plex database | `string` | `/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db` |
+| **DATABASE_MODE** | Kind of database to use with Plex, can be `sqlite` or `postgresql` | `string` | `sqlite` |
+| **DATABASE_SQLITE_PATH** | The path of the Plex d
+atabase | `string` | `/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db` |
+| **DATABASE_POSTGRESQL_HOST** | Host of the postgresql server | `string` | ` ` |
+| **DATABASE_POSTGRESQL_DATABASE** | Name of the postgresql database | `string` | ` ` |
+| **DATABASE_POSTGRESQL_USER** | User to use to the Postgresql database| `string` | ` ` |
+| **DATABASE_POSTGRESQL_PASSWORD** | Password to use to the Postgresql database | `string` | `sqlite` |
 | **REDIS_HOST** | The host of the redis database | `string` `undefined` | `undefined` | 
 | **REDIS_PORT** | Port used by Redis | `int` | `6379` |
 | **REDIS_PASSWORD** | The password of the redis database | `string` | ` ` | 
 | **REDIS_DB** | The index of the redis database | `int` | `0` | 
 | **CUSTOM_SCORES_TIMEOUT** | Seconds to consider a not-pinged server as unavailable | `int` | `10` | 
-| **CUSTOM_IMAGE_RESIZER** | Enable or disable the custom image resizer (most efficient than Plex one) | `bool` | `true` | 
+| **CUSTOM_IMAGE_RESIZER** | Enable or disable the custom (Unicorn) image resizer (most efficient than Plex one) | `bool` | `true` | 
+| **CUSTOM_IMAGE_PROXY** | Use a proxy to convert images | `string` | ` ` | 
 | **CUSTOM_DOWNLOAD_FORWARD** | Enable or disable 302 for download links and direct play | `bool` | `true` | 
 | **CUSTOM_SERVERS_LIST** | Transcoder servers set by default, **without** a slash at the end, separate servers with a **comma** | `string array` | `[]` | 
 

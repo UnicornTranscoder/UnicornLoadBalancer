@@ -46,8 +46,11 @@ export default (app) => {
         app.get('/library/parts/:id1/:id2/file.*', RoutesTranscode.redirect);
     }
 
-    // Image Resizer
-    if (config.custom.image.resizer) {
+    // Image Proxy or Iamge Resizer
+    if (config.custom.image.proxy) {
+        app.get('/photo/:/transcode', RoutesResize.proxy);
+    }
+    else if (config.custom.image.resizer) {
         app.get('/photo/:/transcode', RoutesResize.resize);
     }
 

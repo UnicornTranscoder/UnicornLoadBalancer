@@ -1,11 +1,11 @@
 import httpProxy from 'http-proxy';
-import sqlite3 from 'sqlite3';
 import debug from 'debug';
 
 import config from '../config';
 import SessionStore from '../store';
 import SessionsManager from '../core/sessions';
 import ServersManager from '../core/servers';
+import Database from '../database';
 
 // Debugger
 const D = debug('UnicornLoadBalancer');
@@ -32,19 +32,11 @@ RoutesAPI.ffmpeg = (req, res) => {
 
 // Resolve path from file id
 RoutesAPI.path = (req, res) => {
-    try {
-        const db = new (sqlite3.verbose().Database)(config.plex.path.database);
-        db.get('SELECT * FROM media_parts WHERE id=? LIMIT 0, 1', req.params.id, (err, row) => {
-            if (row && row.file)
-                res.send(JSON.stringify(row));
-            else
-                res.status(400).send({ error: { code: 'FILE_NOT_FOUND', message: 'File not found in Plex Database' } });
-            db.close();
-        });
-    }
-    catch (err) {
+    Database.getPart(part_id).then((data) => {
+        res.send(JSON.stringify(data));
+    }).reject((err) => {
         res.status(400).send({ error: { code: 'FILE_NOT_FOUND', message: 'File not found in Plex Database' } });
-    }
+    })
 };
 
 // Proxy to Plex
