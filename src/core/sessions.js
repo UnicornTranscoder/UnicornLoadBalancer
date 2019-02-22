@@ -135,6 +135,7 @@ SessionsManager.parseFFmpegParameters = async (args = [], env = {}) => {
 // Store the FFMPEG parameters in RedisCache
 SessionsManager.storeFFmpegParameters = (args, env) => {
     const parsed = SessionsManager.parseFFmpegParameters(args, env);
+    console.log('FFMPEG', parsed.session, parsed);
     SessionStore.set(parsed.session, parsed).then(() => { }).catch(() => { })
     return (parsed);
 };
