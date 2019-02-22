@@ -166,7 +166,7 @@ RoutesTranscode.stop = async (req, res) => {
 
 /* Route download */
 RoutesTranscode.download = (req, res) => {
-    D('DOWNLOAD ' + sessionId + ' [LB]');
+    D('DOWNLOAD ' + req.params.id1 + ' [LB]');
     Database.getPartFromId(req.params.id1).then((data) => {
         res.sendFile(data.file, {}, (err) => {
             if (err) {
