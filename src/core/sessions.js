@@ -57,7 +57,7 @@ SessionsManager.getSessionFromRequest = (req) => {
 }
 
 // Parse FFmpeg parameters with internal bindings
-SessionsManager.parseFFmpegParameters = (args = [], env = {}) => {
+SessionsManager.parseFFmpegParameters = async (args = [], env = {}) => {
     // Extract Session ID
     const regex = /^http\:\/\/127.0.0.1:32400\/video\/:\/transcode\/session\/(.*)\/progress$/;
     const sessions = args.filter(e => (regex.test(e))).map(e => (e.match(regex)[1]))
@@ -90,7 +90,9 @@ SessionsManager.parseFFmpegParameters = (args = [], env = {}) => {
     const segList = '{INTERNAL_TRANSCODER}video/:/transcode/session/' + sessionFull + '/seglist';
     let finalArgs = [];
     let segListMode = false;
-    parsedArgs.forEach(async (e, i) => {
+    for (let i = 0; i < parsedArgs.length; i++) {
+        let e = parsedArgs[i];
+
         // Seglist
         if (e === '-segment_list') {
             segListMode = true;
@@ -129,7 +131,7 @@ SessionsManager.parseFFmpegParameters = (args = [], env = {}) => {
 
         // Ignore aprameter
         finalArgs.push(e);
-    });
+    };
     return ({
         args: finalArgs,
         env,
