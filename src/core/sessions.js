@@ -1,9 +1,9 @@
 import debug from 'debug';
-
 import config from '../config';
 import { publicUrl, plexUrl } from '../utils';
 import SessionStore from '../store';
 import ServersManager from './servers';
+import Database from '../database';
 
 // Debugger
 const D = debug('UnicornLoadBalancer');
@@ -86,11 +86,12 @@ SessionsManager.parseFFmpegParameters = (args = [], env = {}) => {
         return (e.replace(plexUrl(), publicUrl()).replace(config.plex.path.sessions, publicUrl() + 'api/sessions/').replace(config.plex.path.usr, '{INTERNAL_RESOURCES}'));
     });
 
-    // Add seglist to arguments if needed
+    // Add seglist to arguments if needed and resolve links if needed
     const segList = '{INTERNAL_TRANSCODER}video/:/transcode/session/' + sessionFull + '/seglist';
     let finalArgs = [];
     let segListMode = false;
-    parsedArgs.forEach((e, i) => {
+    parsedArgs.forEach(async (e, i) => {
+        // Seglist
         if (e === '-segment_list') {
             segListMode = true;
             finalArgs.push(e);
@@ -103,6 +104,20 @@ SessionsManager.parseFFmpegParameters = (args = [], env = {}) => {
             segListMode = false;
             return (true);
         }
+
+        // Link resolver (Replace filepath to http plex path)
+        if (i > 0 && parsedArgs[i - 1] === '-i' && !config.custom.download.forward) {
+            file = parsedArgs[i]
+            try {
+                const data = await Database.getPartFromPath(parsedArgs[i]);
+                if (typeof(data.id) !== 'undefined')
+                    file = `${publicUrl()}library/parts/${data.id}/0/file.stream?download=1`;
+            } catch (e) { }
+            finalArgs.push(file);
+            return (true);
+        }
+
+        // Ignore aprameter
         finalArgs.push(e);
     });
     return ({

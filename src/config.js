@@ -45,7 +45,7 @@ export default {
             proxy: env.string('CUSTOM_IMAGE_PROXY', '')
         },
         download: {
-            forward: env.boolish('CUSTOM_DOWNLOAD_FORWARD', true)
+            forward: env.boolish('CUSTOM_DOWNLOAD_FORWARD', false)
         },
         servers: {
             list: env.array('CUSTOM_SERVERS_LIST', 'string', [])
