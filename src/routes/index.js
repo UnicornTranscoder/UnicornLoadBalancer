@@ -45,8 +45,11 @@ export default (app) => {
     if (config.custom.download.forward) {
         app.get('/library/parts/:id1/:id2/file.*', RoutesTranscode.redirect);
     }
+    if (!config.custom.download.forward) {
+        app.get('/library/parts/:id1/:id2/file.*', RoutesTranscode.download);
+    }
 
-    // Image Proxy or Iamge Resizer
+    // Image Proxy or Image Resizer
     if (config.custom.image.proxy) {
         app.get('/photo/:/transcode', RoutesResize.proxy);
     }

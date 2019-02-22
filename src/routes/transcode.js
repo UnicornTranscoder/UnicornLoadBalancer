@@ -1,7 +1,7 @@
 import debug from 'debug';
 import fetch from 'node-fetch';
-
 import RoutesProxy from './proxy';
+import Database from '../database';
 import SessionsManager from '../core/sessions';
 
 // Debugger
@@ -163,5 +163,20 @@ RoutesTranscode.stop = async (req, res) => {
         D('STOP ' + sessionId + ' [UNKNOWN]');
     }
 };
+
+/* Route download */
+RoutesTranscode.download = (req, res) => {
+    D('DOWNLOAD ' + sessionId + ' [LB]');
+    Database.getPartFromId(req.params.id1).then((data) => {
+        res.sendFile(data.file, {}, (err) => {
+            if (err) {
+                res.status(400).send({ error: { code: 'DOWNLOAD_ERROR', message: 'An error has occured during download' } });
+                return;
+            }
+        })
+    }).catch((err) => {
+        res.status(400).send({ error: { code: 'NOT_FOUND', message: 'File not available' } });
+    })
+}
 
 export default RoutesTranscode;
