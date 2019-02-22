@@ -36,10 +36,14 @@ PostgresqlDatabase.getPartFromId = (part_id) => (new Promise((resolve, reject) =
 }))
 
 PostgresqlDatabase.getPartFromPath = (path) => (new Promise((resolve, reject) => {
+    console.log('PARSING PATH:', path);
     _getClient().then((client) => {
         client.query('SELECT * FROM media_parts WHERE file=$1 LIMIT 1', [path], (err, res) => {
-            if (err)
+            console.log('CALLBACK DB', res)
+            if (err) {
+                console.log('ERROR', err)
                 return reject(err);
+            }
             client.end()
             if (res.rows.length) {
                 return resolve(res.rows[0])
