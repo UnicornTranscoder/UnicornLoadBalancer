@@ -84,6 +84,9 @@ ServersManager.score = (e) => {
 			if (s.codec === 'hevc') {
 				load += 1.5;
 			}
+			if (s.codec === 'copy') {
+				load -= 0.5;
+			}
 		}
 
 		// Serving streams
