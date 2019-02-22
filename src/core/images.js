@@ -9,6 +9,7 @@ export const parseArguments = (query, basepath = '/', useragent = '') => {
     // Parse url
     let url = query.url || '';
     url.replace('http://127.0.0.1/', basepath);
+    url.replace('http://127.0.0.1:32400/', basepath);
     if (url && url[0] === '/')
         url = basepath + url.substring(1);
 
