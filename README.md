@@ -33,8 +33,7 @@ This software is a part of __UnicornTranscoder__ project, it's the LoadBalancer 
 | **PLEX_PATH_USR** | The Plex's path | `string` | `/usr/lib/plexmediaserver/` | 
 | **PLEX_PATH_SESSIONS** | The path where Plex store sessions (to grab external subtitles) | `string` | `/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Cache/Transcode/Sessions` | 
 | **DATABASE_MODE** | Kind of database to use with Plex, can be `sqlite` or `postgresql` | `string` | `sqlite` |
-| **DATABASE_SQLITE_PATH** | The path of the Plex d
-atabase | `string` | `/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db` |
+| **DATABASE_SQLITE_PATH** | The path of the Plex database | `string` | `/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db` |
 | **DATABASE_POSTGRESQL_HOST** | Host of the Postgresql server | `string` | ` ` |
 | **DATABASE_POSTGRESQL_DATABASE** | Name of the postgresql database | `string` | ` ` |
 | **DATABASE_POSTGRESQL_USER** | User used by the Postgresql database| `string` | ` ` |
