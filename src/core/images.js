@@ -4,10 +4,11 @@ import color from 'color';
 import md5 from 'md5';
 import { parseUserAgent } from 'detect-browser';
 
-export const parseArguments = (query, basepath = '', useragent = '') => {
+export const parseArguments = (query, basepath = '/', useragent = '') => {
 
     // Parse url
     let url = query.url || '';
+    url.replace('http://127.0.0.1/', basepath);
     if (url && url[0] === '/')
         url = basepath + url.substring(1);
 
@@ -38,7 +39,7 @@ export const parseArguments = (query, basepath = '', useragent = '') => {
     return params;
 }
 
-export const resize = (parameters) => {
+export const resize = (parameters, headers = {}) => {
     return new Promise(async (resolve, reject) => {
         try {
             const params = {
@@ -74,8 +75,13 @@ export const resize = (parameters) => {
             if (!params.width || !params.height)
                 return reject('Size not provided');
 
+            // Erase previous host header
+            delete headers.host;
+
             // Get image content
-            const body = await fetch(parameters.url).then(res => res.buffer());
+            const body = await fetch(parameters.url, {
+                headers
+            }).then(res => res.buffer());
 
             // Load body
             let s = false;

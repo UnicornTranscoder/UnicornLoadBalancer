@@ -35,7 +35,7 @@ RoutesResize.resize = (req, res) => {
     D('IMAGE ' + params.url + ' [' + params.format + ']');
 
     // Process image
-    resize(params).then((stream) => {
+    resize(params, req.headers).then((stream) => {
 
         // Mime type
         if (params.format === 'webp')
