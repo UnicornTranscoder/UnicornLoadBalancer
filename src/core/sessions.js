@@ -107,10 +107,10 @@ SessionsManager.parseFFmpegParameters = (args = [], env = {}) => {
 
         // Link resolver (Replace filepath to http plex path)
         if (i > 0 && parsedArgs[i - 1] === '-i' && !config.custom.download.forward) {
-            file = parsedArgs[i]
+            let file = parsedArgs[i]
             try {
                 const data = await Database.getPartFromPath(parsedArgs[i]);
-                if (typeof(data.id) !== 'undefined')
+                if (typeof (data.id) !== 'undefined')
                     file = `${publicUrl()}library/parts/${data.id}/0/file.stream?download=1`;
             } catch (e) { }
             finalArgs.push(file);
