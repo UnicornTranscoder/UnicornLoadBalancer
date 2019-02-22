@@ -113,9 +113,11 @@ SessionsManager.parseFFmpegParameters = (args = [], env = {}) => {
                 if (typeof (data.id) !== 'undefined')
                     file = `${publicUrl()}library/parts/${data.id}/0/file.stream?download=1`;
             } catch (e) {
-                console.log('CRASH request', e)
+                console.log(e);
                 file = parsedArgs[i]
-             }
+                finalArgs.push(file);
+                return (true);
+            }
             finalArgs.push(file);
             return (true);
         }
