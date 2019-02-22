@@ -35,10 +35,11 @@ This software is a part of __UnicornTranscoder__ project, it's the LoadBalancer 
 | **DATABASE_MODE** | Kind of database to use with Plex, can be `sqlite` or `postgresql` | `string` | `sqlite` |
 | **DATABASE_SQLITE_PATH** | The path of the Plex d
 atabase | `string` | `/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db` |
-| **DATABASE_POSTGRESQL_HOST** | Host of the postgresql server | `string` | ` ` |
+| **DATABASE_POSTGRESQL_HOST** | Host of the Postgresql server | `string` | ` ` |
 | **DATABASE_POSTGRESQL_DATABASE** | Name of the postgresql database | `string` | ` ` |
-| **DATABASE_POSTGRESQL_USER** | User to use to the Postgresql database| `string` | ` ` |
-| **DATABASE_POSTGRESQL_PASSWORD** | Password to use to the Postgresql database | `string` | `sqlite` |
+| **DATABASE_POSTGRESQL_USER** | User used by the Postgresql database| `string` | ` ` |
+| **DATABASE_POSTGRESQL_PASSWORD** | Password used by the Postgresql database | `string` | `sqlite` |
+| **DATABASE_POSTGRESQL_PORT** | Port used by the Postgresql database | `string` | `sqlite` |
 | **REDIS_HOST** | The host of the redis database | `string` `undefined` | `undefined` | 
 | **REDIS_PORT** | Port used by Redis | `int` | `6379` |
 | **REDIS_PASSWORD** | The password of the redis database | `string` | ` ` | 

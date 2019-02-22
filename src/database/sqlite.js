@@ -15,7 +15,7 @@ SqliteDatabase.getPartFromId = (part_id) => (new Promise((resolve, reject) => {
         });
     }
     catch (err) {
-        return reject('FILE_NOT_FOUND');
+        return reject('DATABASE_ERROR');
     }
 }))
 
@@ -31,7 +31,7 @@ SqliteDatabase.getPartFromPath = (path) => (new Promise((resolve, reject) => {
         });
     }
     catch (err) {
-        return reject('FILE_NOT_FOUND');
+        return reject('DATABASE_ERROR');
     }
 }))
 
