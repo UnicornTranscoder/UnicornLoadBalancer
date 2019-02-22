@@ -35,7 +35,7 @@ class RedisSessionStore {
                 let timeout = setTimeout(() => {
                     this.redisSubscriber.unsubscribe(redisSubKey);
                     reject('timeout');
-                }, 10000);
+                }, 20000);
 
                 this.redisSubscriber.on("message", (eventKey, action) => {
                     if (action !== 'set' || eventKey !== redisSubKey)

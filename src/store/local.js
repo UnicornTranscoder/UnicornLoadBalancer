@@ -29,7 +29,7 @@ class LocalSessionStore {
                 reject('timeout');
             };
 
-            timeout = setTimeout(timeoutCb, 10000);
+            timeout = setTimeout(timeoutCb, 20000);
             this.sessionEvents.on(sessionId, eventCb);
         })
     }
