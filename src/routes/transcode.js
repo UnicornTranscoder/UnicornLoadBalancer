@@ -169,11 +169,7 @@ RoutesTranscode.download = (req, res) => {
     D('DOWNLOAD ' + req.params.id1 + ' [LB]');
     Database.getPartFromId(req.params.id1).then((data) => {
         res.sendFile(data.file, {}, (err) => {
-            if (err) {
-                console.log('ERROR DOWNLOAD', err);
-                res.status(400).send({ error: { code: 'DOWNLOAD_ERROR', message: 'An error has occured during download' } });
-                return;
-            }
+            D('DOWNLOAD FAILED ' + req.params.id1 + ' [LB]');
         })
     }).catch((err) => {
         res.status(400).send({ error: { code: 'NOT_FOUND', message: 'File not available' } });
