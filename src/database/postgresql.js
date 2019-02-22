@@ -19,7 +19,7 @@ const _getClient = () => (new Promise(async (resolve, reject) => {
 }))
 
 PostgresqlDatabase.getPartFromId = (part_id) => (new Promise((resolve, reject) => {
-    _getClient.then((client) => {
+    _getClient().then((client) => {
         client.query('SELECT * FROM media_parts WHERE id=$1 LIMIT 0, 1', [part_id], (err, res) => {
             client.end()
             if (res.rows.length) {
@@ -34,7 +34,7 @@ PostgresqlDatabase.getPartFromId = (part_id) => (new Promise((resolve, reject) =
 }))
 
 PostgresqlDatabase.getPartFromPath = (path) => (new Promise((resolve, reject) => {
-    _getClient.then((client) => {
+    _getClient().then((client) => {
         client.query('SELECT * FROM media_parts WHERE file=$1 LIMIT 0, 1', [path], (err, res) => {
             client.end()
             if (res.rows.length) {
