@@ -170,6 +170,7 @@ RoutesTranscode.download = (req, res) => {
     Database.getPartFromId(req.params.id1).then((data) => {
         res.sendFile(data.file, {}, (err) => {
             if (err) {
+                console.log(err);
                 res.status(400).send({ error: { code: 'DOWNLOAD_ERROR', message: 'An error has occured during download' } });
                 return;
             }
