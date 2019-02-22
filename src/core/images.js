@@ -13,7 +13,7 @@ export const parseArguments = (query, basepath = '/', useragent = '') => {
     if (url && url[0] === '/')
         url = basepath + url.substring(1);
     if (query['X-Plex-Token']) {
-        url = (url.indexOf('?') === -1) ? `?X-Plex-Token=${query['X-Plex-Token']}` : `&X-Plex-Token=${query['X-Plex-Token']}`
+        url += (url.indexOf('?') === -1) ? `?X-Plex-Token=${query['X-Plex-Token']}` : `&X-Plex-Token=${query['X-Plex-Token']}`
     }
 
     // Extract parameters
