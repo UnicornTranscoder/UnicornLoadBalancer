@@ -132,6 +132,7 @@ SessionsManager.parseFFmpegParameters = async (args = [], env = {}) => {
         // Ignore aprameter
         finalArgs.push(e);
     };
+    console.log('ffmpeg', finalArgs);
     return ({
         args: finalArgs,
         env,
