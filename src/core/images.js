@@ -12,6 +12,9 @@ export const parseArguments = (query, basepath = '/', useragent = '') => {
     url = url.replace('http://127.0.0.1:32400/', basepath);
     if (url && url[0] === '/')
         url = basepath + url.substring(1);
+    if (query['X-Plex-Token']) {
+        url = (url.indexOf('?') === -1) ? `?X-Plex-Token=${query['X-Plex-Token']}` : `&X-Plex-Token=${query['X-Plex-Token']}`
+    }
 
     // Extract parameters
     const params = {
@@ -24,6 +27,7 @@ export const parseArguments = (query, basepath = '/', useragent = '') => {
         ...((query.format && (query.format === 'webp' || query.format === 'png')) ? { format: query.format } : { format: 'jpg' }),
         ...((query.upscale) ? { upscale: parseInt(query.upscale) } : {}),
         alpha: (query.format === 'png'),
+        ...((query['X-Plex-Token']) ? { "X-Plex-Token": query['X-Plex-Token'] } : {}),
         url
     };
 
@@ -108,25 +112,29 @@ export const resize = (parameters, headers = {}) => {
 
             // Background & opacity support
             if (params.background && params.opacity) {
-
-                const buff = await s.png().toBuffer();
-                s = sharp(buff);
-                const meta = await s.metadata();
-                const bgd = await sharp({
-                    create: {
-                        width: meta.width,
-                        height: meta.height,
-                        channels: 4,
-                        background: {
-                            r: color(`#${params.background}`).r,
-                            g: color(`#${params.background}`).g,
-                            b: color(`#${params.background}`).b,
-                            alpha: ((100 - params.opacity) / 100)
+                let bgd = false;
+                try {
+                    const buff = await s.png().toBuffer();
+                    s = sharp(buff);
+                    const meta = await s.metadata();
+                    bgd = await sharp({
+                        create: {
+                            width: meta.width,
+                            height: meta.height,
+                            channels: 4,
+                            background: {
+                                r: color(`#${params.background}`).r,
+                                g: color(`#${params.background}`).g,
+                                b: color(`#${params.background}`).b,
+                                alpha: ((100 - params.opacity) / 100)
+                            }
                         }
-                    }
-                }).png().toBuffer();
+                    }).png().toBuffer();
+                }
+                catch (e) {
+                    return reject(e)
+                }
                 s.overlayWith(bgd);
-
             }
 
             // Blur
