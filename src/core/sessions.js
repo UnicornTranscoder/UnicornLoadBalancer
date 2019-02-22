@@ -97,14 +97,14 @@ SessionsManager.parseFFmpegParameters = async (args = [], env = {}) => {
         if (e === '-segment_list') {
             segListMode = true;
             finalArgs.push(e);
-            return (true);
+            continue;
         }
         if (segListMode) {
             finalArgs.push(segList);
             if (parsedArgs[i + 1] !== '-segment_list_type')
                 finalArgs.push('-segment_list_type', 'csv', '-segment_list_size', '2147483647');
             segListMode = false;
-            return (true);
+            continue;
         }
 
         // Link resolver (Replace filepath to http plex path)
@@ -122,11 +122,11 @@ SessionsManager.parseFFmpegParameters = async (args = [], env = {}) => {
                 console.log('ERROR', e);
                 file = parsedArgs[i]
                 finalArgs.push(file);
-                return (true);
+                continue;
             }
             console.log('DBG');
             finalArgs.push(file);
-            return (true);
+            continue;
         }
 
         // Ignore aprameter
