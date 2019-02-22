@@ -8,13 +8,14 @@ export const parseArguments = (query, basepath = '/', useragent = '') => {
 
     // Parse url
     let url = query.url || '';
-    url = url.replace('http://127.0.0.1/', basepath);
-    url = url.replace('http://127.0.0.1:32400/', basepath);
-    if (url && url[0] === '/')
-        url = basepath + url.substring(1);
-    if (query['X-Plex-Token']) {
+    url = url.replace('http://127.0.0.1/', '/');
+    url = url.replace('http://127.0.0.1:32400/', '/');
+    url = url.replace(basepath, '/');
+    if (query['X-Plex-Token'] && url && url[0] === '/') {
         url += (url.indexOf('?') === -1) ? `?X-Plex-Token=${query['X-Plex-Token']}` : `&X-Plex-Token=${query['X-Plex-Token']}`
     }
+    if (url && url[0] === '/')
+        url = basepath + url.substring(1);
 
     // Extract parameters
     const params = {
@@ -105,10 +106,15 @@ export const resize = (parameters, headers = {}) => {
             }
 
             // Resize based on width
-            if (params.minSize === 1)
-                s.resize(params.width, null, opt);
-            else
-                s.resize(null, params.height, opt);
+            try {
+                if (params.minSize === 1)
+                    s.resize(params.width, null, opt);
+                else
+                    s.resize(null, params.height, opt);
+            }
+            catch (e) {
+                return reject(e)
+            }
 
             // Background & opacity support
             if (params.background && params.opacity) {
