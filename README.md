@@ -39,7 +39,7 @@ atabase | `string` | `/var/lib/plexmediaserver/Library/Application Support/Plex 
 | **DATABASE_POSTGRESQL_DATABASE** | Name of the postgresql database | `string` | ` ` |
 | **DATABASE_POSTGRESQL_USER** | User used by the Postgresql database| `string` | ` ` |
 | **DATABASE_POSTGRESQL_PASSWORD** | Password used by the Postgresql database | `string` | `sqlite` |
-| **DATABASE_POSTGRESQL_PORT** | Port used by the Postgresql database | `string` | `sqlite` |
+| **DATABASE_POSTGRESQL_PORT** | Port used by the Postgresql database | `int` | `5432` |
 | **REDIS_HOST** | The host of the redis database | `string` `undefined` | `undefined` | 
 | **REDIS_PORT** | Port used by Redis | `int` | `6379` |
 | **REDIS_PASSWORD** | The password of the redis database | `string` | ` ` | 

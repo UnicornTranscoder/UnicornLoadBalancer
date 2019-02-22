@@ -27,7 +27,7 @@ export default {
             database: env.string('DATABASE_POSTGRESQL_DATABASE', ''),
             user: env.string('DATABASE_POSTGRESQL_USER', ''),
             password: env.string('DATABASE_POSTGRESQL_PASSWORD', ''),
-            port: env.string('DATABASE_POSTGRESQL_PORT', 5432)
+            port: env.int('DATABASE_POSTGRESQL_PORT', 5432)
         }
     },
     redis: {
