@@ -92,7 +92,7 @@ export const resize = (parameters, headers = {}) => {
             // Load body
             let s = false;
             try {
-                s = sharp(body);
+                s = sharp(body).on('error', err => { return reject(err); });
             }
             catch (e) {
                 return reject(e)
@@ -121,7 +121,7 @@ export const resize = (parameters, headers = {}) => {
                 let bgd = false;
                 try {
                     const buff = await s.png().toBuffer();
-                    s = sharp(buff);
+                    s = sharp(buff).on('error', err => { return reject(err); });
                     const meta = await s.metadata();
                     bgd = await sharp({
                         create: {
@@ -135,7 +135,7 @@ export const resize = (parameters, headers = {}) => {
                                 alpha: ((100 - params.opacity) / 100)
                             }
                         }
-                    }).png().toBuffer();
+                    }).on('error', err => { return reject(err); }).png().toBuffer();
                 }
                 catch (e) {
                     return reject(e)
