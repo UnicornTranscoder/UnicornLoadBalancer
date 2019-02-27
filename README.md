@@ -56,13 +56,12 @@ This software is a part of __UnicornTranscoder__ project, it's the LoadBalancer 
 
 ### 2. Notes
 
-All requests to the Plex Media Server should pass through the *UnicornLoadBalancer*, if someone reach the server directly he will not be able to start a stream, since FFMPEG binary has been replaced. To solve this problem it is recomended to configure an iptable to drop direct access on port **32400**.  
+All requests to the Plex Media Server should pass through the *UnicornLoadBalancer*, if someone reach the server directly he will not be able to start a stream, since FFMPEG binary has been replaced. To solve this problem it is recomended to configure an iptable rule to drop direct access from port **32400**.  
 It is also recomended to setup a nginx reverse proxy in front of the *UnicornLoadBalancer* to setup a SSL certificate.
 
 ```
-#Example iptable
-#Allow transcoders to reach the Plex Media Server
-iptables -A INPUT -p tcp --dport 32400 -i eth0 -s <transcoderIP> -j ACCEPT
-#Deny all other incoming connections
-iptables -A INPUT -p tcp --dport 32400 -i eth0 -j DROP
+#Example iptable: Deny 32400 port
+iptables -A INPUT -p tcp --dport 32400 -i [your-network-interface] -j DROP
 ```
+
+After a 32400 port drop, you must define your server url and the port used (443 or 80) in Plex settings, if it's not configured you will not be able to access to your server from https://app.plex.tv
