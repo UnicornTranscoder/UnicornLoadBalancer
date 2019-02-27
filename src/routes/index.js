@@ -50,7 +50,7 @@ export default (app) => {
     }
 
     // Image Proxy or Image Resizer
-    if (config.custom.image.proxy) {
+    if (config.custom.image.proxy && config.custom.image.resizer) {
         app.get('/photo/:/transcode', RoutesResize.proxy);
     }
     else if (config.custom.image.resizer) {
