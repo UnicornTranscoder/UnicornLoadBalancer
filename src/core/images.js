@@ -27,6 +27,7 @@ export const parseArguments = (query, basepath = '/', useragent = '') => {
         ...((query.blur) ? { blur: parseInt(query.blur) } : {}),
         ...((query.format && (query.format === 'webp' || query.format === 'png')) ? { format: query.format } : { format: 'jpg' }),
         ...((query.upscale) ? { upscale: parseInt(query.upscale) } : {}),
+        ...((query.quality) ? { quality: parseInt(query.quality) } : ((query.blur) ? { quality: 100 } : { quality: 70 })),
         alpha: (query.format === 'png'),
         ...((query['X-Plex-Token']) ? { "X-Plex-Token": query['X-Plex-Token'] } : {}),
         url
@@ -39,7 +40,7 @@ export const parseArguments = (query, basepath = '/', useragent = '') => {
     }
 
     // Generate key
-    params.key = md5(`${(query.url || '').split('?')[0]}|${params.width || ''}|${params.height || ''}|${params.background || ''}|${params.opacity || ''}|${params.minSize || ''}|${params.blur || ''}|${params.format || ''}|${params.upscale || ''}`.toLowerCase())
+    params.key = md5(`${(query.url || '').split('?')[0]}|${params.width || ''}|${params.height || ''}|${params.background || ''}|${params.opacity || ''}|${params.minSize || ''}|${params.blur || ''}|${params.format || ''}|${params.upscale || ''}|${params.quality || ''}`.toLowerCase())
 
     // Return params
     return params;
@@ -150,17 +151,17 @@ export const resize = (parameters, headers = {}) => {
             // Output format
             if (params.format === 'jpg')
                 s.jpeg({
-                    quality: 70
+                    quality: params.quality
                 })
             else if (params.format === 'png')
                 s.png({
-                    quality: 70,
+                    quality: params.quality,
                     progressive: true,
                     compressionLevel: 9
                 })
             else if (params.format === 'webp')
                 s.webp({
-                    quality: 70,
+                    quality: params.quality,
                     ...((parameters.alpha) ? {} : { alphaQuality: 0 })
                 })
 
