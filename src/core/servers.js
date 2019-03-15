@@ -1,6 +1,6 @@
-import fetch from "node-fetch";
-import {time, publicUrl} from "../utils";
-import config from "../config";
+import fetch from 'node-fetch';
+import { time, publicUrl } from '../utils';
+import config from '../config';
 
 let servers = {};
 
@@ -8,7 +8,7 @@ let ServersManager = {};
 
 // Add or update a server
 ServersManager.update = (e) => {
-  const name = e.name ? e.name : e.url ? e.url : "";
+  const name = e.name ? e.name : e.url ? e.url : '';
   if (!name) return ServersManager.list();
   servers[name] = {
     name,
@@ -17,10 +17,7 @@ ServersManager.update = (e) => {
       : e.sessions.map((s) => ({
           id: s.id ? s.id : false,
           status:
-            s.status &&
-            ["DONE", "DOWNLOAD", "TRANSCODE"].indexOf(
-              s.status.toUpperCase(),
-            ) !== -1
+            s.status && ['DONE', 'DOWNLOAD', 'TRANSCODE'].indexOf(s.status.toUpperCase()) !== -1
               ? s.status.toUpperCase()
               : false,
           codec: s.codec ? s.codec : false,
@@ -29,18 +26,15 @@ ServersManager.update = (e) => {
     ).filter((s) => s.id !== false && s.status !== false),
     settings: {
       maxSessions:
-        typeof e.settings !== "undefined" &&
-        typeof e.settings.maxSessions !== "undefined"
+        typeof e.settings !== 'undefined' && typeof e.settings.maxSessions !== 'undefined'
           ? parseInt(e.settings.maxSessions)
           : 0,
       maxDownloads:
-        typeof e.settings !== "undefined" &&
-        typeof e.settings.maxDownloads !== "undefined"
+        typeof e.settings !== 'undefined' && typeof e.settings.maxDownloads !== 'undefined'
           ? parseInt(e.settings.maxDownloads)
           : 0,
       maxTranscodes:
-        typeof e.settings !== "undefined" &&
-        typeof e.settings.maxTranscodes !== "undefined"
+        typeof e.settings !== 'undefined' && typeof e.settings.maxTranscodes !== 'undefined'
           ? parseInt(e.settings.maxTranscodes)
           : 0,
     },
@@ -52,7 +46,7 @@ ServersManager.update = (e) => {
 
 // Remove a server
 ServersManager.remove = (e) => {
-  const name = e.name ? e.name : e.url ? e.url : "";
+  const name = e.name ? e.name : e.url ? e.url : '';
   delete servers[name];
   return ServersManager.list();
 };
@@ -61,7 +55,7 @@ ServersManager.remove = (e) => {
 ServersManager.list = () => {
   let output = {};
   Object.keys(servers).forEach((i) => {
-    output[i] = {...servers[i], score: ServersManager.score(servers[i])};
+    output[i] = { ...servers[i], score: ServersManager.score(servers[i]) };
   });
   return output;
 };
@@ -75,11 +69,9 @@ ServersManager.chooseServer = (session, ip = false) => {
       tab.push(list[i]);
     });
     tab.sort((a, b) => a.score - b.score);
-    if (typeof tab[0] === "undefined") return resolve(false);
+    if (typeof tab[0] === 'undefined') return resolve(false);
     const origin = encodeURIComponent(publicUrl());
-    fetch(
-      `${tab[0].url}/api/resolve?session=${session}&ip=${ip}&origin=${origin}`,
-    )
+    fetch(`${tab[0].url}/api/resolve?session=${session}&ip=${ip}&origin=${origin}`)
       .then((res) => res.json())
       .then((body) => {
         return resolve(body.client);
@@ -101,45 +93,44 @@ ServersManager.score = (e) => {
   // Add load value for each session
   e.sessions.forEach((s) => {
     // Transcode streams
-    if (s.status === "TRANSCODE") {
+    if (s.status === 'TRANSCODE') {
       load += 1;
-      if (s.codec === "hevc") {
+      if (s.codec === 'hevc') {
         load += 1.5;
       }
-      if (s.codec === "copy") {
+      if (s.codec === 'copy') {
         load -= 0.5;
       }
     }
 
     // Serving streams
-    if (s.status === "DONE") {
+    if (s.status === 'DONE') {
       load += 0.5;
     }
 
     // Download streams
-    if (s.status === "DOWNLOAD") {
+    if (s.status === 'DOWNLOAD') {
       load += 0.25;
     }
   });
 
   // Server already have too much sessions
   if (
-    e.sessions.filter((s) => ["TRANSCODE", "DONE"].indexOf(s.status) !== -1)
-      .length > e.settings.maxSessions
+    e.sessions.filter((s) => ['TRANSCODE', 'DONE'].indexOf(s.status) !== -1).length >
+    e.settings.maxSessions
   )
     load += 2.5;
 
   // Server already have too much transcodes
   if (
-    e.sessions.filter((s) => ["TRANSCODE"].indexOf(s.status) !== -1).length >
+    e.sessions.filter((s) => ['TRANSCODE'].indexOf(s.status) !== -1).length >
     e.settings.maxTranscodes
   )
     load += 5;
 
   // Server already have too much downloads
   if (
-    e.sessions.filter((s) => ["DOWNLOAD"].indexOf(s.status) !== -1).length >
-    e.settings.maxDownloads
+    e.sessions.filter((s) => ['DOWNLOAD'].indexOf(s.status) !== -1).length > e.settings.maxDownloads
   )
     load += 1;
 

@@ -1,23 +1,22 @@
-import debug from "debug";
-import fetch from "node-fetch";
+import debug from 'debug';
+import fetch from 'node-fetch';
 
-import config from "../config";
-import Database from "../database";
-import SessionsManager from "../core/sessions";
-import AWS from "../core/aws";
+import config from '../config';
+import Database from '../database';
+import SessionsManager from '../core/sessions';
+import AWS from '../core/aws';
 
-import RoutesProxy from "./proxy";
+import RoutesProxy from './proxy';
 
 // Debugger
-const D = debug("UnicornLoadBalancer");
+const D = debug('UnicornLoadBalancer');
 
 let RoutesTranscode = {};
 
 /* Extract IP */
 const getIp = (req) => {
-  if (req.get("CF-Connecting-IP")) return req.get("CF-Connecting-IP");
-  if (req.get("x-forwarded-for"))
-    return req.get("x-forwarded-for").split(",")[0];
+  if (req.get('CF-Connecting-IP')) return req.get('CF-Connecting-IP');
+  if (req.get('x-forwarded-for')) return req.get('x-forwarded-for').split(',')[0];
   return req.connection.remoteAddress;
 };
 
@@ -27,12 +26,12 @@ RoutesTranscode.redirect = async (req, res) => {
   const server = await SessionsManager.chooseServer(session, getIp(req));
   if (server) {
     res.redirect(302, server + req.url);
-    D("REDIRECT " + session + " [" + server + "]");
+    D('REDIRECT ' + session + ' [' + server + ']');
   } else {
     res.status(500).send({
-      error: {code: "SERVER_UNAVAILABLE", message: "SERVER_UNAVAILABLE"},
+      error: { code: 'SERVER_UNAVAILABLE', message: 'SERVER_UNAVAILABLE' },
     });
-    D("REDIRECT " + session + " [UNKNOWN]");
+    D('REDIRECT ' + session + ' [UNKNOWN]');
   }
 };
 
@@ -43,15 +42,13 @@ RoutesTranscode.dashStart = (req, res) => {
 
   // If we have a cached X-Plex-Session-Identifier, we use it
   if (
-    req.query["X-Plex-Session-Identifier"] &&
-    SessionsManager.getCacheSession(req.query["X-Plex-Session-Identifier"])
+    req.query['X-Plex-Session-Identifier'] &&
+    SessionsManager.getCacheSession(req.query['X-Plex-Session-Identifier'])
   )
-    sessionId = SessionsManager.getCacheSession(
-      req.query["X-Plex-Session-Identifier"],
-    );
+    sessionId = SessionsManager.getCacheSession(req.query['X-Plex-Session-Identifier']);
 
   // Log
-  D("START " + SessionsManager.getSessionFromRequest(req) + " [DASH]");
+  D('START ' + SessionsManager.getSessionFromRequest(req) + ' [DASH]');
 
   // Save session
   SessionsManager.cacheSessionFromRequest(req);
@@ -72,7 +69,7 @@ RoutesTranscode.lpStart = (req, res) => {
   const sessionId = SessionsManager.getSessionFromRequest(req);
 
   // Log
-  D("START " + sessionId + " [LP]");
+  D('START ' + sessionId + ' [LP]');
 
   // If sessionId is defined
   if (sessionId) SessionsManager.cleanSession(sessionId);
@@ -93,7 +90,7 @@ RoutesTranscode.hlsStart = (req, res) => {
   const sessionId = SessionsManager.getSessionFromRequest(req);
 
   // Log
-  D("START " + sessionId + " [HLS]");
+  D('START ' + sessionId + ' [HLS]');
 
   // If sessionId is defined
   if (sessionId) SessionsManager.cleanSession(sessionId);
@@ -112,10 +109,10 @@ RoutesTranscode.ping = async (req, res) => {
 
   // If a server url is defined, we ping the session
   if (serverUrl) {
-    D("PING " + sessionId + " [" + serverUrl + "]");
-    fetch(serverUrl + "/api/ping?session=" + sessionId);
+    D('PING ' + sessionId + ' [' + serverUrl + ']');
+    fetch(serverUrl + '/api/ping?session=' + sessionId);
   } else {
-    D("PING " + sessionId + " [UNKNOWN]");
+    D('PING ' + sessionId + ' [UNKNOWN]');
   }
 };
 
@@ -131,22 +128,22 @@ RoutesTranscode.timeline = async (req, res) => {
   const serverUrl = await SessionsManager.chooseServer(sessionId, getIp(req));
 
   // It's a stop request
-  if (req.query.state === "stopped") {
+  if (req.query.state === 'stopped') {
     // If a server url is defined, we stop the session
     if (serverUrl) {
-      D("STOP " + sessionId + " [" + serverUrl + "]");
-      fetch(serverUrl + "/api/stop?session=" + sessionId);
+      D('STOP ' + sessionId + ' [' + serverUrl + ']');
+      fetch(serverUrl + '/api/stop?session=' + sessionId);
     } else {
-      D("STOP " + sessionId + " [UNKNOWN]");
+      D('STOP ' + sessionId + ' [UNKNOWN]');
     }
   }
   // It's a ping request
   else {
     if (serverUrl) {
-      D("PING " + sessionId + " [" + serverUrl + "]");
-      fetch(serverUrl + "/api/ping?session=" + sessionId);
+      D('PING ' + sessionId + ' [' + serverUrl + ']');
+      fetch(serverUrl + '/api/ping?session=' + sessionId);
     } else {
-      D("PING " + sessionId + " [UNKNOWN]");
+      D('PING ' + sessionId + ' [UNKNOWN]');
     }
   }
 };
@@ -154,9 +151,9 @@ RoutesTranscode.timeline = async (req, res) => {
 RoutesTranscode.progress = (req, res) => {
   RoutesProxy.plex(req, res);
 
-  D("Progress " + req.method);
-  D("\tURL: " + req.originalUrl);
-  D("\tBody: " + req.body);
+  D('Progress ' + req.method);
+  D('\tURL: ' + req.originalUrl);
+  D('\tBody: ' + req.body);
 };
 
 /* Route stop */
@@ -172,10 +169,10 @@ RoutesTranscode.stop = async (req, res) => {
 
   // If a server url is defined, we stop the session
   if (serverUrl) {
-    D("STOP " + sessionId + " [" + serverUrl + "]");
-    fetch(serverUrl + "/api/stop?session=" + sessionId);
+    D('STOP ' + sessionId + ' [' + serverUrl + ']');
+    fetch(serverUrl + '/api/stop?session=' + sessionId);
   } else {
-    D("STOP " + sessionId + " [UNKNOWN]");
+    D('STOP ' + sessionId + ' [UNKNOWN]');
   }
 };
 
@@ -185,47 +182,41 @@ RoutesTranscode.download = async (req, res) => {
   try {
     data = await Database.getPartFromId(req.params.id1);
   } catch (ex) {
-    if (ex !== "FILE_NOT_FOUND") {
+    if (ex !== 'FILE_NOT_FOUND') {
       // rethrow; we don't handle this
       throw ex;
     }
 
-    res
-      .status(400)
-      .send({error: {code: "NOT_FOUND", message: "File not available"}});
+    res.status(400).send({ error: { code: 'NOT_FOUND', message: 'File not available' } });
     return;
   }
 
   try {
     const awsUrl = await AWS.getSignedUrlForFile(data.file);
-    D("DOWNLOAD " + req.params.id1 + " [AWS]");
+    D('DOWNLOAD ' + req.params.id1 + ' [AWS]');
     res.redirect(302, awsUrl);
     return;
   } catch (ex) {
     if (ex instanceof Error) {
       switch (ex.message) {
-        case "AWS is still initializing":
+        case 'AWS is still initializing':
           // Retry in 3 seconds
           await new Promise((resolve) => {
             setTimeout(resolve, 3000);
           });
           return RoutesTranscode.download(req, res);
           break;
-        case "No AWS signing services are available":
-          D(
-            "ERROR: DOWNLOAD " +
-              req.params.id1 +
-              " [AWS]: No signing services available",
-          );
+        case 'No AWS signing services are available':
+          D('ERROR: DOWNLOAD ' + req.params.id1 + ' [AWS]: No signing services available');
           break;
-        case "AWS S3 mount path is not configured":
+        case 'AWS S3 mount path is not configured':
           // Ignore; AWS just isn't configured
           break;
         default:
-          D("ERROR: DOWNLOAD " + req.params.id1 + " [AWS]: " + ex.message);
+          D('ERROR: DOWNLOAD ' + req.params.id1 + ' [AWS]: ' + ex.message);
       }
     } else {
-      D("ERROR: DOWNLOAD " + req.params.id1 + " [AWS]: " + ex);
+      D('ERROR: DOWNLOAD ' + req.params.id1 + ' [AWS]: ' + ex);
     }
   }
 
@@ -235,7 +226,7 @@ RoutesTranscode.download = async (req, res) => {
   }
 
   // We don't send downloads to transcoders; send the file ourselves
-  D("DOWNLOAD " + req.params.id1 + " [LB]");
+  D('DOWNLOAD ' + req.params.id1 + ' [LB]');
   const sendFilePromise = new Promise((resolve, reject) => {
     res.sendFile(data.file, {}, (err) => {
       if (err) {
@@ -250,9 +241,9 @@ RoutesTranscode.download = async (req, res) => {
   try {
     await sendFilePromise;
   } catch (ex) {
-    if (ex.code !== "ECONNABORTED") {
+    if (ex.code !== 'ECONNABORTED') {
       // rethrow; we don't handle this
-      D("DOWNLOAD FAILED " + req.params.id1 + " [LB]: " + ex);
+      D('DOWNLOAD FAILED ' + req.params.id1 + ' [LB]: ' + ex);
       throw ex;
     }
   }

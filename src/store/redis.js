@@ -1,5 +1,5 @@
-import {getRedisClient} from "../utils";
-import config from "../config";
+import { getRedisClient } from '../utils';
+import config from '../config';
 
 class RedisSessionStore {
   constructor() {
@@ -28,15 +28,15 @@ class RedisSessionStore {
         if (err) return reject(err);
         if (session != null) return resolve(this._parseSession(session));
 
-        let redisSubKey = "__keyspace@" + config.redis.db + "__:" + sessionId;
+        let redisSubKey = '__keyspace@' + config.redis.db + '__:' + sessionId;
 
         let timeout = setTimeout(() => {
           this.redisSubscriber.unsubscribe(redisSubKey);
-          reject("timeout");
+          reject('timeout');
         }, 20000);
 
-        this.redisSubscriber.on("message", (eventKey, action) => {
-          if (action !== "set" || eventKey !== redisSubKey) return;
+        this.redisSubscriber.on('message', (eventKey, action) => {
+          if (action !== 'set' || eventKey !== redisSubKey) return;
 
           clearTimeout(timeout);
           this.redisSubscriber.unsubscribe(redisSubKey);
@@ -60,7 +60,7 @@ class RedisSessionStore {
     return new Promise((resolve, reject) => {
       this.redis.set(sessionId, JSON.stringify(value), (err) => {
         if (err) return reject(err);
-        resolve("OK");
+        resolve('OK');
       });
     });
   }
@@ -74,7 +74,7 @@ class RedisSessionStore {
     return new Promise((resolve, reject) => {
       this.redis.del(sessionId, (err) => {
         if (err) return reject(err);
-        resolve("OK");
+        resolve('OK');
       });
     });
   }

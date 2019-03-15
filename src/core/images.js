@@ -1,57 +1,57 @@
-import fetch from "node-fetch";
-import sharp from "sharp";
-import color from "color";
-import md5 from "md5";
-import {parseUserAgent} from "detect-browser";
+import fetch from 'node-fetch';
+import sharp from 'sharp';
+import color from 'color';
+import md5 from 'md5';
+import { parseUserAgent } from 'detect-browser';
 
-export const parseArguments = (query, basepath = "/", useragent = "") => {
+export const parseArguments = (query, basepath = '/', useragent = '') => {
   // Parse url
-  let url = query.url || "";
-  url = url.replace("http://127.0.0.1/", "/");
-  url = url.replace("http://127.0.0.1:32400/", "/");
-  url = url.replace(basepath, "/");
-  if (query["X-Plex-Token"] && url && url[0] === "/") {
+  let url = query.url || '';
+  url = url.replace('http://127.0.0.1/', '/');
+  url = url.replace('http://127.0.0.1:32400/', '/');
+  url = url.replace(basepath, '/');
+  if (query['X-Plex-Token'] && url && url[0] === '/') {
     url +=
-      url.indexOf("?") === -1
-        ? `?X-Plex-Token=${query["X-Plex-Token"]}`
-        : `&X-Plex-Token=${query["X-Plex-Token"]}`;
+      url.indexOf('?') === -1
+        ? `?X-Plex-Token=${query['X-Plex-Token']}`
+        : `&X-Plex-Token=${query['X-Plex-Token']}`;
   }
-  if (url && url[0] === "/") url = basepath + url.substring(1);
+  if (url && url[0] === '/') url = basepath + url.substring(1);
 
   // Extract parameters
   const params = {
-    ...(query.width ? {width: parseInt(query.width)} : {}),
-    ...(query.height ? {height: parseInt(query.height)} : {}),
-    ...(query.background ? {background: query.background} : {}),
-    ...(query.opacity ? {opacity: parseInt(query.opacity)} : {}),
-    ...(query.minSize ? {minSize: parseInt(query.minSize)} : {}),
-    ...(query.blur ? {blur: parseInt(query.blur)} : {}),
-    ...(query.format && (query.format === "webp" || query.format === "png")
-      ? {format: query.format}
-      : {format: "jpg"}),
-    ...(query.upscale ? {upscale: parseInt(query.upscale)} : {}),
+    ...(query.width ? { width: parseInt(query.width) } : {}),
+    ...(query.height ? { height: parseInt(query.height) } : {}),
+    ...(query.background ? { background: query.background } : {}),
+    ...(query.opacity ? { opacity: parseInt(query.opacity) } : {}),
+    ...(query.minSize ? { minSize: parseInt(query.minSize) } : {}),
+    ...(query.blur ? { blur: parseInt(query.blur) } : {}),
+    ...(query.format && (query.format === 'webp' || query.format === 'png')
+      ? { format: query.format }
+      : { format: 'jpg' }),
+    ...(query.upscale ? { upscale: parseInt(query.upscale) } : {}),
     ...(query.quality
-      ? {quality: parseInt(query.quality)}
+      ? { quality: parseInt(query.quality) }
       : query.blur
-      ? {quality: 100}
-      : {quality: 70}),
-    alpha: query.format === "png",
-    ...(query["X-Plex-Token"] ? {"X-Plex-Token": query["X-Plex-Token"]} : {}),
+      ? { quality: 100 }
+      : { quality: 70 }),
+    alpha: query.format === 'png',
+    ...(query['X-Plex-Token'] ? { 'X-Plex-Token': query['X-Plex-Token'] } : {}),
     url,
   };
 
   // Auto select WebP if user-agent support it
   const browser = parseUserAgent(useragent);
-  if (browser && browser.name && browser.name === "chrome" && !query.format) {
-    params.format = "webp";
+  if (browser && browser.name && browser.name === 'chrome' && !query.format) {
+    params.format = 'webp';
   }
 
   // Generate key
   params.key = md5(
-    `${(query.url || "").split("?")[0]}|${params.width || ""}|${params.height ||
-      ""}|${params.background || ""}|${params.opacity || ""}|${params.minSize ||
-      ""}|${params.blur || ""}|${params.format || ""}|${params.upscale ||
-      ""}|${params.quality || ""}`.toLowerCase(),
+    `${(query.url || '').split('?')[0]}|${params.width || ''}|${params.height ||
+      ''}|${params.background || ''}|${params.opacity || ''}|${params.minSize ||
+      ''}|${params.blur || ''}|${params.format || ''}|${params.upscale || ''}|${params.quality ||
+      ''}`.toLowerCase(),
   );
 
   // Return params
@@ -90,7 +90,7 @@ export const resize = (parameters, headers = {}) => {
         ...parameters,
       };
 
-      if (!params.width || !params.height) return reject("Size not provided");
+      if (!params.width || !params.height) return reject('Size not provided');
 
       // Erase previous host header
       delete headers.host;
@@ -103,7 +103,7 @@ export const resize = (parameters, headers = {}) => {
       // Load body
       let s = false;
       try {
-        s = sharp(body).on("error", (err) => {
+        s = sharp(body).on('error', (err) => {
           return reject(err);
         });
       } catch (e) {
@@ -113,7 +113,7 @@ export const resize = (parameters, headers = {}) => {
 
       // Resize parameters
       const opt = {
-        ...(params.upscale ? {withoutEnlargement: !!params.upscale} : {}),
+        ...(params.upscale ? { withoutEnlargement: !!params.upscale } : {}),
       };
 
       // Resize based on width
@@ -129,7 +129,7 @@ export const resize = (parameters, headers = {}) => {
         let bgd = false;
         try {
           const buff = await s.png().toBuffer();
-          s = sharp(buff).on("error", (err) => {
+          s = sharp(buff).on('error', (err) => {
             return reject(err);
           });
           const meta = await s.metadata();
@@ -146,7 +146,7 @@ export const resize = (parameters, headers = {}) => {
               },
             },
           })
-            .on("error", (err) => {
+            .on('error', (err) => {
               return reject(err);
             })
             .png()
@@ -158,24 +158,23 @@ export const resize = (parameters, headers = {}) => {
       }
 
       // Blur
-      if (params.blur > 0 && params.blur <= 1000)
-        s.blur(params.blur * 1.25).gamma(2);
+      if (params.blur > 0 && params.blur <= 1000) s.blur(params.blur * 1.25).gamma(2);
 
       // Output format
-      if (params.format === "jpg")
+      if (params.format === 'jpg')
         s.jpeg({
           quality: params.quality,
         });
-      else if (params.format === "png")
+      else if (params.format === 'png')
         s.png({
           quality: params.quality,
           progressive: true,
           compressionLevel: 9,
         });
-      else if (params.format === "webp")
+      else if (params.format === 'webp')
         s.webp({
           quality: params.quality,
-          ...(parameters.alpha ? {} : {alphaQuality: 0}),
+          ...(parameters.alpha ? {} : { alphaQuality: 0 }),
         });
 
       // Return stream

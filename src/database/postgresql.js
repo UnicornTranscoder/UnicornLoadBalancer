@@ -1,5 +1,5 @@
-import {Client} from "pg";
-import config from "../config";
+import { Client } from 'pg';
+import config from '../config';
 
 let PostgresqlDatabase = {};
 
@@ -12,7 +12,7 @@ const _getClient = () =>
       password: config.database.postgresql.password,
       port: config.database.postgresql.port,
     });
-    client.on("error", (err) => {
+    client.on('error', (err) => {
       return reject(err);
     });
     await client.connect();
@@ -23,22 +23,18 @@ PostgresqlDatabase.getPartFromId = (part_id) =>
   new Promise((resolve, reject) => {
     _getClient()
       .then((client) => {
-        client.query(
-          "SELECT * FROM media_parts WHERE id=$1 LIMIT 1",
-          [part_id],
-          (err, res) => {
-            if (err) return reject(err);
-            client.end();
-            if (res.rows.length) {
-              return resolve(res.rows[0]);
-            } else {
-              return reject("FILE_NOT_FOUND");
-            }
-          },
-        );
+        client.query('SELECT * FROM media_parts WHERE id=$1 LIMIT 1', [part_id], (err, res) => {
+          if (err) return reject(err);
+          client.end();
+          if (res.rows.length) {
+            return resolve(res.rows[0]);
+          } else {
+            return reject('FILE_NOT_FOUND');
+          }
+        });
       })
       .catch((err) => {
-        return reject("DATABASE_ERROR");
+        return reject('DATABASE_ERROR');
       });
   });
 
@@ -46,24 +42,20 @@ PostgresqlDatabase.getPartFromPath = (path) =>
   new Promise((resolve, reject) => {
     _getClient()
       .then((client) => {
-        client.query(
-          "SELECT * FROM media_parts WHERE file=$1 LIMIT 1",
-          [path],
-          (err, res) => {
-            if (err) {
-              return reject(err);
-            }
-            client.end();
-            if (res.rows.length) {
-              return resolve(res.rows[0]);
-            } else {
-              return reject("FILE_NOT_FOUND");
-            }
-          },
-        );
+        client.query('SELECT * FROM media_parts WHERE file=$1 LIMIT 1', [path], (err, res) => {
+          if (err) {
+            return reject(err);
+          }
+          client.end();
+          if (res.rows.length) {
+            return resolve(res.rows[0]);
+          } else {
+            return reject('FILE_NOT_FOUND');
+          }
+        });
       })
       .catch((err) => {
-        return reject("DATABASE_ERROR");
+        return reject('DATABASE_ERROR');
       });
   });
 

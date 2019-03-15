@@ -1,4 +1,4 @@
-import EventEmitter from "events";
+import EventEmitter from 'events';
 
 class LocalSessionStore {
   constructor() {
@@ -13,8 +13,7 @@ class LocalSessionStore {
    */
   get(sessionId) {
     return new Promise((resolve, reject) => {
-      if (sessionId in this.sessionStore)
-        return resolve(this.sessionStore[sessionId]);
+      if (sessionId in this.sessionStore) return resolve(this.sessionStore[sessionId]);
 
       let timeout = null;
 
@@ -26,7 +25,7 @@ class LocalSessionStore {
 
       let timeoutCb = () => {
         this.sessionEvents.removeListener(sessionId, eventCb);
-        reject("timeout");
+        reject('timeout');
       };
 
       timeout = setTimeout(timeoutCb, 20000);
@@ -44,7 +43,7 @@ class LocalSessionStore {
     return new Promise((resolve) => {
       this.sessionStore[sessionId] = value;
       this.sessionEvents.emit(sessionId, value);
-      resolve("OK");
+      resolve('OK');
     });
   }
 
@@ -56,7 +55,7 @@ class LocalSessionStore {
   delete(sessionId) {
     return new Promise((resolve) => {
       delete this.sessionStore[sessionId];
-      resolve("OK");
+      resolve('OK');
     });
   }
 }

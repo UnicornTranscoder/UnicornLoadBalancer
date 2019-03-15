@@ -1,12 +1,12 @@
-import util from "util";
-import debug from "debug";
+import util from 'util';
+import debug from 'debug';
 
-import aws from "aws-sdk";
+import aws from 'aws-sdk';
 
-import config from "../config";
+import config from '../config';
 
 // Debugger
-const D = debug("UnicornLoadBalancer:AWS");
+const D = debug('UnicornLoadBalancer:AWS');
 
 const SIGNED_URL_EXPIRE_TIME = 60; // How long a signed URL is valid for in seconds -- 1 minute
 
@@ -30,8 +30,8 @@ class AWSInterface {
 
     this.metadataService = new aws.MetadataService();
     this.region = await this.getRegion();
-    this.ssm = new aws.SSM({apiVersion: "2014-11-06", region: this.region});
-    this.s3 = new aws.S3({apiVersion: "2006-03-01", region: this.region});
+    this.ssm = new aws.SSM({ apiVersion: '2014-11-06', region: this.region });
+    this.s3 = new aws.S3({ apiVersion: '2006-03-01', region: this.region });
 
     const initializationPromises = [];
     initializationPromises.push(this.initializeCloudFront());
@@ -55,8 +55,8 @@ class AWSInterface {
    */
   async initializeCloudFront() {
     if (
-      config.aws.cloudFront.distributionUrl === "" ||
-      config.aws.cloudFront.keypairParameterPath === ""
+      config.aws.cloudFront.distributionUrl === '' ||
+      config.aws.cloudFront.keypairParameterPath === ''
     ) {
       return;
     }
@@ -64,23 +64,23 @@ class AWSInterface {
     this.cloudFront = {};
 
     this.cloudFront.url = config.aws.cloudFront.distributionUrl;
-    if (this.cloudFront.url.endsWith("/")) {
+    if (this.cloudFront.url.endsWith('/')) {
       // Make sure the distribution URL ends with a slash so that we can simply add a key to it later
       this.cloudFront.url = this.cloudFront.url.slice(0, -1);
     }
 
     const keypairPath = config.aws.cloudFront.keypairParameterPath;
     const ssmRequest = this.ssm.getParameters({
-      Names: [keypairPath + "/keyId", keypairPath + "/privkey"],
+      Names: [keypairPath + '/keyId', keypairPath + '/privkey'],
       WithDecryption: true,
     });
     ssmRequest.send();
     const data = await ssmRequest.promise();
 
     if (data.InvalidParameters && data.InvalidParameters.length > 0) {
-      const invalidParameters = data.InvalidParameters.join(", ");
+      const invalidParameters = data.InvalidParameters.join(', ');
       D(
-        "During request for CloudFront signing key, received invalid parameters: " +
+        'During request for CloudFront signing key, received invalid parameters: ' +
           invalidParameters,
       );
     }
@@ -91,38 +91,31 @@ class AWSInterface {
     const parameters = data.Parameters;
     if (parameters.length != 2) {
       throw new Error(
-        "Requested 2 parameters from Parameter Store for CloudFront signing key, but received " +
+        'Requested 2 parameters from Parameter Store for CloudFront signing key, but received ' +
           parameters.length,
       );
     }
     for (let i = 0; i < parameters.length; i++) {
       const parameter = parameters[i];
-      if (parameter.Name.endsWith("/privkey")) {
+      if (parameter.Name.endsWith('/privkey')) {
         // This is the private key
         privateKey = parameter.Value;
-      } else if (parameter.Name.endsWith("/keyId")) {
+      } else if (parameter.Name.endsWith('/keyId')) {
         // This is the key ID
         keypairId = parameter.Value;
       } else {
-        D(
-          "Received unexpected result from SSM Parameter Store: " +
-            parameter.Name,
-        );
+        D('Received unexpected result from SSM Parameter Store: ' + parameter.Name);
       }
     }
 
     if (keypairId === null && privateKey === null) {
       throw new Error(
-        "Did not receive keypair ID or private key for CloudFront signing from Parameter Store",
+        'Did not receive keypair ID or private key for CloudFront signing from Parameter Store',
       );
     } else if (keypairId === null) {
-      throw new Error(
-        "Did not receive keypair ID for CloudFront signing from Parameter Store",
-      );
+      throw new Error('Did not receive keypair ID for CloudFront signing from Parameter Store');
     } else if (privateKey === null) {
-      throw new Error(
-        "Did not receive private key for CloudFront signing from Parameter Store",
-      );
+      throw new Error('Did not receive private key for CloudFront signing from Parameter Store');
     }
 
     this.cloudFront.signer = new aws.CloudFront.Signer(keypairId, privateKey);
@@ -133,9 +126,8 @@ class AWSInterface {
    * called by initialize.
    */
   async initializeS3() {
-    this.s3Bucket = config.aws.s3.bucket !== "" ? config.aws.s3.bucket : null;
-    this.s3MountPoint =
-      config.aws.s3.mountPath !== "" ? config.aws.s3.mountPath : null;
+    this.s3Bucket = config.aws.s3.bucket !== '' ? config.aws.s3.bucket : null;
+    this.s3MountPoint = config.aws.s3.mountPath !== '' ? config.aws.s3.mountPath : null;
   }
 
   /**
@@ -143,12 +135,10 @@ class AWSInterface {
    *     that this load balancer is in.
    */
   async getRegion() {
-    const requestMetadata = util.promisify(
-      this.metadataService.request.bind(this.metadataService),
-    );
+    const requestMetadata = util.promisify(this.metadataService.request.bind(this.metadataService));
 
     const availabilityZone = await requestMetadata(
-      "/2018-09-24/meta-data/placement/availability-zone",
+      '/2018-09-24/meta-data/placement/availability-zone',
     );
     let region;
     if (/[a-zA-Z]/.test(availabilityZone)) {
@@ -169,26 +159,24 @@ class AWSInterface {
    */
   async getSignedUrlForFile(filePath) {
     if (!this.isInitialized()) {
-      throw new Error("AWS is still initializing");
+      throw new Error('AWS is still initializing');
     }
 
     if (this.s3MountPoint === null) {
       // If there's no mount path, we can't determine the path to add to a URL
-      throw new Error("AWS S3 mount path is not configured");
+      throw new Error('AWS S3 mount path is not configured');
     }
 
     if (!filePath.startsWith(config.aws.s3.mountPath)) {
-      throw new Error("Given file path is not in the S3 mount point");
+      throw new Error('Given file path is not in the S3 mount point');
     }
 
-    const key = this.getEncodedKey(
-      filePath.slice(config.aws.s3.mountPath.length),
-    );
+    const key = this.getEncodedKey(filePath.slice(config.aws.s3.mountPath.length));
 
     try {
       return await this.getCloudFrontSignedUrl(key);
     } catch (ex) {
-      if (!(ex instanceof Error && ex.message === "Unavailable")) {
+      if (!(ex instanceof Error && ex.message === 'Unavailable')) {
         // This is not a simple Unavailable error from the signing function.
         throw ex;
       }
@@ -197,13 +185,13 @@ class AWSInterface {
     try {
       return await this.getS3SignedUrl(key);
     } catch (ex) {
-      if (!(ex instanceof Error && ex.message === "Unavailable")) {
+      if (!(ex instanceof Error && ex.message === 'Unavailable')) {
         // This is not a simple Unavailable error from the signing function.
         throw ex;
       }
     }
 
-    throw new Error("No AWS signing services are available");
+    throw new Error('No AWS signing services are available');
   }
 
   /**
@@ -213,16 +201,14 @@ class AWSInterface {
    */
   async getCloudFrontSignedUrl(key) {
     if (!this.cloudFront || !this.cloudFront.signer) {
-      throw new Error("Unavailable");
+      throw new Error('Unavailable');
     }
 
-    const expiresTimestamp = Math.ceil(
-      (Date.now() + SIGNED_URL_EXPIRE_TIME * 1000) / 1000,
-    );
+    const expiresTimestamp = Math.ceil((Date.now() + SIGNED_URL_EXPIRE_TIME * 1000) / 1000);
 
     return new Promise((resolve, reject) => {
       this.cloudFront.signer.getSignedUrl(
-        {url: this.cloudFront.url + key, expires: expiresTimestamp},
+        { url: this.cloudFront.url + key, expires: expiresTimestamp },
         (err, signedUrl) => {
           if (err) {
             reject(err);
@@ -241,13 +227,13 @@ class AWSInterface {
    */
   async getS3SignedUrl(key) {
     if (this.s3Bucket === null) {
-      throw new Error("Unavailable");
+      throw new Error('Unavailable');
     }
 
     return new Promise((resolve, reject) => {
       this.s3.getSignedUrl(
-        "getObject",
-        {Bucket: this.s3Bucket, Key: key, Expires: SIGNED_URL_EXPIRE_TIME},
+        'getObject',
+        { Bucket: this.s3Bucket, Key: key, Expires: SIGNED_URL_EXPIRE_TIME },
         (err, signedUrl) => {
           if (err) {
             reject(err);
@@ -269,7 +255,7 @@ class AWSInterface {
    */
   getEncodedKey(key) {
     key = encodeURI(key);
-    key = key.replace(/'/g, "%27"); // Chrome encodes single quotes. It seems to be the only browser to do that.
+    key = key.replace(/'/g, '%27'); // Chrome encodes single quotes. It seems to be the only browser to do that.
     return key;
   }
 }
