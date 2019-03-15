@@ -71,7 +71,7 @@ class AWSInterface {
 
     const keypairPath = config.aws.cloudFront.keypairParameterPath;
     const ssmRequest = this.ssm.getParameters({
-      Names: [keypairPath + '/keyId', keypairPath + '/privkey'],
+      Names: [`${keypairPath}/keyId`, `${keypairPath}/privkey`],
       WithDecryption: true,
     });
     ssmRequest.send();
@@ -80,23 +80,23 @@ class AWSInterface {
     if (data.InvalidParameters && data.InvalidParameters.length > 0) {
       const invalidParameters = data.InvalidParameters.join(', ');
       D(
-        'During request for CloudFront signing key, received invalid parameters: ' +
-          invalidParameters,
+        `During request for CloudFront signing key, received invalid parameters: ${invalidParameters}`,
+      );
+    }
+
+    const parameters = data.Parameters;
+    if (parameters.length !== 2) {
+      throw new Error(
+        `Requested 2 parameters from Parameter Store for CloudFront signing key, but received ${
+          parameters.length
+        }`,
       );
     }
 
     let keypairId = null;
     let privateKey = null;
 
-    const parameters = data.Parameters;
-    if (parameters.length != 2) {
-      throw new Error(
-        'Requested 2 parameters from Parameter Store for CloudFront signing key, but received ' +
-          parameters.length,
-      );
-    }
-    for (let i = 0; i < parameters.length; i++) {
-      const parameter = parameters[i];
+    parameters.forEach((parameter) => {
       if (parameter.Name.endsWith('/privkey')) {
         // This is the private key
         privateKey = parameter.Value;
@@ -104,9 +104,9 @@ class AWSInterface {
         // This is the key ID
         keypairId = parameter.Value;
       } else {
-        D('Received unexpected result from SSM Parameter Store: ' + parameter.Name);
+        D(`Received unexpected result from SSM Parameter Store: ${parameter.Name}`);
       }
-    }
+    });
 
     if (keypairId === null && privateKey === null) {
       throw new Error(
@@ -171,7 +171,7 @@ class AWSInterface {
       throw new Error('Given file path is not in the S3 mount point');
     }
 
-    const key = this.getEncodedKey(filePath.slice(config.aws.s3.mountPath.length));
+    const key = AWSInterface.getEncodedKey(filePath.slice(config.aws.s3.mountPath.length));
 
     try {
       return await this.getCloudFrontSignedUrl(key);
@@ -253,10 +253,10 @@ class AWSInterface {
    * @param  {string} key The key to be encoded.
    * @return {[type]}     The encoded key.
    */
-  getEncodedKey(key) {
-    key = encodeURI(key);
-    key = key.replace(/'/g, '%27'); // Chrome encodes single quotes. It seems to be the only browser to do that.
-    return key;
+  static getEncodedKey(key) {
+    let encodedKey = encodeURI(key);
+    encodedKey = encodedKey.replace(/'/g, '%27');
+    return encodedKey;
   }
 }
 
