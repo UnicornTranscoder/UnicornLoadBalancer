@@ -9,12 +9,12 @@ const D = debug('UnicornLoadBalancer');
 let SessionStore;
 
 if (config.redis.host !== 'undefined') {
-    D('Using redis as session store');
-    SessionStore = new RedisSessionStore();
+  D('Using redis as session store');
+  SessionStore = new RedisSessionStore();
 } else {
-    D('Redis not found, fallback on LocalSessionStore');
-    D('WARNING: On restart all sessions will be lost');
-    SessionStore = new LocalSessionStore();
+  D('Redis not found, fallback on LocalSessionStore');
+  D('WARNING: On restart all sessions will be lost');
+  SessionStore = new LocalSessionStore();
 }
 
 export default SessionStore;

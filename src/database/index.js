@@ -9,11 +9,11 @@ const D = debug('UnicornLoadBalancer');
 let Database;
 
 if (config.database.mode === 'sqlite') {
-    D('Using sqlite as database');
-    Database = SqliteDatabase;
+  D('Using sqlite as database');
+  Database = SqliteDatabase;
 } else if (config.database.mode === 'postgresql') {
-    D('Using postgresql as database');
-    Database = PostgresqlDatabase;
+  D('Using postgresql as database');
+  Database = PostgresqlDatabase;
 }
 
 export default Database;
