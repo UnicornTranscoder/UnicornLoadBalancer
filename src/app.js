@@ -1,14 +1,14 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import debug from 'debug';
 
 import config from './config';
 import Router from './routes';
 import Proxy from './routes/proxy';
 import { internalUrl } from './utils';
 import ServersManager from './core/servers';
-
-import debug from 'debug';
+import Resolver from './resolver';
 
 // Debugger
 const D = debug('UnicornLoadBalancer');
@@ -52,6 +52,9 @@ Router(app);
 })).forEach(e => {
     ServersManager.update(e);
 });
+
+// Init resolvers
+Resolver.init();
 
 // Create HTTP server
 const httpServer = app.listen(config.server.port);
