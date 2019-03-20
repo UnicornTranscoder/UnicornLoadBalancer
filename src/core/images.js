@@ -82,18 +82,10 @@ export const resize = (parameters, headers = {}) => {
             if (!params.width || !params.height)
                 return reject('Size not provided');
 
-            // Erase previous host header
-            delete headers.host;
-
-            // Get image content
-            const body = await fetch(parameters.url, {
-                headers
-            }).then(res => res.buffer());
-
-            // Load body
+            // Load sharp
             let s = false;
             try {
-                s = sharp(body).on('error', err => { return reject(err); });
+                s = sharp().on('error', err => { return reject(err); });
             }
             catch (e) {
                 return reject(e)
@@ -165,8 +157,16 @@ export const resize = (parameters, headers = {}) => {
                     ...((parameters.alpha) ? {} : { alphaQuality: 0 })
                 })
 
-            // Return stream
-            resolve(s);
+            // Erase previous host header
+            delete headers.host;
+
+            // Get image content
+            fetch(parameters.url, {
+                headers
+            }).then((res) => {
+                res.body.pipe(s);
+                resolve(s);
+            }).catch(reject);
         }
         catch (err) {
             reject(err);
