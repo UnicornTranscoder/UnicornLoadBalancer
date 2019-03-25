@@ -1,7 +1,9 @@
 import ResolverProxy from './proxy';
+import ResolverDefault from './default';
 
 const resolvers = [
-    new ResolverProxy()
+    new ResolverProxy(),
+    new ResolverDefault()
 ];
 
 export default class ResolverProxy {
@@ -11,7 +13,7 @@ export default class ResolverProxy {
     }
 
     static init() {
-        return new Promise((resolve) => {
+        return new Promise(async (resolve) => {
             try {
                 for (let i = 0; i < resolvers.length; i++) {
                     await resolvers[i].init()
@@ -24,30 +26,26 @@ export default class ResolverProxy {
     }
 
     static canResolve(path) {
-        return new Promise((resolve) => {
-            try {
-                for (let i = 0; i < resolvers.length; i++) {
-                    let res = await resolvers[i].canResolve(path)
+        return new Promise(async (resolve) => {
+            for (let i = 0; i < resolvers.length; i++) {
+                try {
+                    const res = await resolvers[i].canResolve(path)
                     if (res)
                         return resolve(true)
-                }
-                return resolve(false)
-            } catch (e) {
-                return resolve(false)
+                } catch (e) { }
             }
+            return resolve(false)
         })
     }
 
     static resolve(path) {
-        return new Promise((resolve) => {
+        return new Promise(async (resolve) => {
             for (let i = 0; i < resolvers.length; i++) {
                 try {
-                    let res = await resolvers[i].resolve(path)
+                    const res = await resolvers[i].resolve(path)
                     if (res)
-                        return resolve(true)
-                } catch (e) {
-                    return resolve(false)
-                }
+                        return resolve(res)
+                } catch (e) { }
             }
             return resolve(false)
         })

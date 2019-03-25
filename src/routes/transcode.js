@@ -3,6 +3,7 @@ import fetch from 'node-fetch';
 import RoutesProxy from './proxy';
 import Database from '../database';
 import SessionsManager from '../core/sessions';
+import { Resolver } from 'dns';
 
 // Debugger
 const D = debug('UnicornLoadBalancer');
@@ -167,11 +168,42 @@ RoutesTranscode.stop = async (req, res) => {
 /* Route download */
 RoutesTranscode.download = (req, res) => {
     D('DOWNLOAD ' + req.params.id1 + ' [LB]');
-    Database.getPartFromId(req.params.id1).then((data) => {
-        res.sendFile(data.file, {}, (err) => {
-            if (err && err.code !== 'ECONNABORTED')
-                D('DOWNLOAD FAILED ' + req.params.id1 + ' [LB]');
-        })
+    Database.getPartFromId(req.params.id1).then(async (data) => {
+        let file = {
+            type: 'LOCAL',
+            path: data.file,
+            direct: false,
+        }
+        try {
+            const canResolve = await Resolver.canResolve(data.file);
+            if (canResolve) {
+                const resolved = await Resolver.resolve(data.file);
+                if (resolved)
+                    file = resolved;
+            }
+        } catch (e) {
+            file = {
+                type: 'LOCAL',
+                path: data.file,
+                direct: false,
+            }
+        }
+        // Local file, serve
+        if (file.type === 'LOCAL') {
+            res.sendFile(data.file, {}, (err) => {
+                if (err && err.code !== 'ECONNABORTED')
+                    D('DOWNLOAD FAILED ' + req.params.id1 + ' [LB]');
+            })
+        }
+        // URL 302
+        else if (file.type === 'URL' && file.direct) {
+            res.redirect(302, file.path);
+            D('REDIRECT ' + file.path);
+        }
+        // Proxy file
+        else if (file.type === 'URL' && !file.direct) {
+            RoutesTranscode.redirect(req, res);
+        }
     }).catch((err) => {
         res.status(400).send({ error: { code: 'NOT_FOUND', message: 'File not available' } });
     })

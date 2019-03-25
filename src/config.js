@@ -44,8 +44,11 @@ export default {
             resizer: env.boolish('CUSTOM_IMAGE_RESIZER', false),
             proxy: env.string('CUSTOM_IMAGE_PROXY', '')
         },
-        download: {
-            forward: env.boolish('CUSTOM_DOWNLOAD_FORWARD', false)
+        medias: {
+            replicated: env.boolish('CUSTOM_MEDIAS_REPLICATED', false)
+        },
+        resolvers: {
+            // Resolvers configurations here
         },
         servers: {
             list: env.array('CUSTOM_SERVERS_LIST', 'string', [])
