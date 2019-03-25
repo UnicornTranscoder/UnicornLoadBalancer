@@ -3,7 +3,8 @@ import fetch from 'node-fetch';
 import RoutesProxy from './proxy';
 import Database from '../database';
 import SessionsManager from '../core/sessions';
-import { Resolver } from 'dns';
+import path from 'path';
+import Resolver from '../resolver';
 
 // Debugger
 const D = debug('UnicornLoadBalancer');
@@ -188,12 +189,16 @@ RoutesTranscode.download = (req, res) => {
                 direct: false,
             }
         }
-        // Local file, serve
-        if (file.type === 'LOCAL') {
-            res.sendFile(data.file, {}, (err) => {
+        // Local file, not available on transcoders, serve
+        if (file.type === 'LOCAL' && !config.medias.replicated) {
+            res.download(data.file, path.basename(data.file), (err) => {
                 if (err && err.code !== 'ECONNABORTED')
                     D('DOWNLOAD FAILED ' + req.params.id1 + ' [LB]');
             })
+        }
+        // Local file, available on transcoders, 302 to a transcoder
+        else if (file.type === 'LOCAL' && config.medias.replicated) {
+            RoutesTranscode.redirect(req, res);
         }
         // URL 302
         else if (file.type === 'URL' && file.direct) {
