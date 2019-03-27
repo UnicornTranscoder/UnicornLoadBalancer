@@ -5,6 +5,7 @@ import Database from '../database';
 import SessionsManager from '../core/sessions';
 import path from 'path';
 import Resolver from '../resolver';
+import config from '../config';
 
 // Debugger
 const D = debug('UnicornLoadBalancer');
