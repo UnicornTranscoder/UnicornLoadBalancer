@@ -44,8 +44,8 @@ export default class Resolver {
                 try {
                     const res = await resolvers[i].canResolve(path)
                     if (res) {
-                        const path = await resolvers[i].resolve(path)
-                        return resolve(path)
+                        const out = await resolvers[i].resolve(path)
+                        return resolve(out)
                     }
                 } catch (e) { console.log(e); }
             }
@@ -74,8 +74,8 @@ export default class Resolver {
                 try {
                     const res = await resolvers[i].canResolve(path)
                     if (res) {
-                        const path = await resolvers[i].resolve(path)
-                        return resolve(path)
+                        const out = await resolvers[i].resolve(path)
+                        return resolve(out)
                     }
                 } catch (e) { console.log(e); }
             }
