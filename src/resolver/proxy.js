@@ -16,6 +16,7 @@ export default class ResolverProxy {
 
     canResolve(path) {
         return new Promise((resolve) => {
+            console.log('CAN RESOLVE', path, config.custom.medias.replicated)
             resolve(!config.custom.medias.replicated)
         })
     }
