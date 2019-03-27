@@ -176,9 +176,9 @@ RoutesTranscode.download = (req, res) => {
             direct: false,
         }
         try {
-            const canResolve = await Resolver.canResolve(data.file);
+            const canResolve = await Resolver.canResolveLocal(data.file);
             if (canResolve) {
-                const resolved = await Resolver.resolve(data.file);
+                const resolved = await Resolver.resolveLocal(data.file);
                 if (resolved)
                     file = resolved;
             }

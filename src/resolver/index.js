@@ -6,7 +6,7 @@ const resolvers = [
     new ResolverDefault()
 ];
 
-export default class ResolverProxy {
+export default class Resolver {
 
     static id() {
         return false
@@ -43,6 +43,34 @@ export default class ResolverProxy {
             for (let i = 0; i < resolvers.length; i++) {
                 try {
                     const res = await resolvers[i].resolve(path)
+                    if (res)
+                        return resolve(res)
+                } catch (e) { }
+            }
+            return resolve(false)
+        })
+    }
+
+    static canResolveLocal(path) {
+        return new Promise(async (resolve) => {
+            const resList = resolvers.filter((r) => (r.getId() !== 'proxy'))
+            for (let i = 0; i < resList.length; i++) {
+                try {
+                    const res = await resList[i].canResolve(path)
+                    if (res)
+                        return resolve(true)
+                } catch (e) { }
+            }
+            return resolve(false)
+        })
+    }
+
+    static resolveLocal(path) {
+        return new Promise(async (resolve) => {
+            const resList = resolvers.filter((r) => (r.getId() !== 'proxy'))
+            for (let i = 0; i < resList.length; i++) {
+                try {
+                    const res = await resList[i].resolve(path)
                     if (res)
                         return resolve(res)
                 } catch (e) { }
