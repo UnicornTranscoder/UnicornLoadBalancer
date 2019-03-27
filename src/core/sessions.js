@@ -119,6 +119,7 @@ SessionsManager.parseFFmpegParameters = async (args = [], env = {}) => {
                         file = resolved.path;
                 }
             } catch (e) {
+                console.log(e);
                 file = parsedArgs[i]
             }
             finalArgs.push(file);
