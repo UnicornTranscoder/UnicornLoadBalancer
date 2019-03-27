@@ -192,14 +192,14 @@ RoutesTranscode.download = (req, res) => {
             }
         }
         // Local file, not available on transcoders, serve
-        if (file.type === 'LOCAL' && !config.medias.replicated) {
+        if (file.type === 'LOCAL' && !config.custom.medias.replicated) {
             res.download(data.file, path.basename(data.file), (err) => {
                 if (err && err.code !== 'ECONNABORTED')
                     D('DOWNLOAD FAILED ' + req.params.id1 + ' [LB]');
             })
         }
         // Local file, available on transcoders, 302 to a transcoder
-        else if (file.type === 'LOCAL' && config.medias.replicated) {
+        else if (file.type === 'LOCAL' && config.custom.medias.replicated) {
             RoutesTranscode.redirect(req, res);
         }
         // URL 302
