@@ -183,6 +183,7 @@ RoutesTranscode.download = (req, res) => {
                     file = resolved;
             }
         } catch (e) {
+            console.log(e);
             file = {
                 type: 'LOCAL',
                 path: data.file,
@@ -210,6 +211,7 @@ RoutesTranscode.download = (req, res) => {
             RoutesTranscode.redirect(req, res);
         }
     }).catch((err) => {
+        console.log(err)
         res.status(400).send({ error: { code: 'NOT_FOUND', message: 'File not available' } });
     })
 }
