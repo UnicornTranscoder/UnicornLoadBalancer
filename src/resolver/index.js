@@ -6,7 +6,7 @@ const resolvers = [
     new ResolverDefault()
 ];
 
-export default class ResolverProxy {
+export default class Resolver {
 
     static id() {
         return false
