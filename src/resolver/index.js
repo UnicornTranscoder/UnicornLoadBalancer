@@ -50,7 +50,6 @@ export default class Resolver {
             return resolve(false)
         })
     }
-<<<<<<< HEAD
 
     static canResolveLocal(path) {
         return new Promise(async (resolve) => {
@@ -80,6 +79,3 @@ export default class Resolver {
         })
     }
 }
-=======
-}
->>>>>>> e61c4d7a7bb91cfe99b04c7bcc128c0964158c02
