@@ -42,9 +42,11 @@ export default class Resolver {
         return new Promise(async (resolve) => {
             for (let i = 0; i < resolvers.length; i++) {
                 try {
-                    const res = await resolvers[i].resolve(path)
-                    if (res)
-                        return resolve(res)
+                    const res = await resolvers[i].canResolve(path)
+                    if (res) {
+                        const path = await resolvers[i].resolve(path)
+                        return resolve(path)
+                    }
                 } catch (e) { }
             }
             return resolve(false)
@@ -70,9 +72,11 @@ export default class Resolver {
             const resList = resolvers.filter((r) => (r.id() !== 'proxy'))
             for (let i = 0; i < resList.length; i++) {
                 try {
-                    const res = await resList[i].resolve(path)
-                    if (res)
-                        return resolve(res)
+                    const res = await resolvers[i].canResolve(path)
+                    if (res) {
+                        const path = await resolvers[i].resolve(path)
+                        return resolve(path)
+                    }
                 } catch (e) { }
             }
             return resolve(false)
