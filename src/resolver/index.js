@@ -53,7 +53,7 @@ export default class Resolver {
 
     static canResolveLocal(path) {
         return new Promise(async (resolve) => {
-            const resList = resolvers.filter((r) => (r.getId() !== 'proxy'))
+            const resList = resolvers.filter((r) => (r.id() !== 'proxy'))
             for (let i = 0; i < resList.length; i++) {
                 try {
                     const res = await resList[i].canResolve(path)
@@ -67,7 +67,7 @@ export default class Resolver {
 
     static resolveLocal(path) {
         return new Promise(async (resolve) => {
-            const resList = resolvers.filter((r) => (r.getId() !== 'proxy'))
+            const resList = resolvers.filter((r) => (r.id() !== 'proxy'))
             for (let i = 0; i < resList.length; i++) {
                 try {
                     const res = await resList[i].resolve(path)
