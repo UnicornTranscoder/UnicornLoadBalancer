@@ -156,7 +156,7 @@ SessionsManager.optimizerInit = async (parsed) => {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        method: "POST",
+        method: 'POST',
         body: JSON.stringify(parsed)
     })
     return parsed;
@@ -171,7 +171,7 @@ SessionsManager.optimizerDelete = async (parsed) => {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        method: "DELETE",
+        method: 'DELETE',
         body: JSON.stringify(parsed)
     })
     return parsed;
@@ -182,12 +182,12 @@ SessionsManager.optimizerDownload = (parsed) => (new Promise(async (resolve, rej
     const files = Object.keys(parsed.optimize);
     const server = await SessionsManager.chooseServer(parsed.session);
     for (let i = 0; i < files.length; i++) {
-        D(`OPTIMIZER ${server}api/optimize/${parsed.session}/${encodeURIComponent(files[i])} [DOWNLOAD]`);
+        D(`OPTIMIZER ${server}/api/optimize/${parsed.session}/${encodeURIComponent(files[i])} [DOWNLOAD]`);
         try {
-            await download(`${server}api/optimize/${parsed.session}/${encodeURIComponent(files[i])}`, parsed.optimize[files[i]])
+            await download(`${server}/api/optimize/${parsed.session}/${encodeURIComponent(files[i])}`, parsed.optimize[files[i]])
         }
         catch (err) {
-            D(`OPTIMIZER ${server}api/optimize/${parsed.session}/${encodeURIComponent(files[i])} [FAILED]`);
+            D(`OPTIMIZER ${server}/api/optimize/${parsed.session}/${encodeURIComponent(files[i])} [FAILED]`);
         }
     }
     resolve(parsed);
