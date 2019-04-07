@@ -149,6 +149,7 @@ SessionsManager.saveSession = (parsed) => {
 
 // Call media optimizer on transcoders
 SessionsManager.optimizerInit = async (parsed) => {
+    D(`OPTIMIZER ${parsed.session} [START]`);
     const server = await ServersManager.chooseServer(parsed.session, false)
     fetch(`${server}/api/optimize`, {
         headers: {
@@ -158,7 +159,7 @@ SessionsManager.optimizerInit = async (parsed) => {
         method: "POST",
         body: JSON.stringify(parsed)
     })
-    return resolve(parsed)
+    return parsed;
 };
 
 // Call media optimizer on transcoders
@@ -173,7 +174,7 @@ SessionsManager.optimizerDelete = async (parsed) => {
         method: "DELETE",
         body: JSON.stringify(parsed)
     })
-    return resolve(parsed)
+    return parsed;
 };
 
 // Callback of the optimizer server
