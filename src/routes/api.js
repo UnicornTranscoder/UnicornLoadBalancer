@@ -25,10 +25,8 @@ RoutesAPI.update = (req, res) => {
 // Save the FFMPEG arguments
 // Body: {args: [], env: []}
 RoutesAPI.ffmpeg = (req, res) => {
-    console.log('FFMPEG CALLED 1')
     if (!req.body || !req.body.arg || !req.body.env)
         return (res.status(400).send({ error: { code: 'INVALID_ARGUMENTS', message: 'Invalid UnicornFFMPEG parameters' } }));
-    console.log('FFMPEG CALLED 2')
     return (res.send(SessionsManager.storeFFmpegParameters(req.body.arg, req.body.env)));
 };
 
