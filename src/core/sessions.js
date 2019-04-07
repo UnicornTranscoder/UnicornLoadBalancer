@@ -110,7 +110,7 @@ SessionsManager.parseFFmpegParameters = async (args = [], env = {}, optimizeMode
         }
 
         // Optimize, replace optimize path
-        if (optimizeMode && i > 0 && parsedArgs[i - 1] === '-i' && e[0] === '/') {
+        if (optimizeMode && i > 0 && parsedArgs[i - 1] !== '-i' && e[0] === '/') {
             finalArgs.push(`{OPTIMIZE_PATH}${e.split('/').slice(-1).pop()}`);
             optimize[e.split('/').slice(-1).pop()] = e;
             continue;
