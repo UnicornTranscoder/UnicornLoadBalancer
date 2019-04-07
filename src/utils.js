@@ -1,4 +1,5 @@
 import redisClient from 'redis';
+import fs from 'fs';
 import fetch from 'node-fetch';
 import config from './config';
 
