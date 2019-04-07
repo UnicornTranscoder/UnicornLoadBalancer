@@ -1,5 +1,5 @@
 import redisClient from 'redis';
-
+import fetch from 'node-fetch';
 import config from './config';
 
 export const publicUrl = () => {

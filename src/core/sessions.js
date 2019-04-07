@@ -4,6 +4,7 @@ import { publicUrl, plexUrl, download } from '../utils';
 import SessionStore from '../store';
 import ServersManager from './servers';
 import Database from '../database';
+import fetch from 'node-fetch';
 
 // Debugger
 const D = debug('UnicornLoadBalancer');
