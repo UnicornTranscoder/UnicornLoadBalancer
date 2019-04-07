@@ -27,10 +27,10 @@ RoutesAPI.update = (req, res) => {
 RoutesAPI.ffmpeg = async (req, res) => {
     if (!req.body || !req.body.arg || !req.body.env)
         return (res.status(400).send({ error: { code: 'INVALID_ARGUMENTS', message: 'Invalid UnicornFFMPEG parameters' } }));
-    const parsedArgs = await SessionsManager.parseFFmpegParameters(req.body.arg, req.body.env);
-
+    
     // Detect if we are in optimizer mode
-    if (parsedArgs.args.filter(e => (e === '-segment_list' || e === '-manifest_name')).length === 0) {
+    if (req.body.arg.filter(e => (e === '-segment_list' || e === '-manifest_name')).length === 0) {
+        const parsedArgs = await SessionsManager.parseFFmpegParameters(req.body.arg, req.body.env, true);
         D('FFMPEG ' + parsedArgs.session + ' [OPTIMIZE]');
         SessionsManager.saveSession(parsedArgs);
         SessionsManager.optimizerInit(parsedArgs);
@@ -38,6 +38,7 @@ RoutesAPI.ffmpeg = async (req, res) => {
     }
     // Streaming mode
     else {
+        const parsedArgs = await SessionsManager.parseFFmpegParameters(req.body.arg, req.body.env);
         D('FFMPEG ' + parsedArgs.session + ' [STREAMING]');
         SessionsManager.saveSession(parsedArgs)
         return (res.send(parsedArgs));
