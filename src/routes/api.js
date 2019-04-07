@@ -22,12 +22,26 @@ RoutesAPI.update = (req, res) => {
     res.send(ServersManager.update(req.body));
 };
 
-// Save the FFMPEG arguments
+// Catch the FFMPEG arguments
 // Body: {args: [], env: []}
-RoutesAPI.ffmpeg = (req, res) => {
+RoutesAPI.ffmpeg = async (req, res) => {
     if (!req.body || !req.body.arg || !req.body.env)
         return (res.status(400).send({ error: { code: 'INVALID_ARGUMENTS', message: 'Invalid UnicornFFMPEG parameters' } }));
-    return (res.send(SessionsManager.storeFFmpegParameters(req.body.arg, req.body.env)));
+    const parsedArgs = await SessionsManager.parseFFmpegParameters(req.body.arg, req.body.env);
+
+    // Detect if we are in optimizer mode
+    if (parsedArgs.args.filter(e => (e === '-segment_list' || e === '-manifest_name')).length === 0) {
+        D('FFMPEG ' + parsedArgs.session + ' [OPTIMIZE]');
+        SessionsManager.storeFFmpegParameters(parsedArgs);
+        SessionsManager.callOptimizer(parsedArgs);
+        return (res.send(parsedArgs));
+    }
+    // Streaming mode
+    else {
+        D('FFMPEG ' + parsedArgs.session + ' [STREAMING]');
+        SessionsManager.storeFFmpegParameters(parsedArgs)
+        return (res.send(parsedArgs));
+    }
 };
 
 // Resolve path from file id

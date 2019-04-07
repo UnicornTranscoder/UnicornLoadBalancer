@@ -57,7 +57,7 @@ SessionsManager.getSessionFromRequest = (req) => {
 }
 
 // Parse FFmpeg parameters with internal bindings
-SessionsManager.parseFFmpegParameters = async (args = [], env = {}) => {
+SessionsManager.parseFFmpegParameters = async (args = [], env = {}, optimizeMode = false) => {
     // Extract Session ID
     const regex = /^http\:\/\/127.0.0.1:32400\/video\/:\/transcode\/session\/(.*)\/progress$/;
     const sessions = args.filter(e => (regex.test(e))).map(e => (e.match(regex)[1]))
@@ -89,6 +89,7 @@ SessionsManager.parseFFmpegParameters = async (args = [], env = {}) => {
     // Add seglist to arguments if needed and resolve links if needed
     const segList = '{INTERNAL_TRANSCODER}video/:/transcode/session/' + sessionFull + '/seglist';
     let finalArgs = [];
+    let optimize = {};
     let segListMode = false;
     for (let i = 0; i < parsedArgs.length; i++) {
         let e = parsedArgs[i];
@@ -104,6 +105,13 @@ SessionsManager.parseFFmpegParameters = async (args = [], env = {}) => {
             if (parsedArgs[i + 1] !== '-segment_list_type')
                 finalArgs.push('-segment_list_type', 'csv', '-segment_list_size', '2147483647');
             segListMode = false;
+            continue;
+        }
+
+        // Optimize, replace optimize path
+        if (optimizeMode && i > 0 && parsedArgs[i - 1] === '-i' && e[0] === '/') {
+            finalArgs.push(`{OPTIMIZE_PATH}${e.split('/').slice(-1).pop()}`);
+            optimize[e.split('/').slice(-1).pop()] = e;
             continue;
         }
 
@@ -128,18 +136,31 @@ SessionsManager.parseFFmpegParameters = async (args = [], env = {}) => {
         args: finalArgs,
         env,
         session: sessionId,
-        sessionFull
+        sessionFull,
+        optimize
     });
 };
 
 // Store the FFMPEG parameters in RedisCache
-SessionsManager.storeFFmpegParameters = async (args, env) => {
-    const parsed = await SessionsManager.parseFFmpegParameters(args, env);
-    console.log('FFMPEG', parsed.session, parsed);
+SessionsManager.storeFFmpegParameters = (parsed) => {
     SessionStore.set(parsed.session, parsed).then(() => { }).catch(() => { })
-    return (parsed);
 };
 
+// Call media optimizer on transcoders
+SessionsManager.callOptimizer = async (parsed) => {
+    const server = await ServersManager.chooseServer(parsed.session, false)
+    fetch(`${server}/api/optimize`, {
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        method: "POST",
+        body: JSON.stringify(parsed)
+    })
+    return resolve(parsed)
+};
+
+// Clear session
 SessionsManager.cleanSession = (sessionId) => {
     D('DELETE ' + sessionId);
     return SessionStore.delete(sessionId)
