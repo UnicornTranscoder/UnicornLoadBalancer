@@ -1,6 +1,6 @@
 import debug from 'debug';
 import config from '../config';
-import { publicUrl, plexUrl } from '../utils';
+import { publicUrl, plexUrl, download } from '../utils';
 import SessionStore from '../store';
 import ServersManager from './servers';
 import Database from '../database';
@@ -142,12 +142,12 @@ SessionsManager.parseFFmpegParameters = async (args = [], env = {}, optimizeMode
 };
 
 // Store the FFMPEG parameters in RedisCache
-SessionsManager.storeFFmpegParameters = (parsed) => {
+SessionsManager.saveSession = (parsed) => {
     SessionStore.set(parsed.session, parsed).then(() => { }).catch(() => { })
 };
 
 // Call media optimizer on transcoders
-SessionsManager.callOptimizer = async (parsed) => {
+SessionsManager.optimizerInit = async (parsed) => {
     const server = await ServersManager.chooseServer(parsed.session, false)
     fetch(`${server}/api/optimize`, {
         headers: {
@@ -159,6 +159,37 @@ SessionsManager.callOptimizer = async (parsed) => {
     })
     return resolve(parsed)
 };
+
+// Call media optimizer on transcoders
+SessionsManager.optimizerDelete = async (parsed) => {
+    D(`OPTIMIZER ${parsed.session} [DELETE]`);
+    const server = await ServersManager.chooseServer(parsed.session, false)
+    fetch(`${server}/api/optimize/${parsed.session}`, {
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        method: "DELETE",
+        body: JSON.stringify(parsed)
+    })
+    return resolve(parsed)
+};
+
+// Callback of the optimizer server
+SessionsManager.optimizerDownload = (parsed) => (new Promise(async (resolve, reject) => {
+    const files = Object.keys(parsed.optimize);
+    const server = await SessionsManager.chooseServer(parsed.session);
+    for (let i = 0; i < files.length; i++) {
+        D(`OPTIMIZER ${server}api/optimize/${parsed.session}/${encodeURIComponent(files[i])} [DOWNLOAD]`);
+        try {
+            await download(`${server}api/optimize/${parsed.session}/${encodeURIComponent(files[i])}`, parsed.optimize[files[i]])
+        }
+        catch (err) {
+            D(`OPTIMIZER ${server}api/optimize/${parsed.session}/${encodeURIComponent(files[i])} [FAILED]`);
+        }
+    }
+    resolve(parsed);
+}));
 
 // Clear session
 SessionsManager.cleanSession = (sessionId) => {

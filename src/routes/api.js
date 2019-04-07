@@ -32,14 +32,14 @@ RoutesAPI.ffmpeg = async (req, res) => {
     // Detect if we are in optimizer mode
     if (parsedArgs.args.filter(e => (e === '-segment_list' || e === '-manifest_name')).length === 0) {
         D('FFMPEG ' + parsedArgs.session + ' [OPTIMIZE]');
-        SessionsManager.storeFFmpegParameters(parsedArgs);
-        SessionsManager.callOptimizer(parsedArgs);
+        SessionsManager.saveSession(parsedArgs);
+        SessionsManager.optimizerInit(parsedArgs);
         return (res.send(parsedArgs));
     }
     // Streaming mode
     else {
         D('FFMPEG ' + parsedArgs.session + ' [STREAMING]');
-        SessionsManager.storeFFmpegParameters(parsedArgs)
+        SessionsManager.saveSession(parsedArgs)
         return (res.send(parsedArgs));
     }
 };
@@ -76,6 +76,19 @@ RoutesAPI.session = (req, res) => {
         res.send(data);
     }).catch(() => {
         res.status(400).send({ error: { code: 'SESSION_TIMEOUT', message: 'The session wasn\'t launched in time, request fails' } });
+    })
+};
+
+// Optimizer finish
+RoutesAPI.optimize = (req, res) => {
+    SessionStore.get(req.params.session).then((data) => {
+        SessionsManager.optimizerDownload(data).then((parsedData) => {
+            SessionsManager.optimizerDelete(parsedData);
+            // Todo: Self-send finish progress request
+        });
+        res.send(data);
+    }).catch(() => {
+        res.status(400).send({ error: { code: 'SESSION_TIMEOUT', message: 'Invalid session' } });
     })
 };
 

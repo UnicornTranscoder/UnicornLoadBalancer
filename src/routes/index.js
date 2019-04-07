@@ -18,6 +18,7 @@ export default (app) => {
     app.get('/api/path/:id', RoutesAPI.path);
     app.post('/api/update', RoutesAPI.update);
     app.get('/api/session/:session', RoutesAPI.session);
+    app.patch('/api/optimize/:session', RoutesAPI.optimize);
     app.all('/api/plex/*', RoutesAPI.plex);
 
     // MPEG Dash support
