@@ -187,6 +187,7 @@ SessionsManager.optimizerDownload = (parsed) => (new Promise(async (resolve, rej
             await download(`${server}/api/optimize/${parsed.session}/${encodeURIComponent(files[i])}`, parsed.optimize[files[i]])
         }
         catch (err) {
+            console.log(err);
             D(`OPTIMIZER ${server}/api/optimize/${parsed.session}/${encodeURIComponent(files[i])} [FAILED]`);
         }
     }
