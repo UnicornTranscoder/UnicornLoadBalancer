@@ -53,7 +53,7 @@ RoutesAPI.ffmpegStatus = async (req, res) => {
         return (res.status(400).send({ error: { code: 'INVALID_ARGUMENTS', message: 'Invalid parameters' } }));
     return (res.send({
         id: req.params.id,
-        status: SessionsManager.ffmpegGetCache(parsedArgs.id)
+        status: SessionsManager.ffmpegGetCache(req.params.id)
     }));
 };
 
