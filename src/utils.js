@@ -1,5 +1,7 @@
 import redisClient from 'redis';
-
+import fs from 'fs';
+import fetch from 'node-fetch';
+import mkdirp from 'mkdirp';
 import config from './config';
 
 export const publicUrl = () => {
@@ -32,3 +34,23 @@ export const getRedisClient = () => {
 };
 
 export const time = () => (Math.floor((new Date().getTime()) / 1000));
+
+export const download = (url, filepath) => (new Promise(async (resolve, reject) => {
+    const res = await fetch(url);
+    const fileStream = fs.createWriteStream(filepath);
+    res.body.pipe(fileStream);
+    res.body.on("error", (err) => {
+        reject(err);
+    });
+    fileStream.on("finish", () => {
+        resolve();
+    });
+}));
+
+export const mdir = (path) => (new Promise((resolve, reject) => {
+    mkdirp(path, (err) => {
+        if (err)
+            return reject(err);
+        return resolve(path);
+    })
+}));

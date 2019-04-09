@@ -175,6 +175,6 @@ RoutesTranscode.download = (req, res) => {
     }).catch((err) => {
         res.status(400).send({ error: { code: 'NOT_FOUND', message: 'File not available' } });
     })
-}
+};
 
 export default RoutesTranscode;
