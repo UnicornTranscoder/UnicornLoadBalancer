@@ -35,19 +35,17 @@ export const getRedisClient = () => {
 
 export const time = () => (Math.floor((new Date().getTime()) / 1000));
 
-export const download = async (url, filepath) => {
+export const download = (url, filepath) => (new Promise(async (resolve, reject) => {
     const res = await fetch(url);
-    await new Promise((resolve, reject) => {
-        const fileStream = fs.createWriteStream(filepath);
-        res.body.pipe(fileStream);
-        res.body.on("error", (err) => {
-            reject(err);
-        });
-        fileStream.on("finish", () => {
-            resolve();
-        });
+    const fileStream = fs.createWriteStream(filepath);
+    res.body.pipe(fileStream);
+    res.body.on("error", (err) => {
+        reject(err);
     });
-}
+    fileStream.on("finish", () => {
+        resolve();
+    });
+}));
 
 export const mdir = (path) => (new Promise((resolve, reject) => {
     mkdirp(path, (err) => {
