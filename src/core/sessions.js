@@ -179,7 +179,8 @@ SessionsManager.optimizerDelete = async (parsed) => {
         },
         method: 'DELETE',
         body: JSON.stringify(parsed)
-    })
+    });
+    SessionsManager.cleanSession(parsed.session);
     return parsed;
 };
 
@@ -190,7 +191,12 @@ SessionsManager.optimizerDownload = (parsed) => (new Promise(async (resolve, rej
     for (let i = 0; i < files.length; i++) {
         D(`OPTIMIZER ${server}/api/optimize/${parsed.session}/${encodeURIComponent(files[i])} [DOWNLOAD]`);
         try {
-            await mkdirp(dirname(parsed.optimize[files[i]]));
+            await mdir(dirname(parsed.optimize[files[i]]));
+        }
+        catch (err) {
+            D(`OPTIMIZER Failed to create directory`);
+        }
+        try {
             await download(`${server}/api/optimize/${parsed.session}/${encodeURIComponent(files[i])}`, parsed.optimize[files[i]])
         }
         catch (err) {

@@ -51,6 +51,7 @@ RoutesAPI.ffmpeg = async (req, res) => {
 RoutesAPI.ffmpegStatus = async (req, res) => {
     if (!req.params.id)
         return (res.status(400).send({ error: { code: 'INVALID_ARGUMENTS', message: 'Invalid parameters' } }));
+    D('FFMPEG ' + req.params.id + ' [PING]');
     return (res.send({
         id: req.params.id,
         status: SessionsManager.ffmpegGetCache(req.params.id)
@@ -97,7 +98,6 @@ RoutesAPI.optimize = (req, res) => {
     SessionStore.get(req.params.session).then((data) => {
         SessionsManager.optimizerDownload(data).then((parsedData) => {
             SessionsManager.optimizerDelete(parsedData);
-            // Todo: Self-send finish progress request
         });
         res.send(data);
     }).catch(() => {
