@@ -15,6 +15,7 @@ export default (app) => {
     app.use('/api/sessions', express.static(config.plex.path.sessions));
     app.get('/api/stats', RoutesAPI.stats);
     app.post('/api/ffmpeg', RoutesAPI.ffmpeg);
+    app.get('/api/ffmpeg/:id', RoutesAPI.ffmpegStatus);    
     app.get('/api/path/:id', RoutesAPI.path);
     app.post('/api/update', RoutesAPI.update);
     app.get('/api/session/:session', RoutesAPI.session);

@@ -5,6 +5,7 @@ import SessionStore from '../store';
 import ServersManager from './servers';
 import Database from '../database';
 import fetch from 'node-fetch';
+import uniqid from 'uniqid';
 
 // Debugger
 const D = debug('UnicornLoadBalancer');
@@ -14,8 +15,10 @@ let SessionsManager = {};
 // Plex table to match "session" and "X-Plex-Session-Identifier"
 let cache = {};
 
+let ffmpegCache = {};
+
 // Table to link session to transcoder url
-let urls = {}
+let urls = {};
 
 SessionsManager.chooseServer = async (session, ip = false) => {
     if (urls[session])
@@ -134,6 +137,7 @@ SessionsManager.parseFFmpegParameters = async (args = [], env = {}, optimizeMode
         finalArgs.push(e);
     };
     return ({
+        id: uniqid(),
         args: finalArgs,
         env,
         session: sessionId,
@@ -164,8 +168,9 @@ SessionsManager.optimizerInit = async (parsed) => {
 
 // Call media optimizer on transcoders
 SessionsManager.optimizerDelete = async (parsed) => {
-    /*D(`OPTIMIZER ${parsed.session} [DELETE]`);
-    const server = await ServersManager.chooseServer(parsed.session, false)
+    D(`OPTIMIZER ${parsed.session} [DELETE]`);
+    SessionsManager.ffmpegSetCache(parsed.id, 0);
+    /*const server = await ServersManager.chooseServer(parsed.session, false)
     fetch(`${server}/api/optimize/${parsed.session}`, {
         headers: {
             'Accept': 'application/json',
@@ -198,6 +203,19 @@ SessionsManager.optimizerDownload = (parsed) => (new Promise(async (resolve, rej
 SessionsManager.cleanSession = (sessionId) => {
     D('DELETE ' + sessionId);
     return SessionStore.delete(sessionId)
+};
+
+// Set FFmpeg cache
+SessionsManager.ffmpegSetCache = (id, status) => {
+    ffmpegCache[id] = status;
+    return ffmpegCache[id];
+};
+
+// Get FFmpeg cache
+SessionsManager.ffmpegGetCache = (id) => {
+    if (typeof (ffmpegCache[id]) !== 'undefined')
+        return ffmpegCache[id];
+    return false;
 };
 
 // Export our SessionsManager
