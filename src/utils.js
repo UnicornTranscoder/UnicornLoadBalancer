@@ -1,6 +1,7 @@
 import redisClient from 'redis';
 import fs from 'fs';
 import fetch from 'node-fetch';
+import mkdirp from 'mkdirp';
 import config from './config';
 
 export const publicUrl = () => {
@@ -49,3 +50,12 @@ export const download = async (url, filepath) => {
         });
     });
 }
+
+export const mdir = (path) = (new Promise((resolve, reject) => {
+    console.log('mdir', path)
+    mkdirp(path, (err) => {
+        if (err)
+            return reject(err);
+        return resolve(path);
+    })
+}));

@@ -1,6 +1,7 @@
 import debug from 'debug';
 import config from '../config';
-import { publicUrl, plexUrl, download } from '../utils';
+import { publicUrl, plexUrl, download, mdir } from '../utils';
+import { dirname } from 'path';
 import SessionStore from '../store';
 import ServersManager from './servers';
 import Database from '../database';
@@ -170,7 +171,7 @@ SessionsManager.optimizerInit = async (parsed) => {
 SessionsManager.optimizerDelete = async (parsed) => {
     D(`OPTIMIZER ${parsed.session} [DELETE]`);
     SessionsManager.ffmpegSetCache(parsed.id, 0);
-    /*const server = await ServersManager.chooseServer(parsed.session, false)
+    const server = await ServersManager.chooseServer(parsed.session, false)
     fetch(`${server}/api/optimize/${parsed.session}`, {
         headers: {
             'Accept': 'application/json',
@@ -178,7 +179,7 @@ SessionsManager.optimizerDelete = async (parsed) => {
         },
         method: 'DELETE',
         body: JSON.stringify(parsed)
-    })*/
+    })
     return parsed;
 };
 
@@ -189,10 +190,10 @@ SessionsManager.optimizerDownload = (parsed) => (new Promise(async (resolve, rej
     for (let i = 0; i < files.length; i++) {
         D(`OPTIMIZER ${server}/api/optimize/${parsed.session}/${encodeURIComponent(files[i])} [DOWNLOAD]`);
         try {
+            await mkdirp(dirname(parsed.optimize[files[i]]));
             await download(`${server}/api/optimize/${parsed.session}/${encodeURIComponent(files[i])}`, parsed.optimize[files[i]])
         }
         catch (err) {
-            console.log(err);
             D(`OPTIMIZER ${server}/api/optimize/${parsed.session}/${encodeURIComponent(files[i])} [FAILED]`);
         }
     }
