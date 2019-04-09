@@ -51,7 +51,7 @@ export const download = async (url, filepath) => {
     });
 }
 
-export const mdir = (path) = (new Promise((resolve, reject) => {
+export const mdir = (path = '') = (new Promise((resolve, reject) => {
     console.log('mdir', path)
     mkdirp(path, (err) => {
         if (err)
