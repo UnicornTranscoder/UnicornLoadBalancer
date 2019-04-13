@@ -1,5 +1,6 @@
 import debug from 'debug';
 import httpProxy from 'http-proxy';
+import md5 from 'md5';
 import { publicUrl } from '../utils';
 import { parseArguments, resize } from '../core/images';
 import config from '../config';
@@ -45,7 +46,13 @@ RoutesResize.resize = (req, res) => {
         else
             res.type(`image/jpeg`);
 
-        return stream.pipe(res);
+        let bufs = [];
+        stream.on('data', (d) => { bufs.push(d) });
+        stream.on('end', () => {
+            let img = Buffer.concat(bufs);
+            res.set('ETag', md5(img));
+            res.send(img);
+        });
     }).catch(err => {
         return (res.status(400).send({ error: { code: 'RESIZE_ERROR', message: 'Invalid parameters, resize request fails' } }));
     })

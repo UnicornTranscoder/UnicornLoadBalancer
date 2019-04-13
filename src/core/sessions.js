@@ -1,9 +1,12 @@
 import debug from 'debug';
 import config from '../config';
-import { publicUrl, plexUrl } from '../utils';
+import { publicUrl, plexUrl, download, mdir } from '../utils';
+import { dirname } from 'path';
 import SessionStore from '../store';
 import ServersManager from './servers';
 import Database from '../database';
+import fetch from 'node-fetch';
+import uniqid from 'uniqid';
 
 // Debugger
 const D = debug('UnicornLoadBalancer');
@@ -13,8 +16,10 @@ let SessionsManager = {};
 // Plex table to match "session" and "X-Plex-Session-Identifier"
 let cache = {};
 
+let ffmpegCache = {};
+
 // Table to link session to transcoder url
-let urls = {}
+let urls = {};
 
 SessionsManager.chooseServer = async (session, ip = false) => {
     if (urls[session])
@@ -57,7 +62,7 @@ SessionsManager.getSessionFromRequest = (req) => {
 }
 
 // Parse FFmpeg parameters with internal bindings
-SessionsManager.parseFFmpegParameters = async (args = [], env = {}) => {
+SessionsManager.parseFFmpegParameters = async (args = [], env = {}, optimizeMode = false) => {
     // Extract Session ID
     const regex = /^http\:\/\/127.0.0.1:32400\/video\/:\/transcode\/session\/(.*)\/progress$/;
     const sessions = args.filter(e => (regex.test(e))).map(e => (e.match(regex)[1]))
@@ -89,6 +94,7 @@ SessionsManager.parseFFmpegParameters = async (args = [], env = {}) => {
     // Add seglist to arguments if needed and resolve links if needed
     const segList = '{INTERNAL_TRANSCODER}video/:/transcode/session/' + sessionFull + '/seglist';
     let finalArgs = [];
+    let optimize = {};
     let segListMode = false;
     for (let i = 0; i < parsedArgs.length; i++) {
         let e = parsedArgs[i];
@@ -104,6 +110,13 @@ SessionsManager.parseFFmpegParameters = async (args = [], env = {}) => {
             if (parsedArgs[i + 1] !== '-segment_list_type')
                 finalArgs.push('-segment_list_type', 'csv', '-segment_list_size', '2147483647');
             segListMode = false;
+            continue;
+        }
+
+        // Optimize, replace optimize path
+        if (optimizeMode && i > 0 && parsedArgs[i - 1] !== '-i' && e[0] === '/') {
+            finalArgs.push(`{OPTIMIZE_PATH}${e.split('/').slice(-1).pop()}`);
+            optimize[e.split('/').slice(-1).pop()] = e;
             continue;
         }
 
@@ -125,24 +138,91 @@ SessionsManager.parseFFmpegParameters = async (args = [], env = {}) => {
         finalArgs.push(e);
     };
     return ({
+        id: uniqid(),
         args: finalArgs,
         env,
         session: sessionId,
-        sessionFull
+        sessionFull,
+        optimize
     });
 };
 
 // Store the FFMPEG parameters in RedisCache
-SessionsManager.storeFFmpegParameters = async (args, env) => {
-    const parsed = await SessionsManager.parseFFmpegParameters(args, env);
-    console.log('FFMPEG', parsed.session, parsed);
+SessionsManager.saveSession = (parsed) => {
     SessionStore.set(parsed.session, parsed).then(() => { }).catch(() => { })
-    return (parsed);
 };
 
+// Call media optimizer on transcoders
+SessionsManager.optimizerInit = async (parsed) => {
+    D(`OPTIMIZER ${parsed.session} [START]`);
+    const server = await ServersManager.chooseServer(parsed.session, false)
+    fetch(`${server}/api/optimize`, {
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify(parsed)
+    })
+    return parsed;
+};
+
+// Call media optimizer on transcoders
+SessionsManager.optimizerDelete = async (parsed) => {
+    D(`OPTIMIZER ${parsed.session} [DELETE]`);
+    SessionsManager.ffmpegSetCache(parsed.id, 0);
+    const server = await ServersManager.chooseServer(parsed.session, false)
+    fetch(`${server}/api/optimize/${parsed.session}`, {
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        method: 'DELETE',
+        body: JSON.stringify(parsed)
+    });
+    SessionsManager.cleanSession(parsed.session);
+    return parsed;
+};
+
+// Callback of the optimizer server
+SessionsManager.optimizerDownload = (parsed) => (new Promise(async (resolve, reject) => {
+    const files = Object.keys(parsed.optimize);
+    const server = await SessionsManager.chooseServer(parsed.session);
+    for (let i = 0; i < files.length; i++) {
+        D(`OPTIMIZER ${server}/api/optimize/${parsed.session}/${encodeURIComponent(files[i])} [DOWNLOAD]`);
+        try {
+            await mdir(dirname(parsed.optimize[files[i]]));
+        }
+        catch (err) {
+            D(`OPTIMIZER Failed to create directory`);
+        }
+        try {
+            await download(`${server}/api/optimize/${parsed.session}/${encodeURIComponent(files[i])}`, parsed.optimize[files[i]])
+        }
+        catch (err) {
+            D(`OPTIMIZER ${server}/api/optimize/${parsed.session}/${encodeURIComponent(files[i])} [FAILED]`);
+        }
+    }
+    resolve(parsed);
+}));
+
+// Clear session
 SessionsManager.cleanSession = (sessionId) => {
     D('DELETE ' + sessionId);
     return SessionStore.delete(sessionId)
+};
+
+// Set FFmpeg cache
+SessionsManager.ffmpegSetCache = (id, status) => {
+    ffmpegCache[id] = status;
+    return ffmpegCache[id];
+};
+
+// Get FFmpeg cache
+SessionsManager.ffmpegGetCache = (id) => {
+    if (typeof (ffmpegCache[id]) !== 'undefined')
+        return ffmpegCache[id];
+    return false;
 };
 
 // Export our SessionsManager
