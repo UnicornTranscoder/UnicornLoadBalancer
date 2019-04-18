@@ -22,6 +22,7 @@ This software is a part of __UnicornTranscoder__ project, it's the LoadBalancer 
 * Clone the repository
 * Install with `npm install`
 * Setup some environnement variables to configure the *UnicornLoadBlancer*
+* Type `npm start` to launch the load-balancer
 
 | Name | Description | Type | Default |
 | ----------------- | ------------------------------------------------------------ | ------| ------- |
