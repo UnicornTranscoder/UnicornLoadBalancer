@@ -88,7 +88,7 @@ SessionsManager.parseFFmpegParameters = async (args = [], env = {}, optimizeMode
             return (e.replace(plexUrl(), '{INTERNAL_TRANSCODER}'));
 
         // Other
-        return (e.replace(plexUrl(), publicUrl()).replace(config.plex.path.sessions, publicUrl() + 'api/sessions/').replace(config.plex.path.usr, '{INTERNAL_RESOURCES}'));
+        return (e.replace(plexUrl(), publicUrl()).replace(config.plex.path.sessions, publicUrl() + 'api/sessions/').replace(config.plex.path.usr, '{INTERNAL_PLEX_SETUP}'));
     });
 
     // Add seglist to arguments if needed and resolve links if needed
