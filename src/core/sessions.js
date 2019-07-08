@@ -1,6 +1,6 @@
 import debug from 'debug';
 import config from '../config';
-import { publicUrl, plexUrl, download, mdir } from '../utils';
+import { publicUrl, plexUrl, download, mdir, replaceAll } from '../utils';
 import { dirname } from 'path';
 import SessionStore from '../store';
 import ServersManager from './servers';
@@ -22,7 +22,7 @@ let ffmpegCache = {};
 let urls = {};
 
 SessionsManager.chooseServer = async (session, ip = false) => {
-    if (urls[session])
+    if (session && urls[session])
         return (urls[session]);
     let url = '';
     try {
@@ -30,7 +30,7 @@ SessionsManager.chooseServer = async (session, ip = false) => {
     }
     catch (err) { }
     D('SERVER ' + session + ' [' + url + ']');
-    if (url.length)
+    if (session && url.length)
         urls[session] = url;
     return (url);
 };
@@ -88,7 +88,11 @@ SessionsManager.parseFFmpegParameters = async (args = [], env = {}, optimizeMode
             return (e.replace(plexUrl(), '{INTERNAL_TRANSCODER}'));
 
         // Other
-        return (e.replace(plexUrl(), publicUrl()).replace(config.plex.path.sessions, publicUrl() + 'api/sessions/').replace(config.plex.path.usr, '{INTERNAL_RESOURCES}'));
+        let parsed = e;
+        parsed = replaceAll(parsed, plexUrl(), publicUrl())
+        parsed = replaceAll(parsed, config.plex.path.sessions, publicUrl() + 'api/sessions/')
+        parsed = replaceAll(parsed, config.plex.path.usr, '{INTERNAL_PLEX_SETUP}')
+        return parsed;
     });
 
     // Add seglist to arguments if needed and resolve links if needed
@@ -128,10 +132,32 @@ SessionsManager.parseFFmpegParameters = async (args = [], env = {}, optimizeMode
                 if (typeof (data.id) !== 'undefined')
                     file = `${publicUrl()}library/parts/${data.id}/0/file.stream?download=1`;
             } catch (e) {
-                file = parsedArgs[i]
+                file = parsedArgs[i];
             }
             finalArgs.push(file);
             continue;
+        }
+
+        // Link resolver (Replace Plex file url by direct file)
+        if (i > 0 && parsedArgs[i - 1] === '-i' && config.custom.download.forward) {
+            let file = parsedArgs[i];
+            let partId = false;
+            if (file.indexOf('library/parts/') !== -1) {
+                partId = file.split('library/parts/')[1].split('/')[0];
+            }
+            if (!partId) {
+                finalArgs.push(file);
+                continue;
+            }
+            try {
+                const data = await Database.getPartFromId(partId);
+                if (typeof (data.file) !== 'undefined' && data.file.length)
+                    file = data.file;
+            } catch (e) {
+                file = parsedArgs[i];
+            }
+            finalArgs.push(file);
+            continue
         }
 
         // Ignore parameter

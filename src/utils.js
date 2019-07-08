@@ -54,3 +54,10 @@ export const mdir = (path) => (new Promise((resolve, reject) => {
         return resolve(path);
     })
 }));
+
+export const replaceAll = (input, search, replace) => {
+    let str = input;
+    while (str.indexOf(search) !== -1)
+        str = str.replace(search, replace);
+    return str
+};
