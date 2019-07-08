@@ -132,10 +132,32 @@ SessionsManager.parseFFmpegParameters = async (args = [], env = {}, optimizeMode
                 if (typeof (data.id) !== 'undefined')
                     file = `${publicUrl()}library/parts/${data.id}/0/file.stream?download=1`;
             } catch (e) {
-                file = parsedArgs[i]
+                file = parsedArgs[i];
             }
             finalArgs.push(file);
             continue;
+        }
+
+        // Link resolver (Replace Plex file url by direct file)
+        if (i > 0 && parsedArgs[i - 1] === '-i' && config.custom.download.forward) {
+            let file = parsedArgs[i];
+            let partId = false;
+            if (file.indexOf('library/parts/') !== -1) {
+                partId = file.split('library/parts/')[1].split('/')[0];
+            }
+            if (!partId) {
+                finalArgs.push(file);
+                continue;
+            }
+            try {
+                const data = await Database.getPartFromId(partId);
+                if (typeof (data.file) !== 'undefined' && data.file.length)
+                    file = data.file;
+            } catch (e) {
+                file = parsedArgs[i];
+            }
+            finalArgs.push(file);
+            continue
         }
 
         // Ignore parameter
