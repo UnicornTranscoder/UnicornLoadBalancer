@@ -65,10 +65,6 @@ RoutesTranscode.lpStart = (req, res) => {
     // Log
     D('START ' + sessionId + ' [LP]');
 
-    // If sessionId is defined
-    if (sessionId)
-        SessionsManager.cleanSession(sessionId);
-
     // Redirect
     RoutesTranscode.redirect(req, res);
 }
