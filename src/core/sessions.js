@@ -1,6 +1,6 @@
 import debug from 'debug';
 import config from '../config';
-import { publicUrl, plexUrl, download, mdir } from '../utils';
+import { publicUrl, plexUrl, download, mdir, replaceAll } from '../utils';
 import { dirname } from 'path';
 import SessionStore from '../store';
 import ServersManager from './servers';
