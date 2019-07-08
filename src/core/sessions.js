@@ -22,7 +22,7 @@ let ffmpegCache = {};
 let urls = {};
 
 SessionsManager.chooseServer = async (session, ip = false) => {
-    if (urls[session])
+    if (session && urls[session])
         return (urls[session]);
     let url = '';
     try {
@@ -30,7 +30,7 @@ SessionsManager.chooseServer = async (session, ip = false) => {
     }
     catch (err) { }
     D('SERVER ' + session + ' [' + url + ']');
-    if (url.length)
+    if (session && url.length)
         urls[session] = url;
     return (url);
 };
