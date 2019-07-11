@@ -23,12 +23,40 @@ RoutesAPI.update = (req, res) => {
     res.send(ServersManager.update(req.body));
 };
 
-// Save the FFMPEG arguments
+// Catch the FFMPEG arguments
 // Body: {args: [], env: []}
-RoutesAPI.ffmpeg = (req, res) => {
+RoutesAPI.ffmpeg = async (req, res) => {
     if (!req.body || !req.body.arg || !req.body.env)
         return (res.status(400).send({ error: { code: 'INVALID_ARGUMENTS', message: 'Invalid UnicornFFMPEG parameters' } }));
-    return (res.send(SessionsManager.storeFFmpegParameters(req.body.arg, req.body.env)));
+
+    // Detect if we are in optimizer mode
+    if (req.body.arg.filter(e => (e === '-segment_list' || e === '-manifest_name')).length === 0) {
+        const parsedArgs = await SessionsManager.parseFFmpegParameters(req.body.arg, req.body.env, true);
+        SessionsManager.ffmpegSetCache(parsedArgs.id, false);
+        D('FFMPEG ' + parsedArgs.session + ' [OPTIMIZE]');
+        SessionsManager.saveSession(parsedArgs);
+        SessionsManager.optimizerInit(parsedArgs);
+        return (res.send(parsedArgs));
+    }
+    // Streaming mode
+    else {
+        const parsedArgs = await SessionsManager.parseFFmpegParameters(req.body.arg, req.body.env);
+        SessionsManager.ffmpegSetCache(parsedArgs.id, false);
+        D('FFMPEG ' + parsedArgs.session + ' [STREAMING]');
+        SessionsManager.saveSession(parsedArgs)
+        return (res.send(parsedArgs));
+    }
+};
+
+// Get FFMPEG status
+RoutesAPI.ffmpegStatus = async (req, res) => {
+    if (!req.params.id)
+        return (res.status(400).send({ error: { code: 'INVALID_ARGUMENTS', message: 'Invalid parameters' } }));
+    D('FFMPEG ' + req.params.id + ' [PING]');
+    return (res.send({
+        id: req.params.id,
+        status: SessionsManager.ffmpegGetCache(req.params.id)
+    }));
 };
 
 // Resolve path from file id (DEPRECATED)
@@ -91,6 +119,18 @@ RoutesAPI.session = (req, res) => {
         res.send(data);
     }).catch(() => {
         res.status(400).send({ error: { code: 'SESSION_TIMEOUT', message: 'The session wasn\'t launched in time, request fails' } });
+    })
+};
+
+// Optimizer finish
+RoutesAPI.optimize = (req, res) => {
+    SessionStore.get(req.params.session).then((data) => {
+        SessionsManager.optimizerDownload(data).then((parsedData) => {
+            SessionsManager.optimizerDelete(parsedData);
+        });
+        res.send(data);
+    }).catch(() => {
+        res.status(400).send({ error: { code: 'SESSION_TIMEOUT', message: 'Invalid session' } });
     })
 };
 

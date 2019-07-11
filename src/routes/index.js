@@ -15,10 +15,11 @@ export default (app) => {
     app.use('/api/sessions', express.static(config.plex.path.sessions));
     app.get('/api/stats', RoutesAPI.stats);
     app.post('/api/ffmpeg', RoutesAPI.ffmpeg);
-    app.get('/api/path/:id', RoutesAPI.pathDeprecated); // Deprecated
-    app.get('/api/path_v2/:id', RoutesAPI.path);
+    app.get('/api/ffmpeg/:id', RoutesAPI.ffmpegStatus);    
+    app.get('/api/path/:id', RoutesAPI.path);
     app.post('/api/update', RoutesAPI.update);
     app.get('/api/session/:session', RoutesAPI.session);
+    app.patch('/api/optimize/:session', RoutesAPI.optimize);
     app.all('/api/plex/*', RoutesAPI.plex);
 
     // MPEG Dash support

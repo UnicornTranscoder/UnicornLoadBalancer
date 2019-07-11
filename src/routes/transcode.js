@@ -68,10 +68,6 @@ RoutesTranscode.lpStart = (req, res) => {
     // Log
     D('START ' + sessionId + ' [LP]');
 
-    // If sessionId is defined
-    if (sessionId)
-        SessionsManager.cleanSession(sessionId);
-
     // Redirect
     RoutesTranscode.redirect(req, res);
 }
@@ -215,6 +211,6 @@ RoutesTranscode.download = (req, res) => {
         console.log(err)
         res.status(400).send({ error: { code: 'NOT_FOUND', message: 'File not available' } });
     })
-}
+};
 
 export default RoutesTranscode;
