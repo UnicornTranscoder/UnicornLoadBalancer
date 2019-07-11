@@ -9,7 +9,7 @@ import RoutesResize from './resize';
 export default (app) => {
 
     // Note for future:
-    // We NEED to 302 the chunk requests because if Plex catchs it with fake transcoder, it stucks
+    // We NEED to 302/307 the chunk requests because if Plex catchs it with fake transcoder, it stucks
 
     // UnicornLoadBalancer API
     app.use('/api/sessions', express.static(config.plex.path.sessions));

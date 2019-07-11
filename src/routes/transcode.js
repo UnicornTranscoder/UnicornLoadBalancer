@@ -18,12 +18,12 @@ const getIp = (req) => {
     return req.connection.remoteAddress
 };
 
-/* Route to send a 302 to another server */
+/* Route to send a 307 to another server */
 RoutesTranscode.redirect = async (req, res) => {
     const session = SessionsManager.getSessionFromRequest(req);
     const server = await SessionsManager.chooseServer(session, getIp(req));
     if (server) {
-        res.redirect(302, server + req.url);
+        res.redirect(307, server + req.url);
         D('REDIRECT ' + session + ' [' + server + ']');
     } else {
         res.status(500).send({ error: { code: 'SERVER_UNAVAILABLE', message: 'SERVER_UNAVAILABLE' } });
