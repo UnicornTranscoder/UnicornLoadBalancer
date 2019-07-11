@@ -65,3 +65,9 @@ iptables -A INPUT -p tcp --dport 32400 -i [your-network-interface] -j DROP
 ```
 
 After a 32400 port drop, you must define your server url and the port used (443 or 80) in Plex settings, if it's not configured you will not be able to access to your server from https://app.plex.tv
+
+### Disclamer
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+__Pull Requests are welcome 😉__
