@@ -3,6 +3,8 @@ import fetch from 'node-fetch';
 import RoutesProxy from './proxy';
 import Database from '../database';
 import SessionsManager from '../core/sessions';
+import { getPlexToken } from '../utils';
+import config from '../config';
 
 // Debugger
 const D = debug('UnicornLoadBalancer');
@@ -20,8 +22,14 @@ const getIp = (req) => {
 
 /* Route to send a 302 to another server */
 RoutesTranscode.redirect = async (req, res) => {
+    let server = undefined;
     const session = SessionsManager.getSessionFromRequest(req);
-    const server = await SessionsManager.chooseServer(session, getIp(req));
+    if (config.backendManager !== undefined) {
+        const plexToken = getPlexToken(req);
+        server = await config.backendManager.transcoderUrlForToken(plexToken, session, getIp(req));
+    } else {
+        server = await SessionsManager.chooseServer(session, getIp(req));
+    }
     if (server) {
         res.redirect(302, server + req.url);
         D('REDIRECT ' + session + ' [' + server + ']');
@@ -96,8 +104,14 @@ RoutesTranscode.ping = async (req, res) => {
     // Extract sessionId from request parameter
     const sessionId = SessionsManager.getSessionFromRequest(req);
 
-    // Choose or get the server url
-    const serverUrl = await SessionsManager.chooseServer(sessionId, getIp(req));
+    let serverUrl = undefined;
+    const session = SessionsManager.getSessionFromRequest(req);
+    if (config.backendManager !== undefined) {
+        const plexToken = getPlexToken(req);
+        serverUrl = await config.backendManager.transcoderUrlForToken(plexToken, session, getIp(req));
+    } else {
+        serverUrl = await SessionsManager.chooseServer(session, getIp(req));
+    }
 
     // If a server url is defined, we ping the session
     if (serverUrl) {
@@ -116,8 +130,14 @@ RoutesTranscode.timeline = async (req, res) => {
     // Extract sessionId from request parameter
     const sessionId = SessionsManager.getSessionFromRequest(req);
 
-    // Choose or get the server url
-    const serverUrl = await SessionsManager.chooseServer(sessionId, getIp(req));
+    let serverUrl = undefined;
+    const session = SessionsManager.getSessionFromRequest(req);
+    if (config.backendManager !== undefined) {
+        const plexToken = getPlexToken(req);
+        serverUrl = await config.backendManager.transcoderUrlForToken(plexToken, session, getIp(req));
+    } else {
+        serverUrl = await SessionsManager.chooseServer(session, getIp(req));
+    }
 
     // It's a stop request
     if (req.query.state === 'stopped') {
@@ -148,8 +168,14 @@ RoutesTranscode.stop = async (req, res) => {
     // Extract sessionId from request parameter
     const sessionId = SessionsManager.getSessionFromRequest(req);
 
-    // Choose or get the server url
-    const serverUrl = await SessionsManager.chooseServer(sessionId, getIp(req));
+    let serverUrl = undefined;
+    const session = SessionsManager.getSessionFromRequest(req);
+    if (config.backendManager !== undefined) {
+        const plexToken = getPlexToken(req);
+        serverUrl = await config.backendManager.transcoderUrlForToken(plexToken, session, getIp(req));
+    } else {
+        serverUrl = await SessionsManager.chooseServer(session, getIp(req));
+    }
 
     // If a server url is defined, we stop the session
     if (serverUrl) {

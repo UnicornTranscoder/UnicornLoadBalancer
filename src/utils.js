@@ -4,6 +4,14 @@ import fetch from 'node-fetch';
 import mkdirp from 'mkdirp';
 import config from './config';
 
+export const getPlexToken = (req) => {
+    if ((req.query['X-Plex-Token']) && (req.query['X-Plex-Token'].length > 0)) {
+        return req.query['X-Plex-Token'];
+    } else if ((req.headers['x-plex-token']) && (req.headers['x-plex-token'].length > 0)) {
+        return req.headers['x-plex-token'];
+    }
+}
+
 export const publicUrl = () => {
     return (config.server.public)
 };
