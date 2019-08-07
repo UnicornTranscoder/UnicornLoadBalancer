@@ -81,15 +81,16 @@ SessionsManager.parseFFmpegParameters = async (args = [], env = {}, optimizeMode
 
         // Progress
         if (e.indexOf('/progress') !== -1)
-            return (e.replace(plexUrl(), '{INTERNAL_TRANSCODER}'));
+            return (e.replace(plexUrl(), '{INTERNAL_TRANSCODER}').replace('http://127.0.0.1:32400/', '{INTERNAL_TRANSCODER}'));
 
         // Manifest and seglist
         if (e.indexOf('/manifest') !== -1 || e.indexOf('/seglist') !== -1)
-            return (e.replace(plexUrl(), '{INTERNAL_TRANSCODER}'));
+            return (e.replace(plexUrl(), '{INTERNAL_TRANSCODER}').replace('http://127.0.0.1:32400/', '{INTERNAL_TRANSCODER}'));
 
         // Other
         let parsed = e;
         parsed = replaceAll(parsed, plexUrl(), publicUrl())
+        parsed = replaceAll(parsed, 'http://127.0.0.1:32400/', publicUrl())
         parsed = replaceAll(parsed, config.plex.path.sessions, publicUrl() + 'api/sessions/')
         parsed = replaceAll(parsed, config.plex.path.usr, '{INTERNAL_PLEX_SETUP}')
         return parsed;
