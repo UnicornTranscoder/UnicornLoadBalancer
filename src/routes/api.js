@@ -19,6 +19,9 @@ RoutesAPI.stats = (req, res) => {
 
 // Save the stats of a server
 RoutesAPI.update = (req, res) => {
+    if (config.backendManager !== undefined) {
+        return res.send(ServersManager.list());
+    }
     res.send(ServersManager.update(req.body));
 };
 

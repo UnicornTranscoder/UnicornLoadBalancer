@@ -1,8 +1,35 @@
 import env from 'getenv';
+import { BackendManager, MachinePool, GCPPoolBackend } from './backend';
 
 env.disableErrors();
 
+let bm = undefined;
+
+const backendSettings = {
+    credentialsPath: undefined,
+    gcpProject: undefined,
+    magicDns: undefined,
+}
+
+const managerSettings = {
+    whitelist: [],
+    timeout: {
+        quantity: 15,
+        units: 'minutes',
+    }
+}
+
+if ((backendSettings.credentialsPath) && (backendSettings.credentialsPath)) {
+    const gcp = new GCPPoolBackend(backendSettings);
+    const pool = new MachinePool(gcp);
+    bm = new BackendManager(Object.assign({
+        pool: pool,
+    }, managerSettings));
+    bm.start();
+}
+
 export default {
+    backendManager: bm,
     version: '2.0.0',
     server: {
         port: env.int('SERVER_PORT', 3001),
