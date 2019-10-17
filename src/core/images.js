@@ -110,7 +110,7 @@ export const resize = (parameters, headers = {}) => {
             }
 
             // Background & opacity support
-            if (params.background && params.opacity) {
+            /* if (params.background && params.opacity) {
                 let bgd = false;
                 try {
                     const buff = await s.png().toBuffer();
@@ -134,7 +134,7 @@ export const resize = (parameters, headers = {}) => {
                     return reject(e)
                 }
                 s.overlayWith(bgd);
-            }
+            }*/
 
             // Blur
             if (params.blur > 0 && params.blur <= 1000)
