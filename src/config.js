@@ -41,8 +41,7 @@ export default {
             timeout: env.int('CUSTOM_SCORES_TIMEOUT', 10)
         },
         image: {
-            resizer: env.boolish('CUSTOM_IMAGE_RESIZER', false),
-            proxy: env.string('CUSTOM_IMAGE_PROXY', '')
+            proxy: env.string('CUSTOM_IMAGE_PROXY', 'https://images.weserv.nl/')
         },
         download: {
             forward: env.boolish('CUSTOM_DOWNLOAD_FORWARD', false)

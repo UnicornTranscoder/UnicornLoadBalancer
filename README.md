@@ -44,8 +44,7 @@ This software is a part of __UnicornTranscoder__ project, it's the LoadBalancer 
 | **REDIS_PASSWORD** | The password of the redis database | `string` | ` ` | 
 | **REDIS_DB** | The index of the redis database | `int` | `0` | 
 | **CUSTOM_SCORES_TIMEOUT** | Seconds to consider a not-pinged server as unavailable | `int` | `10` | 
-| **CUSTOM_IMAGE_RESIZER** | Enable or disable the custom (Unicorn) image resizer (most efficient than Plex one) | `bool` | `false` | 
-| **CUSTOM_IMAGE_PROXY** | Use a proxy to convert images, **with** a slash at the end | `string` | ` ` | 
+| **CUSTOM_IMAGE_PROXY** | URL of an alternative server to convert images, this proxy must be compliant with the *images.weserv.nl* API (original or self-hosted). Eg supported value: `https://images.weserv.nl/` | `string` | ` ` | 
 | **CUSTOM_DOWNLOAD_FORWARD** | Enable or disable 302 for download links and direct play, if enabled, transcoders need to have access to media files | `bool` | `false` | 
 | **CUSTOM_SERVERS_LIST** | Transcoder servers set by default, **with** a slash at the end, separate servers with a **comma** | `string array` | `[]` | 
 

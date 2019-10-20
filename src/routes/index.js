@@ -15,7 +15,7 @@ export default (app) => {
     app.use('/api/sessions', express.static(config.plex.path.sessions));
     app.get('/api/stats', RoutesAPI.stats);
     app.post('/api/ffmpeg', RoutesAPI.ffmpeg);
-    app.get('/api/ffmpeg/:id', RoutesAPI.ffmpegStatus);    
+    app.get('/api/ffmpeg/:id', RoutesAPI.ffmpegStatus);
     app.get('/api/path/:id', RoutesAPI.path);
     app.post('/api/update', RoutesAPI.update);
     app.get('/api/session/:session', RoutesAPI.session);
@@ -52,11 +52,8 @@ export default (app) => {
     }
 
     // Image Proxy or Image Resizer
-    if (config.custom.image.proxy && config.custom.image.resizer) {
+    if (config.custom.image.proxy) {
         app.get('/photo/:/transcode', RoutesResize.proxy);
-    }
-    else if (config.custom.image.resizer) {
-        app.get('/photo/:/transcode', RoutesResize.resize);
     }
 
     // Forward other to Plex
