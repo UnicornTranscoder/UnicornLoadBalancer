@@ -23,7 +23,7 @@ RoutesResize.proxy = (req, res) => {
     }).then((buf) => {
         res.send(buf);
     }).catch(err => {
-        console.err(err);
+        console.error(err);
         return res.status(400).send({ error: { code: 'RESIZE_ERROR', message: 'Invalid parameters, resize request fails' } });
     });
 }
