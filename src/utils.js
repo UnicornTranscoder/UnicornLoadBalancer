@@ -47,14 +47,6 @@ export const download = (url, filepath) => (new Promise(async (resolve, reject) 
     });
 }));
 
-export const mdir = (path) => (new Promise((resolve, reject) => {
-    mkdirp(path, (err) => {
-        if (err)
-            return reject(err);
-        return resolve(path);
-    })
-}));
-
 export const replaceAll = (input, search, replace) => {
     let str = input;
     while (str.indexOf(search) !== -1)

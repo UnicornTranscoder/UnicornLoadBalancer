@@ -1,12 +1,13 @@
 import debug from 'debug';
 import config from '../config';
-import { publicUrl, plexUrl, download, mdir, replaceAll } from '../utils';
+import { publicUrl, plexUrl, download, replaceAll } from '../utils';
 import { dirname } from 'path';
 import SessionStore from '../store';
 import ServersManager from './servers';
 import Database from '../database';
 import fetch from 'node-fetch';
 import uniqid from 'uniqid';
+import mkdirp from 'mkdirp';
 
 // Debugger
 const D = debug('UnicornLoadBalancer');
@@ -218,7 +219,7 @@ SessionsManager.optimizerDownload = (parsed) => (new Promise(async (resolve, rej
     for (let i = 0; i < files.length; i++) {
         D(`OPTIMIZER ${server}/api/optimize/${parsed.session}/${encodeURIComponent(files[i])} [DOWNLOAD]`);
         try {
-            await mdir(dirname(parsed.optimize[files[i]]));
+            await mkdirp(dirname(parsed.optimize[files[i]]));
         }
         catch (err) {
             D(`OPTIMIZER Failed to create directory`);
