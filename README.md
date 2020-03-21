@@ -26,7 +26,6 @@ This software is a part of __UnicornTranscoder__ project, it's the LoadBalancer 
 
 | Name | Description | Type | Default |
 | ----------------- | ------------------------------------------------------------ | ------| ------- |
-| **SERVER_HOST** | Host to access to the *UnicornLoadBalancer* | `string` | `127.0.0.1` |
 | **SERVER_PORT** | Port used by the *UnicornLoadBalancer* | `int` | `3001` |
 | **SERVER_PUBLIC** | Public url where the *UnicornLoadBalancer* can be called, **with** a slash at the end | `string` | `http://127.0.0.1:3001/` |
 | **PLEX_HOST** | Host to access to Plex | `string` | `127.0.0.1` | 
