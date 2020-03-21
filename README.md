@@ -55,7 +55,7 @@ This software is a part of __UnicornTranscoder__ project, it's the LoadBalancer 
 
 ### 2. Notes
 
-All requests to the Plex Media Server should pass through the *UnicornLoadBalancer*, if someone reach the server directly he will not be able to start a stream, since FFMPEG binary has been replaced. To solve this problem it is recomended to configure an iptable rule to drop direct access from port **32400**. You also need to remove the **Plex Relay** binary.  
+All requests to the Plex Media Server should pass through the *UnicornLoadBalancer*, if someone reach the server directly he will not be able to start a stream, since FFMPEG binary has been replaced. To solve this problem it is recomended to configure an iptable rule to drop direct access from port **32400**. You also need to disable the relay feature in Plex settings (or remove the **Plex Relay** binary).  
 It is also recomended to setup a nginx reverse proxy in front of the *UnicornLoadBalancer* to setup a SSL certificate.
 
 ```
