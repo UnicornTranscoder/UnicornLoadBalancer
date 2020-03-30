@@ -1,3 +1,4 @@
+![](https://raw.githubusercontent.com/UnicornTranscoder/Logo/master/transparent.png)
 ## UnicornLoadBalancer
 
 This software is a part of __UnicornTranscoder__ project, it's the LoadBalancer that will catch Plex requests and send them to a __UnicornTranscoder__.
