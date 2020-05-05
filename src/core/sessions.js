@@ -182,9 +182,10 @@ SessionsManager.saveSession = (parsed) => {
 
 // Call media optimizer on transcoders
 SessionsManager.optimizerInit = async (parsed) => {
-    D(`OPTIMIZER ${parsed.session} [START]`);
-    const server = await ServersManager.chooseServer(parsed.session, false)
-    fetch(`${server}/api/optimize`, {
+    const server = await ServersManager.chooseServer(parsed.session, false);
+    const url = `${server}/api/optimize`;
+    D(`OPTIMIZER ${parsed.session} sent to ${url} [START]`);
+    fetch(url, {
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
