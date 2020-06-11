@@ -1,15 +1,36 @@
+import debug from 'debug';
+
+
+
 import httpProxy from 'http-proxy';
 
 import config from '../config';
 
+
+// Debugger
+const D = debug('UnicornLoadBalancer');
+
 export const patchDashManifest = (body, transcoderUrl = '/') => {
-    const targetUrl = `${transcoderUrl}${transcoderUrl !== '/' ? '/' : ''}`;
+    const targetUrl = `${transcoderUrl}${transcoderUrl.substr(-1, 1) !== '/' ? '/' : ''}`;
     let patchedBody = body;
+console.log(body)
+
     while (patchedBody.includes('="dash/')) {
         patchedBody = patchedBody.replace('="dash/', `="${targetUrl}dash/`);
     }
+console.log(patchedBody);
+
     return patchedBody;
 }
+
+/* Extract IP */
+export const getIp = (req) => {
+    if (req.get('CF-Connecting-IP'))
+        return req.get('CF-Connecting-IP');
+    if (req.get('x-forwarded-for'))
+        return req.get('x-forwarded-for').split(',')[0];
+    return req.connection.remoteAddress
+};
 
 export const createProxy = (timeout = 30000, bodyCustomParser = null) => (req, res) => {
     const proxy = httpProxy.createProxyServer();
@@ -25,21 +46,23 @@ export const createProxy = (timeout = 30000, bodyCustomParser = null) => (req, r
             proxyRes.on('data', (chunk) => {
                 body.push(chunk);
             });
-            proxyRes.on('end', () => {
+            proxyRes.on('end', async () => {
                 body = Buffer.concat(body).toString();
-                res.end(bodyCustomParser(req, body));
+                const patchedBody = await bodyCustomParser(req, body);
+                res.end(patchedBody);
             });
         });
     }
 
     // Proxy the request
     proxy.web(req, res, {
-        target: {
+        target: `http://${config.plex.host}:${config.plex.port}`, /* {
             host: config.plex.host,
             port: config.plex.port
-        },
-        ignorePath: true,
+        },*/
+        //ignorePath: true,
         changeOrigin: true,
+        selfHandleResponse: !!bodyCustomParser,
         secure: false,
         followRedirects: true,
         proxyTimeout: timeout,

@@ -3,20 +3,13 @@ import fetch from 'node-fetch';
 import RoutesProxy from './proxy';
 import Database from '../database';
 import SessionsManager from '../core/sessions';
+import { getIp } from '../core/patch';
 
 // Debugger
 const D = debug('UnicornLoadBalancer');
 
 let RoutesTranscode = {};
 
-/* Extract IP */
-const getIp = (req) => {
-    if (req.get('CF-Connecting-IP'))
-        return req.get('CF-Connecting-IP');
-    if (req.get('x-forwarded-for'))
-        return req.get('x-forwarded-for').split(',')[0];
-    return req.connection.remoteAddress
-};
 
 /* Route to send a 307 to another server */
 RoutesTranscode.redirect = async (req, res) => {

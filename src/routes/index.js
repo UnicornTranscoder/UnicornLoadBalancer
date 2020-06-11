@@ -5,7 +5,7 @@ import RoutesAPI from './api';
 import RoutesTranscode from './transcode';
 import RoutesProxy from './proxy';
 import RoutesResize from './resize';
-import { createProxy, patchDashManifest } from '../core/patch';
+import { createProxy, patchDashManifest, getIp } from '../core/patch';
 import SessionsManager from '../core/sessions';
 
 export default (app) => {
@@ -28,7 +28,7 @@ export default (app) => {
     //app.get('/:formatType/:/transcode/universal/start.mpd', RoutesTranscode.dashStart);
 
 
-    app.get('/:formatType/:/transcode/universal/start.mpd', createProxy(10000, (req, body) => {
+    app.get('/:formatType/:/transcode/universal/start.mpd', createProxy(10000, async (req, body) => {
         let sessionId = false;
 
         // If we have a cached X-Plex-Session-Identifier, we use it
@@ -37,7 +37,7 @@ export default (app) => {
         }
 
         // Log
-        D('START ' + SessionsManager.getSessionFromRequest(req) + ' [DASH]');
+       // D('START ' + SessionsManager.getSessionFromRequest(req) + ' [DASH]');
 
         // Save session
         SessionsManager.cacheSessionFromRequest(req);
@@ -47,8 +47,13 @@ export default (app) => {
             SessionsManager.cleanSession(sessionId);
         }
 
+        // Get server url
+        const server = await SessionsManager.chooseServer(sessionId, getIp(req));
+
+console.log(server);
+
         // Return patched manifest
-        return patchDashManifest(body);
+        return patchDashManifest(body, 'https://citadel.transode.plop.com/', server);
     }));
 
     app.get('/:formatType/:/transcode/universal/dash/:sessionId/:streamId/initial.mp4', RoutesTranscode.redirect); // Todo Replace by Unicorn Page
