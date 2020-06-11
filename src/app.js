@@ -9,6 +9,7 @@ import { internalUrl } from './utils';
 import ServersManager from './core/servers';
 
 import debug from 'debug';
+import { createWebsocketProxy } from './core/patch';
 
 // Debugger
 const D = debug('UnicornLoadBalancer');
@@ -57,9 +58,7 @@ Router(app);
 const httpServer = app.listen(config.server.port);
 
 // Forward websockets
-httpServer.on('upgrade', (req, res) => {
-    Proxy.ws(req, res);
-});
+httpServer.on('upgrade', createWebsocketProxy());
 
 // Debug
 D('Launched on ' + internalUrl());

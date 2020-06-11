@@ -11,14 +11,14 @@ import config from '../config';
 const D = debug('UnicornLoadBalancer');
 
 export const patchDashManifest = (body, transcoderUrl = '/') => {
-    const targetUrl = `${transcoderUrl}${transcoderUrl.substr(-1, 1) !== '/' ? '/' : ''}`;
+    const targetUrl = `${transcoderUrl || ''}${(transcoderUrl || '').substr(-1, 1) !== '/' ? '/' : ''}`;
     let patchedBody = body;
-console.log(body)
+    // console.log(body)
 
     while (patchedBody.includes('="dash/')) {
         patchedBody = patchedBody.replace('="dash/', `="${targetUrl}dash/`);
     }
-console.log(patchedBody);
+    //console.log(patchedBody);
 
     return patchedBody;
 }
@@ -32,11 +32,25 @@ export const getIp = (req) => {
     return req.connection.remoteAddress
 };
 
-export const createProxy = (timeout = 30000, bodyCustomParser = null) => (req, res) => {
+export const createWebsocketProxy = () => async (req, res) => {
+    const proxy = httpProxy.createProxyServer();
+    proxy.on('error', () => {
+        // Fail silently
+    });
+    return (proxy.ws(req, res));
+}
+
+export const createProxy = (timeout = 30000, initialParser = null, bodyCustomParser = null) => async (req, res) => {
+    const initialData = initialParser ? await initialParser(req) : {};
+
     const proxy = httpProxy.createProxyServer();
     proxy.on('error', (err) => {
-        res.status(500).send({ error: { code: 'API_ERROR', message: `${apiName} proxy failed, timeout?` } });
-        console.error(`${apiName} didn't reply, timeout? (t=${timeoutApi})`, err);
+        // On some Plex request from FFmpeg, Plex don't create a valid request
+        if (err.code === 'HPE_UNEXPECTED_CONTENT_LENGTH')
+            return (res.status(200).send());
+
+        // Other error
+        return (res.status(400).send({ error: { code: 'PROXY_TIMEOUT', message: 'Plex not respond in time, proxy request fails' } }));
     });
 
     // Patch proxy body
@@ -48,7 +62,7 @@ export const createProxy = (timeout = 30000, bodyCustomParser = null) => (req, r
             });
             proxyRes.on('end', async () => {
                 body = Buffer.concat(body).toString();
-                const patchedBody = await bodyCustomParser(req, body);
+                const patchedBody = await bodyCustomParser(req, body, initialData);
                 res.end(patchedBody);
             });
         });
@@ -56,15 +70,13 @@ export const createProxy = (timeout = 30000, bodyCustomParser = null) => (req, r
 
     // Proxy the request
     proxy.web(req, res, {
-        target: `http://${config.plex.host}:${config.plex.port}`, /* {
+        target: {
             host: config.plex.host,
             port: config.plex.port
-        },*/
-        //ignorePath: true,
-        changeOrigin: true,
+        },
         selfHandleResponse: !!bodyCustomParser,
         secure: false,
-        followRedirects: true,
+        followRedirects: false,
         proxyTimeout: timeout,
     });
 };

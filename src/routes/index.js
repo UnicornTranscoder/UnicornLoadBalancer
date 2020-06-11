@@ -25,10 +25,8 @@ export default (app) => {
     app.all('/api/plex/*', RoutesAPI.plex);
 
     // MPEG Dash support
-    //app.get('/:formatType/:/transcode/universal/start.mpd', RoutesTranscode.dashStart);
+    app.get('/:formatType/:/transcode/universal/start.mpd', createProxy(10000, async (req) => {
 
-
-    app.get('/:formatType/:/transcode/universal/start.mpd', createProxy(10000, async (req, body) => {
         let sessionId = false;
 
         // If we have a cached X-Plex-Session-Identifier, we use it
@@ -37,7 +35,7 @@ export default (app) => {
         }
 
         // Log
-       // D('START ' + SessionsManager.getSessionFromRequest(req) + ' [DASH]');
+        // D('START ' + SessionsManager.getSessionFromRequest(req) + ' [DASH]');
 
         // Save session
         SessionsManager.cacheSessionFromRequest(req);
@@ -47,13 +45,16 @@ export default (app) => {
             SessionsManager.cleanSession(sessionId);
         }
 
-        // Get server url
-        const server = await SessionsManager.chooseServer(sessionId, getIp(req));
+        // Todo: Call transcoder using API to ask to start the session
 
-console.log(server);
+        return { sessionId }
+
+    }, async (req, body, initialData) => {
+        // Get server url
+        const server = await SessionsManager.chooseServer(initialData.sessionId, getIp(req));
 
         // Return patched manifest
-        return patchDashManifest(body, 'https://citadel.transode.plop.com/', server);
+        return patchDashManifest(body, server);
     }));
 
     app.get('/:formatType/:/transcode/universal/dash/:sessionId/:streamId/initial.mp4', RoutesTranscode.redirect); // Todo Replace by Unicorn Page
@@ -89,5 +90,5 @@ console.log(server);
     }
 
     // Forward other to Plex
-    app.all('*', RoutesProxy.plex);
+    app.all('*', createProxy(10000));
 };

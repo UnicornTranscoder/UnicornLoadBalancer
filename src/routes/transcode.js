@@ -24,29 +24,6 @@ RoutesTranscode.redirect = async (req, res) => {
     }
 };
 
-/* Route called when a DASH stream starts */
-RoutesTranscode.dashStart = (req, res) => {
-    // By default we don't have the session identifier
-    let sessionId = false;
-
-    // If we have a cached X-Plex-Session-Identifier, we use it
-    if (req.query['X-Plex-Session-Identifier'] && SessionsManager.getCacheSession(req.query['X-Plex-Session-Identifier']))
-        sessionId = SessionsManager.getCacheSession(req.query['X-Plex-Session-Identifier']);
-
-    // Log
-    D('START ' + SessionsManager.getSessionFromRequest(req) + ' [DASH]');
-
-    // Save session
-    SessionsManager.cacheSessionFromRequest(req);
-
-    // If session id available
-    if (sessionId)
-        SessionsManager.cleanSession(sessionId);
-
-    // Redirect
-    RoutesTranscode.redirect(req, res);
-}
-
 /* Routes called when a long polling stream starts */
 RoutesTranscode.lpStart = (req, res) => {
     // Save session
