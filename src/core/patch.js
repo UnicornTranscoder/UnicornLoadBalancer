@@ -1,3 +1,5 @@
+import httpProxy from 'http-proxy';
+
 import config from '../config';
 
 export const patchDashManifest = (body, transcoderUrl = '/') => {
