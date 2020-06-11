@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MPD xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="urn:mpeg:dash:schema:mpd:2011"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	xsi:schemaLocation="urn:mpeg:dash:schema:mpd:2011 http://standards.iso.org/ittf/PubliclyAvailableStandards/MPEG-DASH_schema_files/DASH-MPD.xsd"
+	profiles="urn:mpeg:dash:profile:isoff-live:2011"
+	type="static"
+	mediaPresentationDuration="PT0H28M29.3879S"
+	maxSegmentDuration="PT10S"
+	minBufferTime="PT10S">
+	<Period start="PT0S" id="0" duration="PT0H28M29.3879S">
+		<AdaptationSet segmentAlignment="true">
+			<SegmentTemplate timescale="1" duration="5" initialization="dash/f02odbx6y6jjulm5f0kjomib/$RepresentationID$/initial.mp4" media="dash/f02odbx6y6jjulm5f0kjomib/$RepresentationID$/$Number$.m4s" startNumber="0">
+			</SegmentTemplate>
+			<Representation id="0" mimeType="video/mp4" codecs="avc1.42c00d" bandwidth="8952000" width="1920" height="1080">
+			</Representation>
+		</AdaptationSet>
+		<AdaptationSet segmentAlignment="true">
+			<SegmentTemplate timescale="1" duration="5" initialization="dash/f02odbx6y6jjulm5f0kjomib/$RepresentationID$/initial.mp4" media="dash/f02odbx6y6jjulm5f0kjomib/$RepresentationID$/$Number$.m4s" startNumber="0">
+			</SegmentTemplate>
+			<Representation id="1" mimeType="audio/mp4" codecs="mp4a.40.2" bandwidth="256000" audioSamplingRate="44100">
+				<AudioChannelConfiguration schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011" value="2"/>
+			</Representation>
+		</AdaptationSet>
+	</Period>
+</MPD>

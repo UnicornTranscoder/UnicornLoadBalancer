@@ -96,7 +96,9 @@ RoutesAPI.session = (req, res) => {
 // Optimizer finish
 RoutesAPI.optimize = (req, res) => {
     SessionStore.get(req.params.session).then((data) => {
+        console.log('Session ok', data)
         SessionsManager.optimizerDownload(data).then((parsedData) => {
+            console.log('File downloaded localy', parsedData)
             SessionsManager.optimizerDelete(parsedData);
         });
         res.send(data);

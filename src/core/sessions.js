@@ -198,7 +198,7 @@ SessionsManager.optimizerInit = async (parsed) => {
 
 // Call media optimizer on transcoders
 SessionsManager.optimizerDelete = async (parsed) => {
-    D(`OPTIMIZER ${parsed.session} [DELETE]`);
+    D(`OPTIMIZER ${parsed.session} ${parsed.id} [DELETE]`);
     SessionsManager.ffmpegSetCache(parsed.id, 0);
     const server = await ServersManager.chooseServer(parsed.session, false)
     fetch(`${server}/api/optimize/${parsed.session}`, {
