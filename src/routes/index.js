@@ -135,7 +135,7 @@ export default (app) => {
     }, async (_, body, { server }) => {
         // Return patched manifest
         return patchHLSManifest(body, server);
-    }));
+    });
 
 
     app.get('/:formatType/:/transcode/universal/session/:sessionId/base/index.m3u8', patchHLS);
