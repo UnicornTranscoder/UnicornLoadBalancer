@@ -47,6 +47,8 @@ export default (app) => {
         // If we have a cached X-Plex-Session-Identifier, we use it
         if (req.query['X-Plex-Session-Identifier'] && SessionsManager.getCacheSession(req.query['X-Plex-Session-Identifier'])) {
             sessionId = SessionsManager.getCacheSession(req.query['X-Plex-Session-Identifier']);
+        } else {
+            sessionId = SessionsManager.getSessionFromRequest(req);
         }
 
         // Log
@@ -64,7 +66,7 @@ export default (app) => {
         const server = await SessionsManager.chooseServer(sessionId, getIp(req));
 
         // Todo: Call transcoder using API to ask to start the session
-        fetch(`${server}unicorn/dash/${sessionId}/start`)
+        fetch(`${server}/unicorn/dash/${sessionId}/start`);
 
         return { sessionId, server }
     }, async (_, body, { server }) => {
