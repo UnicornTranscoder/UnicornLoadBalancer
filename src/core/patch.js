@@ -28,7 +28,7 @@ export const patchHLSManifest = (body, transcoderUrl = '/') => {
     let patchedBody = body.split('\n');
 
     for (let i = 0; i < patchedBody.length; i++) {
-        if (patchedBody[i].startsWith('session/')) {
+        if (patchedBody[i].startsWith('session/') && (patchedBody[i].endsWith('.ts') || patchedBody[i].endsWith('.vtt'))) {
             patchedBody[i] = patchedBody[i].replace('session/', `${targetUrl}unicorn/hls/`);
         }
     }

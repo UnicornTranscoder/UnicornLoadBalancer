@@ -120,8 +120,8 @@ export default (app) => {
         return patchHLSManifest(body, server);
     }));
 
-    app.get('/:formatType/:/transcode/universal/session/:sessionId/base/index.m3u8', (req, res) => (res.status(404).send('Not supported here')));
-    app.get('/:formatType/:/transcode/universal/session/:sessionId/base-x-mc/index.m3u8', (req, res) => (res.status(404).send('Not supported here')));
+    //app.get('/:formatType/:/transcode/universal/session/:sessionId/base/index.m3u8', (req, res) => (res.status(404).send('Not supported here')));
+   // app.get('/:formatType/:/transcode/universal/session/:sessionId/base-x-mc/index.m3u8', (req, res) => (res.status(404).send('Not supported here')));
     app.get('/:formatType/:/transcode/universal/session/:sessionId/:fileType/:partId.ts', (req, res) => (res.status(404).send('Not supported here')));
     app.get('/:formatType/:/transcode/universal/session/:sessionId/:fileType/:partId.vtt', (req, res) => (res.status(404).send('Not supported here')));
 
