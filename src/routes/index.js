@@ -41,7 +41,7 @@ export default (app) => {
     app.all('/api/plex/*', RoutesAPI.plex);
 
     // MPEG Dash support
-    app.get('/:formatType/:/transcode/universal/start.mpd', createProxy(10000, async (req) => {
+    app.get('/:formatType/:/transcode/universal/start.mpd', createProxy(30000, async (req) => {
         let sessionId = false;
 
         // If we have a cached X-Plex-Session-Identifier, we use it
@@ -66,7 +66,7 @@ export default (app) => {
         const server = await SessionsManager.chooseServer(sessionId, getIp(req));
 
         // Todo: Call transcoder using API to ask to start the session
-        fetch(`${server}/unicorn/dash/${sessionId}/start`);
+        fetch(`${server}/unicorn/dash/${sessionId}/start`).catch(() => false);
 
         return { sessionId, server }
     }, async (_, body, { server }) => {

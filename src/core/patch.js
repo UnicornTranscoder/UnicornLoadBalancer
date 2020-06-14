@@ -53,8 +53,6 @@ export const createProxy = (timeout = 30000, initialParser = null, bodyCustomPar
         return (res.status(400).send({ error: { code: 'PROXY_TIMEOUT', message: 'Plex not respond in time, proxy request fails' } }));
     });
 
-
-
     // Patch proxy body
     if (bodyCustomParser) {
         proxy.on('proxyRes', (proxyRes, req, res) => {
@@ -63,7 +61,7 @@ export const createProxy = (timeout = 30000, initialParser = null, bodyCustomPar
                 body.push(chunk);
             });
             proxy.on('proxyReq', (proxyReq, req, res, options) => {
-                proxyReq.setHeader('Accept-Encoding', '');
+                proxyReq.removeHeader('Accept-Encoding');
             });
             proxyRes.on('end', async () => {
                 body = Buffer.concat(body).toString();
