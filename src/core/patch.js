@@ -23,6 +23,19 @@ export const patchDashManifest = (body, transcoderUrl = '/') => {
     return patchedBody;
 }
 
+export const patchHLSManifest = (body, transcoderUrl = '/') => {
+    const targetUrl = `${transcoderUrl || ''}${(transcoderUrl || '').substr(-1, 1) !== '/' ? '/' : ''}`;
+    let patchedBody = body.split('\n');
+
+    for (let i = 0; i < patchedBody.length; i++) {
+        if (patchedBody[i].startsWith('session/')) {
+            patchedBody[i] = patchedBody[i].replace('session/', `${targetUrl}unicorn/hls/`);
+        }
+    }
+
+    return patchedBody.join('\n');
+}
+
 /* Extract IP */
 export const getIp = (req) => {
     if (req.get('CF-Connecting-IP'))

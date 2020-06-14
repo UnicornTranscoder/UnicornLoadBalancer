@@ -4,7 +4,7 @@ import fetch from 'node-fetch';
 
 import config from '../config';
 import RoutesAPI from './api';
-import { createProxy, patchDashManifest, getIp } from '../core/patch';
+import { createProxy, patchDashManifest, getIp, patchHLSManifest } from '../core/patch';
 import SessionsManager from '../core/sessions';
 
 // Debugger
@@ -117,7 +117,7 @@ export default (app) => {
         return { sessionId, server }
     }, async (_, body, { server }) => {
         // Return patched manifest
-        return body;
+        return patchHLSManifest(body, server);
     }));
 
     app.get('/:formatType/:/transcode/universal/session/:sessionId/base/index.m3u8', (req, res) => (res.status(404).send('Not supported here')));
