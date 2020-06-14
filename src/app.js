@@ -4,7 +4,6 @@ import bodyParser from 'body-parser';
 
 import config from './config';
 import Router from './routes';
-import Proxy from './routes/proxy';
 import { internalUrl } from './utils';
 import ServersManager from './core/servers';
 

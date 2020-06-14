@@ -3,7 +3,6 @@ import debug from 'debug';
 
 import config from '../config';
 import RoutesAPI from './api';
-import RoutesTranscode from './transcode';
 import { createProxy, patchDashManifest, getIp } from '../core/patch';
 import SessionsManager from '../core/sessions';
 
@@ -12,17 +11,17 @@ const D = debug('UnicornLoadBalancer');
 
 export default (app) => {
 
-const redirectToTranscoder = async (req, res) => {
-    const session = SessionsManager.getSessionFromRequest(req);
-    const server = await SessionsManager.chooseServer(session, getIp(req));
-    if (server) {
-        res.redirect(307, server + req.url);
-        D('REDIRECT ' + session + ' [' + server + ']');
-    } else {
-        res.status(500).send({ error: { code: 'SERVER_UNAVAILABLE', message: 'SERVER_UNAVAILABLE' } });
-        D('REDIRECT ' + session + ' [UNKNOWN]');
-    }
-};
+    const redirectToTranscoder = async (req, res) => {
+        const session = SessionsManager.getSessionFromRequest(req);
+        const server = await SessionsManager.chooseServer(session, getIp(req));
+        if (server) {
+            res.redirect(307, server + req.url);
+            D('REDIRECT ' + session + ' [' + server + ']');
+        } else {
+            res.status(500).send({ error: { code: 'SERVER_UNAVAILABLE', message: 'SERVER_UNAVAILABLE' } });
+            D('REDIRECT ' + session + ' [UNKNOWN]');
+        }
+    };
 
 
 
@@ -60,13 +59,14 @@ const redirectToTranscoder = async (req, res) => {
             SessionsManager.cleanSession(sessionId);
         }
 
+        // Select server
+        const server = await SessionsManager.chooseServer(sessionId, getIp(req));
+
         // Todo: Call transcoder using API to ask to start the session
+        fetch(`${server}unicorn/dash/${sessionId}/start`)
 
-        return { sessionId }
-    }, async (req, body, initialData) => {
-        // Get server url
-        const server = await SessionsManager.chooseServer(initialData.sessionId, getIp(req));
-
+        return { sessionId, server }
+    }, async (_, body, { server }) => {
         // Return patched manifest
         return patchDashManifest(body, server);
     }));
@@ -78,13 +78,13 @@ const redirectToTranscoder = async (req, res) => {
     app.get('/:formatType/:/transcode/universal/start', (req, res) => {
         // Save session
         SessionsManager.cacheSessionFromRequest(req);
-    
+
         // Get sessionId
         const sessionId = SessionsManager.getSessionFromRequest(req);
-    
+
         // Log
         D('START ' + sessionId + ' [LP]');
-    
+
         // Redirect
         redirectToTranscoder(req, res);
     });
@@ -94,16 +94,16 @@ const redirectToTranscoder = async (req, res) => {
     app.get('/:formatType/:/transcode/universal/start.m3u8', (req, res) => {
         // Proxy to Plex
         RoutesProxy.plex(req, res);
-    
+
         // Save session
         SessionsManager.cacheSessionFromRequest(req);
-    
+
         // Get sessionId
         const sessionId = SessionsManager.getSessionFromRequest(req);
-    
+
         // Log
         D('START ' + sessionId + ' [HLS]');
-    
+
         // If sessionId is defined
         if (sessionId)
             SessionsManager.cleanSession(sessionId);
