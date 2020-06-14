@@ -120,8 +120,29 @@ export default (app) => {
         return patchHLSManifest(body, server);
     }));
 
-    //app.get('/:formatType/:/transcode/universal/session/:sessionId/base/index.m3u8', (req, res) => (res.status(404).send('Not supported here')));
-   // app.get('/:formatType/:/transcode/universal/session/:sessionId/base-x-mc/index.m3u8', (req, res) => (res.status(404).send('Not supported here')));
+
+    const patchHLS = createProxy(30000, async (req) => {
+        let sessionId = SessionsManager.getSessionFromRequest(req);
+
+        // If session id available
+        if (sessionId) {
+            SessionsManager.cleanSession(sessionId);
+        }
+
+        // Select server
+        const server = await SessionsManager.chooseServer(sessionId, getIp(req));
+        return { sessionId, server }
+    }, async (_, body, { server }) => {
+        // Return patched manifest
+        return patchHLSManifest(body, server);
+    }));
+
+
+    app.get('/:formatType/:/transcode/universal/session/:sessionId/base/index.m3u8', patchHLS);
+    app.get('/:formatType/:/transcode/universal/session/:sessionId/base-x-mc/index.m3u8', patchHLS);
+    app.get('/:formatType/:/transcode/universal/session/:sessionId/vtt-base/index.m3u8', patchHLS);
+
+
     app.get('/:formatType/:/transcode/universal/session/:sessionId/:fileType/:partId.ts', (req, res) => (res.status(404).send('Not supported here')));
     app.get('/:formatType/:/transcode/universal/session/:sessionId/:fileType/:partId.vtt', (req, res) => (res.status(404).send('Not supported here')));
 
