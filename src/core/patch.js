@@ -16,7 +16,7 @@ export const patchDashManifest = (body, transcoderUrl = '/') => {
     // console.log(body)
 
     while (patchedBody.includes('="dash/')) {
-        patchedBody = patchedBody.replace('="dash/', `="${targetUrl}dash/`);
+        patchedBody = patchedBody.replace('="dash/', `="${targetUrl}unicorn/dash/`);
     }
     //console.log(patchedBody);
 
