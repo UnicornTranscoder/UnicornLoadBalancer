@@ -23,13 +23,17 @@ export const patchDashManifest = (body, transcoderUrl = '/') => {
     return patchedBody;
 }
 
-export const patchHLSManifest = (body, transcoderUrl = '/') => {
+export const patchHLSManifest = (body, sessionId, transcoderUrl = '/') => {
     const targetUrl = `${transcoderUrl || ''}${(transcoderUrl || '').substr(-1, 1) !== '/' ? '/' : ''}`;
     let patchedBody = body.split('\n');
 
     for (let i = 0; i < patchedBody.length; i++) {
-        if (patchedBody[i].startsWith('session/') && (patchedBody[i].endsWith('.ts') || patchedBody[i].endsWith('.vtt') || patchedBody[i].endsWith('/header'))) {
-            patchedBody[i] = patchedBody[i].replace('session/', `${targetUrl}unicorn/hls/`);
+        if (patchedBody[i].endsWith('.ts')) {
+            patchedBody[i] = `${targetUrl}unicorn/hls/${sessionId}/${patchedBody[i]}`;
+        } else if (patchedBody[i].endsWith('.vtt')) {
+            patchedBody[i] = `${targetUrl}unicorn/hls/${sessionId}/${patchedBody[i]}`;
+        } else if (patchedBody[i] === '#EXT-X-MAP:URI="header"') {
+            patchedBody[i] = `#EXT-X-MAP:URI="${targetUrl}unicorn/hls/${sessionId}/base"`;
         }
     }
 

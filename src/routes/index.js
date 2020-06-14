@@ -115,9 +115,9 @@ export default (app) => {
         fetch(`${server}/unicorn/hls/${sessionId}/start`).catch(() => false);
 
         return { sessionId, server }
-    }, async (_, body, { server }) => {
+    }, async (_, body, { sessionId, server }) => {
         // Return patched manifest
-        return patchHLSManifest(body, server);
+        return patchHLSManifest(body, sessionId, server);
     }));
 
 
@@ -132,9 +132,9 @@ export default (app) => {
         // Select server
         const server = await SessionsManager.chooseServer(sessionId, getIp(req));
         return { sessionId, server }
-    }, async (_, body, { server }) => {
+    }, async (_, body, { sessionId, server }) => {
         // Return patched manifest
-        return patchHLSManifest(body, server);
+        return patchHLSManifest(body, sessionId, server);
     });
 
 
