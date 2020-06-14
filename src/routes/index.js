@@ -94,23 +94,32 @@ export default (app) => {
     app.get('/:formatType/:/transcode/universal/subtitles', redirectToTranscoder); // Should keep 302...
 
     // M3U8 support
-    app.get('/:formatType/:/transcode/universal/start.m3u8', (req, res) => {
-        // Proxy to Plex
-        RoutesProxy.plex(req, res);
-
-        // Save session
-        SessionsManager.cacheSessionFromRequest(req);
-
-        // Get sessionId
-        const sessionId = SessionsManager.getSessionFromRequest(req);
+    app.get('/:formatType/:/transcode/universal/start.m3u8', createProxy(30000, async (req) => {
+        let sessionId = SessionsManager.getSessionFromRequest(req);
 
         // Log
         D('START ' + sessionId + ' [HLS]');
 
-        // If sessionId is defined
-        if (sessionId)
+        // Save session
+        SessionsManager.cacheSessionFromRequest(req);
+
+        // If session id available
+        if (sessionId) {
             SessionsManager.cleanSession(sessionId);
-    });
+        }
+
+        // Select server
+        const server = await SessionsManager.chooseServer(sessionId, getIp(req));
+
+        // Todo: Call transcoder using API to ask to start the session
+        fetch(`${server}/unicorn/hls/${sessionId}/start`).catch(() => false);
+
+        return { sessionId, server }
+    }, async (_, body, { server }) => {
+        // Return patched manifest
+        return body;
+    }));
+
     app.get('/:formatType/:/transcode/universal/session/:sessionId/base/index.m3u8', (req, res) => (res.status(404).send('Not supported here')));
     app.get('/:formatType/:/transcode/universal/session/:sessionId/base-x-mc/index.m3u8', (req, res) => (res.status(404).send('Not supported here')));
     app.get('/:formatType/:/transcode/universal/session/:sessionId/:fileType/:partId.ts', (req, res) => (res.status(404).send('Not supported here')));
