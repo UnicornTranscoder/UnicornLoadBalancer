@@ -33,7 +33,7 @@ export const patchHLSManifest = (body, sessionId, transcoderUrl = '/') => {
         } else if (patchedBody[i].endsWith('.vtt')) {
             patchedBody[i] = `${targetUrl}unicorn/hls/${sessionId}/${patchedBody[i]}`;
         } else if (patchedBody[i] === '#EXT-X-MAP:URI="header"') {
-            patchedBody[i] = `#EXT-X-MAP:URI="${targetUrl}unicorn/hls/${sessionId}/base"`;
+            patchedBody[i] = `#EXT-X-MAP:URI="${targetUrl}unicorn/hls/${sessionId}/header"`;
         }
     }
 
