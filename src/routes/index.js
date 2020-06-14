@@ -137,7 +137,7 @@ export default (app) => {
         return patchHLSManifest(body, sessionId, server);
     });
 
-
+    // Todo:  Next step forward header and only move chunks
     app.get('/:formatType/:/transcode/universal/session/:sessionId/base/index.m3u8', patchHLS);
     app.get('/:formatType/:/transcode/universal/session/:sessionId/base-x-mc/index.m3u8', patchHLS);
     app.get('/:formatType/:/transcode/universal/session/:sessionId/vtt-base/index.m3u8', patchHLS);
