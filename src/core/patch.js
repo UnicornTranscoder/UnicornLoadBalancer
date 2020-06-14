@@ -57,14 +57,15 @@ export const createProxy = (timeout = 30000, initialParser = null, bodyCustomPar
     if (bodyCustomParser) {
         proxy.on('proxyRes', (proxyRes, req, res) => {
             let body = [];
-            proxyRes.on('data', (chunk) => {
-                body.push(chunk);
-            });
             proxy.on('proxyReq', (proxyReq, req, res, options) => {
                 proxyReq.removeHeader('Accept-Encoding');
             });
+            proxyRes.on('data', (chunk) => {
+                body.push(chunk);
+            });
             proxyRes.on('end', async () => {
                 body = Buffer.concat(body).toString();
+                D(body)
                 const patchedBody = await bodyCustomParser(req, body, initialData);
                 res.end(patchedBody);
             });
