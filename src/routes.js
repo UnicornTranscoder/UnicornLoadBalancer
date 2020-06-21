@@ -2,15 +2,118 @@ import express from 'express';
 import debug from 'debug';
 import fetch from 'node-fetch';
 
-import config from '../config';
-import RoutesAPI from './api';
-import { createProxy, patchDashManifest, getIp, patchHLSManifest } from '../core/patch';
-import SessionsManager from '../core/sessions';
+import config from './config';
+import { createProxy, patchDashManifest, getIp, patchHLSManifest } from './core/patch';
+import SessionsManager from './core/sessions';
 
 // Debugger
 const D = debug('UnicornLoadBalancer');
 
 export default (app) => {
+
+    /*
+     * Unicorn endpoint to serve static subtitles and fonts
+     */
+    app.use('/api/sessions', express.static(config.plex.path.sessions));
+
+
+    /*
+    * Unicorn endpoint to get stats about current tasks
+    */
+    app.get('/api/stats', (req, res) => {
+        res.send(ServersManager.list());
+    });
+
+
+    // Catch the FFMPEG arguments
+    // Body: {args: [], env: []}
+    app.post('/api/ffmpeg', async (req, res) => {
+        if (!req.body || !req.body.arg || !req.body.env)
+            return (res.status(400).send({ error: { code: 'INVALID_ARGUMENTS', message: 'Invalid UnicornFFMPEG parameters' } }));
+
+        // Detect if we are in optimizer mode
+        if (req.body.arg.filter(e => (e === '-segment_list' || e === '-manifest_name')).length === 0) {
+            const parsedArgs = await SessionsManager.parseFFmpegParameters(req.body.arg, req.body.env, true);
+            SessionsManager.ffmpegSetCache(parsedArgs.id, false);
+            D('FFMPEG ' + parsedArgs.session + ' [OPTIMIZE]');
+            SessionsManager.saveSession(parsedArgs);
+            SessionsManager.optimizerInit(parsedArgs);
+            return (res.send(parsedArgs));
+        }
+        // Streaming mode
+        else {
+            const parsedArgs = await SessionsManager.parseFFmpegParameters(req.body.arg, req.body.env);
+            SessionsManager.ffmpegSetCache(parsedArgs.id, false);
+            D('FFMPEG ' + parsedArgs.session + ' [STREAMING]');
+            SessionsManager.saveSession(parsedArgs)
+            return (res.send(parsedArgs));
+        }
+    });
+
+    // Get ffmpeg status
+    app.get('/api/ffmpeg/:id', async (req, res) => {
+        if (!req.params.id)
+            return (res.status(400).send({ error: { code: 'INVALID_ARGUMENTS', message: 'Invalid parameters' } }));
+        D('FFMPEG ' + req.params.id + ' [PING]');
+        return (res.send({
+            id: req.params.id,
+            status: SessionsManager.ffmpegGetCache(req.params.id)
+        }));
+    });
+
+    // Resolve path from file id
+    app.get('/api/path/:id', (req, res) => {
+        Database.getPartFromId(req.params.id).then((data) => {
+            res.send(JSON.stringify(data));
+        }).catch((err) => {
+            res.status(400).send({ error: { code: 'FILE_NOT_FOUND', message: 'File not found in Plex Database' } });
+        })
+    });
+
+    // Save the stats of a server
+    app.post('/api/update', (req, res) => {
+        res.send(ServersManager.update(req.body));
+    });
+
+    // Returns session
+    app.get('/api/session/:session', (req, res) => {
+        SessionStore.get(req.params.session).then((data) => {
+            res.send(data);
+        }).catch(() => {
+            res.status(400).send({ error: { code: 'SESSION_TIMEOUT', message: 'The session wasn\'t launched in time, request fails' } });
+        })
+    });
+
+    // Optimizer finish
+    app.patch('/api/optimize/:session', (req, res) => {
+        SessionStore.get(req.params.session).then((data) => {
+            console.log('Session ok', data)
+            SessionsManager.optimizerDownload(data).then((parsedData) => {
+                console.log('File downloaded localy', parsedData)
+                SessionsManager.optimizerDelete(parsedData);
+            });
+            res.send(data);
+        }).catch(() => {
+            res.status(400).send({ error: { code: 'SESSION_TIMEOUT', message: 'Invalid session' } });
+        })
+    });
+
+    // Wiil be remove with new architecture (Proxy to real plex)
+    app.all('/api/plex/*', (req, res) => {
+        const proxy = httpProxy.createProxyServer({
+            target: {
+                host: config.plex.host,
+                port: config.plex.port
+            }
+        }).on('error', (err) => {
+            if (err.code === 'HPE_UNEXPECTED_CONTENT_LENGTH') {
+                return (res.status(200).send());
+            }
+            res.status(400).send({ error: { code: 'PROXY_TIMEOUT', message: 'Plex not respond in time, proxy request fails' } });
+        });
+        req.url = req.url.slice('/api/plex'.length);
+        return (proxy.web(req, res));
+    });
 
     const redirectToTranscoder = async (req, res) => {
         const session = SessionsManager.getSessionFromRequest(req);
@@ -24,23 +127,10 @@ export default (app) => {
         }
     };
 
-
-
-    // Note for future:
-    // We NEED to 302/307 the chunk requests because if Plex catchs it with fake transcoder, it stucks
-
-    // UnicornLoadBalancer API
-    app.use('/api/sessions', express.static(config.plex.path.sessions));
-    app.get('/api/stats', RoutesAPI.stats);
-    app.post('/api/ffmpeg', RoutesAPI.ffmpeg);
-    app.get('/api/ffmpeg/:id', RoutesAPI.ffmpegStatus);
-    app.get('/api/path/:id', RoutesAPI.path);
-    app.post('/api/update', RoutesAPI.update);
-    app.get('/api/session/:session', RoutesAPI.session);
-    app.patch('/api/optimize/:session', RoutesAPI.optimize);
-    app.all('/api/plex/*', RoutesAPI.plex);
-
-    // MPEG Dash support
+    /*
+     * Plex "DASH START" endpoint
+     * This endpoint starts a DASH transcode
+     */
     app.get('/:formatType/:/transcode/universal/start.mpd', createProxy(30000, async (req) => {
         let sessionId = false;
 
@@ -74,10 +164,17 @@ export default (app) => {
         return patchDashManifest(body, server);
     }));
 
+    /*
+     * Plex "DASH SERVE" endpoints
+     * These endpoints serves .mp4 and .m4s files for DASH streams, we have to catch them, because Plex crash if it receive these calls
+     */
     app.get('/:formatType/:/transcode/universal/dash/:sessionId/:streamId/initial.mp4', (req, res) => (res.status(404).send('Not supported here')));
     app.get('/:formatType/:/transcode/universal/dash/:sessionId/:streamId/:partId.m4s', (req, res) => (res.status(404).send('Not supported here')));
 
-    // Long polling support
+    /*
+     * Plex "POLLING START" endpoint
+     * This endpoint starts a polling transcode
+     */
     app.get('/:formatType/:/transcode/universal/start', (req, res) => {
         // Save session
         SessionsManager.cacheSessionFromRequest(req);
@@ -91,9 +188,17 @@ export default (app) => {
         // Redirect
         redirectToTranscoder(req, res);
     });
-    app.get('/:formatType/:/transcode/universal/subtitles', redirectToTranscoder); // Should keep 302...
 
-    // M3U8 support
+    /*
+     * Plex "POLLING SUBTITLES" endpoint
+     * This endpoint get subtitles using long-polling
+     */
+    app.get('/:formatType/:/transcode/universal/subtitles', redirectToTranscoder); // Should keep 302 / Proxy...
+
+    /*
+     * Plex "HLS START" endpoint
+     * This endpoint starts a HLS transcode
+     */
     app.get('/:formatType/:/transcode/universal/start.m3u8', createProxy(30000, async (req) => {
         let sessionId = SessionsManager.getSessionFromRequest(req);
 
@@ -111,7 +216,7 @@ export default (app) => {
         // Select server
         const server = await SessionsManager.chooseServer(sessionId, getIp(req));
 
-        // Todo: Call transcoder using API to ask to start the session
+        // Call transcoder using API to ask to start the session
         fetch(`${server}/unicorn/hls/${sessionId}/start`).catch(() => false);
 
         return { sessionId, server }
@@ -137,12 +242,18 @@ export default (app) => {
         return patchHLSManifest(body, sessionId, server);
     });
 
-    // Todo:  Next step forward header and only move chunks
+    /*
+     * Plex "HLS PLAYLIST" endpoints
+     * These endpoints serves .m3u8 files, we patch them to serve chunks from transcoders
+     */
     app.get('/:formatType/:/transcode/universal/session/:sessionId/base/index.m3u8', patchHLS);
     app.get('/:formatType/:/transcode/universal/session/:sessionId/base-x-mc/index.m3u8', patchHLS);
     app.get('/:formatType/:/transcode/universal/session/:sessionId/vtt-base/index.m3u8', patchHLS);
 
-
+    /*
+     * Plex "HLS SERVE" endpoints
+     * These endpoints serves .ts and .vtt files for HLS streams, we have to catch them, because Plex crash if it receive these calls
+     */
     app.get('/:formatType/:/transcode/universal/session/:sessionId/:fileType/:partId.ts', (req, res) => (res.status(404).send('Not supported here')));
     app.get('/:formatType/:/transcode/universal/session/:sessionId/:fileType/:partId.vtt', (req, res) => (res.status(404).send('Not supported here')));
 
@@ -197,31 +308,22 @@ export default (app) => {
         // Choose or get the server url
         const serverUrl = await SessionsManager.chooseServer(sessionId, getIp(req));
 
-        // It's a stop request
-        if (req.query.state === 'stopped') {
-            // If a server url is defined, we stop the session
-            if (serverUrl) {
+        // If a server url is defined, we ping the transcoder
+        if (serverUrl) {
+            if (req.query.state === 'stopped') {
+                // Stop request
                 D('STOP ' + sessionId + ' [' + serverUrl + ']');
                 fetch(serverUrl + '/api/stop?session=' + sessionId);
             } else {
-                D('STOP ' + sessionId + ' [UNKNOWN]');
-            }
-        }
-        // It's a ping request
-        else {
-            if (serverUrl) {
+                // Ping request
                 D('PING ' + sessionId + ' [' + serverUrl + ']');
                 fetch(serverUrl + '/api/ping?session=' + sessionId);
-            } else {
-                D('PING ' + sessionId + ' [UNKNOWN]');
             }
         }
+        else {
+            D('PING ' + sessionId + ' [UNKNOWN]');
+        }
     }));
-
-    // Download
-    if (config.custom.download.forward) {
-        app.get('/library/parts/:id1/:id2/file.*', redirectToTranscoder);
-    }
 
     /*
      * Plex "DOWNLOAD" endpoint
@@ -232,13 +334,16 @@ export default (app) => {
             D('DOWNLOAD ' + req.params.id1 + ' [LB]');
             Database.getPartFromId(req.params.id1).then((data) => {
                 res.sendFile(data.file, {}, (err) => {
-                    if (err && err.code !== 'ECONNABORTED')
+                    if (err && err.code !== 'ECONNABORTED') {
                         D('DOWNLOAD FAILED ' + req.params.id1 + ' [LB]');
+                    }
                 })
-            }).catch((err) => {
+            }).catch(() => {
                 res.status(400).send({ error: { code: 'NOT_FOUND', message: 'File not available' } });
             })
         });
+    } else {
+        app.get('/library/parts/:id1/:id2/file.*', redirectToTranscoder);
     }
 
     /*

@@ -1,11 +1,6 @@
 import debug from 'debug';
-
-
-
 import httpProxy from 'http-proxy';
-
 import config from '../config';
-
 
 // Debugger
 const D = debug('UnicornLoadBalancer');
@@ -33,10 +28,9 @@ export const patchHLSManifest = (body, sessionId, transcoderUrl = '/') => {
         } else if (patchedBody[i].endsWith('.vtt')) {
             patchedBody[i] = `${targetUrl}unicorn/hls/${sessionId}/${patchedBody[i]}`;
         } else if (patchedBody[i] === '#EXT-X-MAP:URI="header"') {
-            //patchedBody[i] = `#EXT-X-MAP:URI="${targetUrl}unicorn/hls/${sessionId}/header"`;
+            patchedBody[i] = `#EXT-X-MAP:URI="${targetUrl}unicorn/hls/${sessionId}/header"`;
         }
     }
-
     return patchedBody.join('\n');
 }
 
