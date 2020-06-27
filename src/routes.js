@@ -63,7 +63,7 @@ export default (app) => {
     });
 
     // Resolve path from file id
-    app.get('/api/path/:id', (req, res) => {
+    app.get('/unicorn/api/:id/fileinfo', (req, res) => {
         Database.getPartFromId(req.params.id).then((data) => {
             res.send(JSON.stringify(data));
         }).catch((err) => {
@@ -71,13 +71,13 @@ export default (app) => {
         })
     });
 
-    // Save the stats of a server
-    app.post('/api/update', (req, res) => {
+    // Save the stats of a transcoder server
+    app.post('/unicorn/api/transcoder', (req, res) => {
         res.send(ServersManager.update(req.body));
     });
 
     // Returns session
-    app.get('/api/session/:session', (req, res) => {
+    app.get('/unicorn/api/:session/info', (req, res) => {
         SessionStore.get(req.params.session).then((data) => {
             res.send(data);
         }).catch(() => {
