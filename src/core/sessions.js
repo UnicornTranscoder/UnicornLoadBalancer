@@ -92,7 +92,7 @@ SessionsManager.parseFFmpegParameters = async (args = [], env = {}, optimizeMode
         let parsed = e;
         parsed = replaceAll(parsed, plexUrl(), publicUrl())
         parsed = replaceAll(parsed, 'http://127.0.0.1:32400/', publicUrl())
-        parsed = replaceAll(parsed, config.plex.path.sessions, publicUrl() + 'api/sessions/')
+        parsed = replaceAll(parsed, config.plex.path.sessions, publicUrl() + 'unicorn/static/')
         parsed = replaceAll(parsed, config.plex.path.usr, '{INTERNAL_PLEX_SETUP}')
         return parsed;
     });
@@ -183,7 +183,7 @@ SessionsManager.saveSession = (parsed) => {
 // Call media optimizer on transcoders
 SessionsManager.optimizerInit = async (parsed) => {
     const server = await ServersManager.chooseServer(parsed.session, false);
-    const url = `${server}/api/optimize`;
+    const url = `${server}/unicorn/optimize/${parsed.session}/start`;
     D(`OPTIMIZER ${parsed.session} sent to ${url} [START]`);
     fetch(url, {
         headers: {
@@ -201,7 +201,7 @@ SessionsManager.optimizerDelete = async (parsed) => {
     D(`OPTIMIZER ${parsed.session} ${parsed.id} [DELETE]`);
     SessionsManager.ffmpegSetCache(parsed.id, 0);
     const server = await ServersManager.chooseServer(parsed.session, false)
-    fetch(`${server}/api/optimize/${parsed.session}`, {
+    fetch(`${server}/unicorn/optimize/${parsed.session}/stop`, {
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
@@ -218,7 +218,7 @@ SessionsManager.optimizerDownload = (parsed) => (new Promise(async (resolve, rej
     const files = Object.keys(parsed.optimize);
     const server = await SessionsManager.chooseServer(parsed.session);
     for (let i = 0; i < files.length; i++) {
-        D(`OPTIMIZER ${server}/api/optimize/${parsed.session}/${encodeURIComponent(files[i])} [DOWNLOAD]`);
+        D(`OPTIMIZER ${server}/unicorn/optimize/${parsed.session}/download/${encodeURIComponent(files[i])} [DOWNLOAD]`);
         try {
             await mkdirp(dirname(parsed.optimize[files[i]]));
         }
@@ -226,10 +226,10 @@ SessionsManager.optimizerDownload = (parsed) => (new Promise(async (resolve, rej
             D(`OPTIMIZER Failed to create directory`);
         }
         try {
-            await download(`${server}/api/optimize/${parsed.session}/${encodeURIComponent(files[i])}`, parsed.optimize[files[i]])
+            await download(`${server}/unicorn/optimize/${parsed.session}/download/${encodeURIComponent(files[i])}`, parsed.optimize[files[i]])
         }
         catch (err) {
-            D(`OPTIMIZER ${server}/api/optimize/${parsed.session}/${encodeURIComponent(files[i])} [FAILED]`);
+            D(`OPTIMIZER ${server}/unicorn/optimize/${parsed.session}/download/${encodeURIComponent(files[i])} [FAILED]`);
         }
     }
     resolve(parsed);

@@ -5,6 +5,7 @@ import fetch from 'node-fetch';
 import config from './config';
 import { createProxy, patchDashManifest, getIp, patchHLSManifest } from './core/patch';
 import SessionsManager from './core/sessions';
+import Database from './database';
 
 // Debugger
 const D = debug('UnicornLoadBalancer');
@@ -14,13 +15,13 @@ export default (app) => {
     /*
      * Unicorn endpoint to serve static subtitles and fonts
      */
-    app.use('/api/sessions', express.static(config.plex.path.sessions));
+    app.use('/unicorn/static', express.static(config.plex.path.sessions));
 
 
     /*
     * Unicorn endpoint to get stats about current tasks
     */
-    app.get('/api/stats', (req, res) => {
+    app.get('/unicorn/stats', (req, res) => {
         res.send(ServersManager.list());
     });
 
@@ -85,34 +86,17 @@ export default (app) => {
     });
 
     // Optimizer finish
-    app.patch('/api/optimize/:session', (req, res) => {
-        SessionStore.get(req.params.session).then((data) => {
-            console.log('Session ok', data)
+    app.patch('/unicorn/optimize/:sessionId/finished', (req, res) => {
+        SessionStore.get(req.params.sessionId).then((data) => {
+            D('Session ok' + JSON.stringify(data));
             SessionsManager.optimizerDownload(data).then((parsedData) => {
-                console.log('File downloaded localy', parsedData)
+                D('File downloaded localy ' + JSON.stringify(parsedData))
                 SessionsManager.optimizerDelete(parsedData);
             });
             res.send(data);
         }).catch(() => {
             res.status(400).send({ error: { code: 'SESSION_TIMEOUT', message: 'Invalid session' } });
         })
-    });
-
-    // Wiil be remove with new architecture (Proxy to real plex)
-    app.all('/api/plex/*', (req, res) => {
-        const proxy = httpProxy.createProxyServer({
-            target: {
-                host: config.plex.host,
-                port: config.plex.port
-            }
-        }).on('error', (err) => {
-            if (err.code === 'HPE_UNEXPECTED_CONTENT_LENGTH') {
-                return (res.status(200).send());
-            }
-            res.status(400).send({ error: { code: 'PROXY_TIMEOUT', message: 'Plex not respond in time, proxy request fails' } });
-        });
-        req.url = req.url.slice('/api/plex'.length);
-        return (proxy.web(req, res));
     });
 
     const redirectToTranscoder = async (req, res) => {
@@ -271,7 +255,7 @@ export default (app) => {
         // If a server url is defined, we stop the session
         if (serverUrl) {
             D('STOP ' + sessionId + ' [' + serverUrl + ']');
-            fetch(serverUrl + '/api/stop?session=' + sessionId);
+            fetch(serverUrl + '/unicorn/api/' + sessionId + '/stop');
         } else {
             D('STOP ' + sessionId + ' [UNKNOWN]');
         }
@@ -291,7 +275,7 @@ export default (app) => {
         // If a server url is defined, we ping the session
         if (serverUrl) {
             D('PING ' + sessionId + ' [' + serverUrl + ']');
-            fetch(serverUrl + '/api/ping?session=' + sessionId);
+            fetch(serverUrl + '/unicorn/api/' + sessionId + '/ping');
         } else {
             D('PING ' + sessionId + ' [UNKNOWN]');
         }
@@ -313,11 +297,11 @@ export default (app) => {
             if (req.query.state === 'stopped') {
                 // Stop request
                 D('STOP ' + sessionId + ' [' + serverUrl + ']');
-                fetch(serverUrl + '/api/stop?session=' + sessionId);
+                fetch(serverUrl + '/unicorn/api/' + sessionId + '/stop');
             } else {
                 // Ping request
                 D('PING ' + sessionId + ' [' + serverUrl + ']');
-                fetch(serverUrl + '/api/ping?session=' + sessionId);
+                fetch(serverUrl + '/unicorn/api/' + sessionId + '/ping');
             }
         }
         else {
@@ -343,7 +327,18 @@ export default (app) => {
             })
         });
     } else {
-        app.get('/library/parts/:id1/:id2/file.*', redirectToTranscoder);
+        app.get('/library/parts/:id1/:id2/file.*', async (req, res) => {
+            const session = SessionsManager.getSessionFromRequest(req);
+            const server = await SessionsManager.chooseServer(session, getIp(req));
+            if (server) {
+                const url = `${server}/unicorn/download/${req.params.id1}/file.${req.params[0]}`;
+                res.redirect(307, url);
+                D('REDIRECT ' + session + ' [' + server + ']');
+            } else {
+                res.status(500).send({ error: { code: 'SERVER_UNAVAILABLE', message: 'SERVER_UNAVAILABLE' } });
+                D('REDIRECT ' + session + ' [UNKNOWN]');
+            }
+        });
     }
 
     /*

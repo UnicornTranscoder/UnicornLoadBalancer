@@ -58,7 +58,7 @@ ServersManager.chooseServer = (session, ip = false) => {
 		if (typeof (tab[0]) === 'undefined')
 			return resolve(false);
 		const origin = encodeURIComponent(publicUrl())
-		fetch(`${tab[0].url}/api/resolve?session=${session}&ip=${ip}&origin=${origin}`)
+		fetch(`${tab[0].url}/unicorn/api/${session}/resolve?ip=${ip}&origin=${origin}`)
 			.then(res => res.json())
 			.then(body => {
 				return resolve(body.client)
