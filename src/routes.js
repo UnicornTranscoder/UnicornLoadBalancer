@@ -5,6 +5,7 @@ import fetch from 'node-fetch';
 import config from './config';
 import { createProxy, patchDashManifest, getIp, patchHLSManifest } from './core/patch';
 import SessionsManager from './core/sessions';
+import ServersManager from './core/servers';
 import Database from './database';
 
 // Debugger
