@@ -139,7 +139,7 @@ export default (app) => {
         // Select server
         const server = await SessionsManager.chooseServer(sessionId, getIp(req));
 
-        // Todo: Call transcoder using API to ask to start the session
+        // Call transcoder using API to ask to start the session
         fetch(`${server}/unicorn/dash/${sessionId}/start`).catch(() => false);
 
         return { sessionId, server }
@@ -159,25 +159,56 @@ export default (app) => {
      * Plex "POLLING START" endpoint
      * This endpoint starts a polling transcode
      */
-    app.get('/:formatType/:/transcode/universal/start', (req, res) => {
+    app.get('/:formatType/:/transcode/universal/start', createProxy(10000, async (req) => {
         // Save session
         SessionsManager.cacheSessionFromRequest(req);
+
+        // Log
+        D('START ' + SessionsManager.getSessionFromRequest(req) + ' [POLLING]');
 
         // Get sessionId
         const sessionId = SessionsManager.getSessionFromRequest(req);
 
-        // Log
-        D('START ' + sessionId + ' [LP]');
+        // If session id available
+        if (sessionId) {
+            SessionsManager.cleanSession(sessionId);
+        }
 
-        // Redirect
-        redirectToTranscoder(req, res);
-    });
+        // Select server
+        const server = await SessionsManager.chooseServer(sessionId, getIp(req));
+
+        // Get stream offset
+        let offset = null;
+        if (!Number.isNaN(parseInt(req.query.offset)))
+            offset = parseInt(req.query.offset);
+
+        return { sessionId, server, offset };
+    }, null, async (req, res, { sessionId, server, offset }) => {
+        // Return 307
+        const url = `${server}/unicorn/polling/${sessionId}/start${offset !== null ? `?offset=${offset}` : ''}`
+        res.redirect(307, url);
+    })); // Should keep redirect, long-polling stream
 
     /*
      * Plex "POLLING SUBTITLES" endpoint
      * This endpoint get subtitles using long-polling
      */
-    app.get('/:formatType/:/transcode/universal/subtitles', redirectToTranscoder); // Should keep 302 / Proxy...
+    app.get('/:formatType/:/transcode/universal/subtitles', async (req, res) => {
+        // Get sessionId
+        const sessionId = SessionsManager.getSessionFromRequest(req);
+
+        // Select server
+        const server = await SessionsManager.chooseServer(session, getIp(req));
+
+        // Get stream offset
+        let offset = null;
+        if (!Number.isNaN(parseInt(req.query.offset)))
+            offset = parseInt(req.query.offset);
+
+        // Return 307
+        const url = `${server}/unicorn/polling/${sessionId}/subtitles${offset !== null ? `?offset=${offset}` : ''}`
+        res.redirect(307, url);
+    }); // TODO: Proxy this request
 
     /*
      * Plex "HLS START" endpoint

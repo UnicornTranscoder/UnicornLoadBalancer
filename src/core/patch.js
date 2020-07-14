@@ -51,7 +51,7 @@ export const createWebsocketProxy = () => async (req, res) => {
     return (proxy.ws(req, res));
 }
 
-export const createProxy = (timeout = 30000, initialParser = null, bodyCustomParser = null) => async (req, res) => {
+export const createProxy = (timeout = 30000, initialParser = null, bodyCustomParser = null, customResponse = null) => async (req, res) => {
     const initialData = initialParser ? await initialParser(req) : {};
 
     const proxy = httpProxy.createProxyServer();
@@ -80,6 +80,10 @@ export const createProxy = (timeout = 30000, initialParser = null, bodyCustomPar
                 const patchedBody = await bodyCustomParser(req, body, initialData);
                 res.end(patchedBody);
             });
+        });
+    } else if (customResponse) {
+        proxy.on('proxyRes', (proxyRes, req, res) => {
+            customResponse(req, res, initialData);
         });
     }
 
