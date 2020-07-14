@@ -200,7 +200,7 @@ export default (app) => {
         const sessionId = SessionsManager.getSessionFromRequest(req);
 
         // Select server
-        const server = await SessionsManager.chooseServer(session, getIp(req));
+        const server = await SessionsManager.chooseServer(sessionId, getIp(req));
 
         // Get stream offset
         let offset = null;
