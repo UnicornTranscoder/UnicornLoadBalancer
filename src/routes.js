@@ -124,7 +124,7 @@ export default (app) => {
         /*if (req.query['X-Plex-Session-Identifier'] && SessionsManager.getCacheSession(req.query['X-Plex-Session-Identifier'])) {
             sessionId = SessionsManager.getCacheSession(req.query['X-Plex-Session-Identifier']);
         } else {*/
-            sessionId = SessionsManager.getSessionFromRequest(req);
+        sessionId = SessionsManager.getSessionFromRequest(req);
         //}
 
         // Log
@@ -142,11 +142,7 @@ export default (app) => {
         const server = await SessionsManager.chooseServer(sessionId, getIp(req));
 
         // Call transcoder using API to ask to start the session
-        fetch(`${server}/unicorn/dash/${sessionId}/start`).then(d => {
-            D('START TRANSCODER CALLBACK ' + JSON.stringify(d)) 
-        }).catch((err) => {
-            D('ERROR START TRANSCODER ' + JSON.stringify(err)) 
-        });
+        fetch(`${server}/unicorn/dash/${sessionId}/start`).catch(() => { });
 
         return { sessionId, server }
     }, async (_, body, { server }) => {
@@ -165,14 +161,12 @@ export default (app) => {
      * Plex "POLLING START" endpoint
      * This endpoint starts a polling transcode
      */
-    app.get('/:formatType/:/transcode/universal/start', createProxy(30000, async (req) => {
+    app.get('/:formatType/:/transcode/universal/start', createProxy(10000, async (req) => {
         // Save session
         SessionsManager.cacheSessionFromRequest(req);
 
         // Log
         D('START ' + SessionsManager.getSessionFromRequest(req) + ' [POLLING]');
-
-        D('POLLING REQ.URL ' + req.url);
 
         // Get sessionId
         const sessionId = SessionsManager.getSessionFromRequest(req);
@@ -194,7 +188,7 @@ export default (app) => {
     }, null, async (req, res, { sessionId, server, offset }) => {
         // Return 307
         const url = `${server}/unicorn/polling/${sessionId}/start${offset !== null ? `?offset=${offset}` : ''}`
-        D('POLLING 307 ' + url);
+        D('REDIRECT ' + url + ' [POLLING]');
         res.redirect(307, url);
     })); // Should keep redirect, long-polling stream
 
@@ -217,7 +211,7 @@ export default (app) => {
         // Return 307
         const url = `${server}/unicorn/polling/${sessionId}/subtitles${offset !== null ? `?offset=${offset}` : ''}`
         res.redirect(307, url);
-    }); // TODO: Proxy this request
+    }); // TODO: Can be improved, proxy this request
 
     /*
      * Plex "HLS START" endpoint
