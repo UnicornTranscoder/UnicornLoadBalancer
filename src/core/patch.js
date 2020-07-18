@@ -76,8 +76,8 @@ export const createProxy = (timeout = 30000, initialParser = null, bodyCustomPar
             });
             proxyRes.on('end', async () => {
                 body = Buffer.concat(body).toString();
-                D(body)
                 const patchedBody = await bodyCustomParser(req, body, initialData);
+                D(patchedBody)
                 res.end(patchedBody);
             });
         });
