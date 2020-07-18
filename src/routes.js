@@ -142,7 +142,11 @@ export default (app) => {
         const server = await SessionsManager.chooseServer(sessionId, getIp(req));
 
         // Call transcoder using API to ask to start the session
-        fetch(`${server}/unicorn/dash/${sessionId}/start`).catch(() => false);
+        fetch(`${server}/unicorn/dash/${sessionId}/start`).then(r => r.json()).then(d => {
+            D('START TRANSCODER CALLBACK ' + JSON.stringify(d)) 
+        }).catch((err) => {
+            D('ERROR START TRANSCODER ' + JSON.stringify(err)) 
+        });
 
         return { sessionId, server }
     }, async (_, body, { server }) => {
