@@ -121,11 +121,11 @@ export default (app) => {
         let sessionId = false;
 
         // If we have a cached X-Plex-Session-Identifier, we use it
-        if (req.query['X-Plex-Session-Identifier'] && SessionsManager.getCacheSession(req.query['X-Plex-Session-Identifier'])) {
+        /*if (req.query['X-Plex-Session-Identifier'] && SessionsManager.getCacheSession(req.query['X-Plex-Session-Identifier'])) {
             sessionId = SessionsManager.getCacheSession(req.query['X-Plex-Session-Identifier']);
-        } else {
+        } else {*/
             sessionId = SessionsManager.getSessionFromRequest(req);
-        }
+        //}
 
         // Log
         D('START ' + SessionsManager.getSessionFromRequest(req) + ' [DASH]');
