@@ -165,7 +165,7 @@ export default (app) => {
      * Plex "POLLING START" endpoint
      * This endpoint starts a polling transcode
      */
-    app.get('/:formatType/:/transcode/universal/start', createProxy(10000, async (req) => {
+    app.get('/:formatType/:/transcode/universal/start', createProxy(30000, async (req) => {
         // Save session
         SessionsManager.cacheSessionFromRequest(req);
 
@@ -194,6 +194,7 @@ export default (app) => {
     }, null, async (req, res, { sessionId, server, offset }) => {
         // Return 307
         const url = `${server}/unicorn/polling/${sessionId}/start${offset !== null ? `?offset=${offset}` : ''}`
+        D('POLLING 307 ' + url);
         res.redirect(307, url);
     })); // Should keep redirect, long-polling stream
 

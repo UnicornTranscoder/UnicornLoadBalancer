@@ -82,9 +82,10 @@ export const createProxy = (timeout = 30000, initialParser = null, bodyCustomPar
             });
         });
     } else if (customResponse) {
-        proxy.on('proxyRes', (proxyRes, req, res) => {
+        proxy.on('proxyReq', (proxyRes, req, res) => {
             customResponse(req, res, initialData);
         });
+        proxy.on('proxyRes', (proxyRes, req, res) => { });
     }
 
     // Proxy the request
