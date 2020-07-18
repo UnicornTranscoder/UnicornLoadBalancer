@@ -142,7 +142,7 @@ export default (app) => {
         const server = await SessionsManager.chooseServer(sessionId, getIp(req));
 
         // Call transcoder using API to ask to start the session
-        fetch(`${server}/unicorn/dash/${sessionId}/start`).then(r => r.json()).then(d => {
+        fetch(`${server}/unicorn/dash/${sessionId}/start`).then(d => {
             D('START TRANSCODER CALLBACK ' + JSON.stringify(d)) 
         }).catch((err) => {
             D('ERROR START TRANSCODER ' + JSON.stringify(err)) 
@@ -171,6 +171,8 @@ export default (app) => {
 
         // Log
         D('START ' + SessionsManager.getSessionFromRequest(req) + ' [POLLING]');
+
+        D('POLLING REQ.URL ' + req.url);
 
         // Get sessionId
         const sessionId = SessionsManager.getSessionFromRequest(req);
