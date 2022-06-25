@@ -20,7 +20,7 @@
     "http-proxy": "^1.18.0",
     "md5": "^2.2.1",
     "mkdirp": "^1.0.3",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.7",
     "node-pre-gyp": "^0.13.0",
     "pg": "^7.12.1",
     "query-string": "^6.8.3",
