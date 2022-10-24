@@ -8,7 +8,9 @@ RoutesProxy.plex = (req, res) => {
         target: {
             host: config.plex.host,
             port: config.plex.port
-        }
+        },
+        proxyTimeout: 60000,
+        timeout: 60000,
     }).on('error', (err) => {
         // On some Plex request from FFmpeg, Plex don't create a valid request
         if (err.code === 'HPE_UNEXPECTED_CONTENT_LENGTH')
